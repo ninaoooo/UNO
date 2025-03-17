@@ -1,0 +1,14 @@
+ManifestFileVersion: 0
+CRC: 1535812295
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: ui
+      Dependencies:
+        Dependency_0: unocardimage
+    Info_1:
+      Name: modes
+      Dependencies: {}
+    Info_2:
+      Name: unocardimage
+      Dependencies: {}

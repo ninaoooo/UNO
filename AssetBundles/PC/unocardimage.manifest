@@ -1,0 +1,74 @@
+ManifestFileVersion: 0
+CRC: 3235254328
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ccb4e3ee838acc66c9eff8ac3c40fc19
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 923768aebf385ad86f7762daa8034951
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: ccb4e3ee838acc66c9eff8ac3c40fc19
+HashAppended: 0
+ClassTypes:
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 687078895
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ABRes/ImgUnoCard/Green_Skip.png
+- Assets/ABRes/ImgUnoCard/Red_5.png
+- Assets/ABRes/ImgUnoCard/Blue_9.png
+- Assets/ABRes/ImgUnoCard/Blue_6.png
+- Assets/ABRes/ImgUnoCard/Green_0.png
+- Assets/ABRes/ImgUnoCard/Red_3.png
+- Assets/ABRes/ImgUnoCard/Yellow_9.png
+- Assets/ABRes/ImgUnoCard/Green_4.png
+- Assets/ABRes/ImgUnoCard/Yellow_3.png
+- Assets/ABRes/ImgUnoCard/Red_9.png
+- Assets/ABRes/ImgUnoCard/Red_Skip.png
+- Assets/ABRes/ImgUnoCard/Red_2.png
+- Assets/ABRes/ImgUnoCard/Green_8.png
+- Assets/ABRes/ImgUnoCard/Red_1.png
+- Assets/ABRes/ImgUnoCard/Blue_4.png
+- Assets/ABRes/ImgUnoCard/Green_1.png
+- Assets/ABRes/ImgUnoCard/Yellow_2.png
+- Assets/ABRes/ImgUnoCard/Red_7.png
+- Assets/ABRes/ImgUnoCard/Green_2.png
+- Assets/ABRes/ImgUnoCard/Green_3.png
+- Assets/ABRes/ImgUnoCard/Yellow_4.png
+- Assets/ABRes/ImgUnoCard/Yellow_8.png
+- Assets/ABRes/ImgUnoCard/Green_5.png
+- Assets/ABRes/ImgUnoCard/Yellow_5.png
+- Assets/ABRes/ImgUnoCard/Yellow_0.png
+- Assets/ABRes/ImgUnoCard/Blue_0.png
+- Assets/ABRes/ImgUnoCard/Red_Draw_2.png
+- Assets/ABRes/ImgUnoCard/Blue_Reverse.png
+- Assets/ABRes/ImgUnoCard/Yellow_7.png
+- Assets/ABRes/ImgUnoCard/Red_6.png
+- Assets/ABRes/ImgUnoCard/Green_6.png
+- Assets/ABRes/ImgUnoCard/Red_0.png
+- Assets/ABRes/ImgUnoCard/Red_8.png
+- Assets/ABRes/ImgUnoCard/Blue_2.png
+- Assets/ABRes/ImgUnoCard/Green_7.png
+- Assets/ABRes/ImgUnoCard/Blue_1.png
+- Assets/ABRes/ImgUnoCard/Red_4.png
+- Assets/ABRes/ImgUnoCard/Yellow_6.png
+- Assets/ABRes/ImgUnoCard/Yellow_Skip.png
+- Assets/ABRes/ImgUnoCard/Blue_3.png
+- Assets/ABRes/ImgUnoCard/Wild_Card_Empty.png
+- Assets/ABRes/ImgUnoCard/Yellow_1.png
+- Assets/ABRes/ImgUnoCard/Red_Reverse.png
+- Assets/ABRes/ImgUnoCard/Green_9.png
+- Assets/ABRes/ImgUnoCard/Yellow_Draw_2.png
+- Assets/ABRes/ImgUnoCard/Blue_7.png
+- Assets/ABRes/ImgUnoCard/Green_Reverse.png
+- Assets/ABRes/ImgUnoCard/Blue_8.png
+- Assets/ABRes/ImgUnoCard/Green_Draw_2.png
+- Assets/ABRes/ImgUnoCard/Blue_Draw_2.png
+- Assets/ABRes/ImgUnoCard/Yellow_Reverse.png
+- Assets/ABRes/ImgUnoCard/Blue_5.png
+- Assets/ABRes/ImgUnoCard/Blue_Skip.png
+Dependencies: []

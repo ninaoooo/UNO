@@ -1,0 +1,8 @@
+require("UI/StartPanel")
+require("UI/LoginPanel")
+require("UI/RegisterPanel")
+require("UI/MainPanel")
+require("UI/PreMatch1V1Panel")
+require("UI/GameMatch1V1Panel")
+require("UI/TipsPanel")
+require("UI/PlayEndPanel")
