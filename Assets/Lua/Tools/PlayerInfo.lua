@@ -26,4 +26,8 @@ function PlayerInfo:ClearUser()
     self.playerName = ""
 end
 
+function PlayerInfo:IsSelf(playerId)
+    return self.playerId == playerId
+end
+
 return PlayerInfo
