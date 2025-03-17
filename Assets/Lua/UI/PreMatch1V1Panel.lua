@@ -1,3 +1,4 @@
+local PlayerInfo = require("Tools/PlayerInfo")
 PreMatch1V1Panel = {}
 PreMatch1V1Panel.panelObj = nil
 PreMatch1V1Panel.TextSelfPlayerName = nil
@@ -6,6 +7,8 @@ PreMatch1V1Panel.TextOpponentPlayerName = nil
 PreMatch1V1Panel.BtnOpponentAvatar = nil
 PreMatch1V1Panel.BtnStartMatch = nil
 PreMatch1V1Panel.TextBtnStartMatch = nil
+
+
 function PreMatch1V1Panel:Init()
     if self.panelObj == nil then
         self.panelObj = ABMgr:LoadRes("UI", "PreMatch1V1Panel")
@@ -23,7 +26,7 @@ function PreMatch1V1Panel:Init()
         self.BtnStartMatch.onClick:AddListener(function() self:OnBtnStartMatchClick() end)
 
 
-        self.TextSelfPlayerName.text = PlayerInfo.playerName
+        self.TextSelfPlayerName.text = PlayerInfo:GetPlayerName()
         self.TextOpponentPlayerName.text = "等待匹配"
         MonoBehaviourMgr:Register(self)
     end
