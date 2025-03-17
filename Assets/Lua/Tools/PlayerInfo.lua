@@ -4,6 +4,10 @@ local PlayerInfo = {
 }
 
 -- Set 方法
+function PlayerInfo:SetPlayerId(playerId)
+    self.playerId = playerId
+end
+
 function PlayerInfo:SetPlayerName(playerName)
     self.playerName = playerName
 end
