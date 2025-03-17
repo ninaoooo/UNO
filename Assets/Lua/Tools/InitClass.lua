@@ -1,5 +1,4 @@
 -- 常用别名都在这里定位
-require("Tools/PlayerInfo")
 require("Tools/Object")
 require("Tools/SplitTools")
 require("Tools/UnoCardImageReflect")
