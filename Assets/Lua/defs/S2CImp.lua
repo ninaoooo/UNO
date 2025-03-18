@@ -1,5 +1,7 @@
 S2CDefine = require "defs/S2CRpc"
 msgpack = require "msgpack"
+local PlayerInfo = require("Tools/PlayerInfo")
+local UnoGameLogic = require("UI/UILogic/UnoUILogic")
 -- require "common.Utils"
 
 S2C = {}
@@ -30,8 +32,8 @@ end
 
 function S2C.LoginUserResult(a, playerId, playername)
     if a then
-        PlayerInfo.playerId = playerId
-        PlayerInfo.playerName = playername
+        PlayerInfo:SetPlayerId(playerId)
+        PlayerInfo:SetPlayerName(playername)
         print("Hello " .. playername)
         StartPanel:DestroyPanel()
         MainPanel:ShowMe()
@@ -57,14 +59,13 @@ end
 function S2C.SyncUnoCardPlay(playerId, cardType, cardColor)
     print("SyncUnoCardPlay playerId: ", playerId, "cardType: ", cardType, "cardColor: ", cardColor)
 
-    if playerId == PlayerInfo.playerId then
+    if PlayerInfo:IsSelf(playerId) then
         GameMatch1V1Panel:OnSelfUnoCardPlay(playerId,cardType, cardColor)
     elseif playerId ~= 0 then
         GameMatch1V1Panel:OnOtherUnoCardPlay(playerId)
     end
     -- 无论是谁 要出的牌都加入到弃牌区
     GameMatch1V1Panel:AddCardToDiscardPile(cardType, cardColor)
-
 end
 
 function S2C.ShowUnoWaitConfirmCard(playerId, cardIdx, cardType, cardColor)
