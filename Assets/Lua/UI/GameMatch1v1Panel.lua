@@ -109,7 +109,6 @@ end
 -- 玩家抽牌
 function GameMatch1V1Panel:OnUnoCardDraw(playerId, cardType, cardColor, confirmshow)
     local HandContainer = self.Player2Info[playerId].HandContainer
-    local cardPrefab = nil
 
     --1.如果是 confirmshow = true 的牌 要在屏幕上展示，并让玩家确认是否需要出掉这张牌
     if confirmshow then
@@ -129,9 +128,8 @@ function GameMatch1V1Panel:OnUnoCardDraw(playerId, cardType, cardColor, confirms
             self:OnBtnCancelClick(playerId, cardType,cardColor,false)
         end)
     else
-        -- 先更新玩家的手牌数据
-        local cardId = self.gameInstance:GetCardId(cardType,cardColor)
-        self.gameInstance:AddCardToPlayer(playerId, cardId,cardType, cardColor)
+        -- 先更新玩家的手牌数据，返回新插入的牌的cardId
+        local cardId = self.gameInstance:HandleDrawCard(playerId,cardType,cardColor)
 
         -- 如果玩家自己得到牌，则排序手牌数据
         if self.gameInstance:IsSelf(playerId) then
@@ -139,11 +137,8 @@ function GameMatch1V1Panel:OnUnoCardDraw(playerId, cardType, cardColor, confirms
         end
 
         -- 根据玩家 ID 决定卡牌生成的位置
-        if self.gameInstance:IsSelf(playerId) then
-            cardPrefab = HandContainer:Find("BtnCard").gameObject
-        else
-            cardPrefab = HandContainer:Find("BtnCardOthers").gameObject        
-        end
+        local cardPrefab = self.gameInstance:IsSelf(playerId) and HandContainer:Find("BtnCard").gameObject or 
+        HandContainer:Find("BtnCardOthers").gameObject
 
         -- 生成卡牌
         local card = GameObject.Instantiate(cardPrefab, HandContainer)
@@ -173,20 +168,19 @@ end
 
 -- 玩家自己出牌
 function GameMatch1V1Panel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
-    local cardIndex = self.gameInstance:FindCardIndex(playerId, cardType, cardColor)
-    local cardData = self.gameInstance.m_PlayerCardList[playerId][cardIndex]
-    local card = cardData.cardTransform.gameObject
-    -- 1.删除掉要出的这张牌
-    self.gameInstance:RemoveCardFromPlayer(playerId, cardIndex)
+    -- 1.出牌
+    local success,cardTransform = self.gameInstance:HandlePlayCard(playerId, cardType, cardColor)
+    if success then
+        local card = cardTransform.gameObject
     -- 2.删除这张手牌的UI
-    if card.BtnCard ~=nil then
-        card.BtnCard.onClick:RemoveAllListeners()
-    end
-    GameObject.Destroy(card)
+        if card.BtnCard ~= nil then
+            card.BtnCard.onClick:RemoveAllListeners()
+        end
+        GameObject.Destroy(card)
     -- 3.更新手牌布局
-    local HandContainer = self.Player2Info[playerId].HandContainer
-    DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
-
+        local HandContainer = self.Player2Info[playerId].HandContainer
+        DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
+    end
 end
 
 
@@ -199,9 +193,6 @@ end
 
 function GameMatch1V1Panel:TimerMgr(playerId,totalRestTime,curOpRestTime)
     -- 先把所有的玩家轮次计时器全部隐藏
-    if #self.gameInstance.m_Players == 0 then
-        print("m_Players为空")
-    end
     for _, id in ipairs(self.gameInstance.m_Players) do
         self.Player2Info[id].TextTurnTimer.gameObject:SetActive(false)
         self.Player2Info[id].TextPlayingCard.gameObject:SetActive(false)
@@ -222,20 +213,17 @@ function GameMatch1V1Panel:TimerMgr(playerId,totalRestTime,curOpRestTime)
 end
 
 function GameMatch1V1Panel:AddCardToDiscardPile(cardType, cardColor)
-    -- 将牌添加到弃牌堆
-    self.gameInstance:AddCardToDiscardPile(cardType, cardColor)
-    
+    self.gameInstance:AddCardToDiscard(cardType, cardColor)
     -- 创建弃牌堆的UI对象
     local discardCard = GameObject.Instantiate(self.GDiscardPile:Find("BtnCardOthers").gameObject, self.GDiscardPile)
     discardCard:SetActive(true)
     
     -- 设置弃牌堆的卡面
     local cardString = self.gameInstance:GetCardString(cardType,cardColor)
-    print("cardString",cardString)
     local cardImage = discardCard:GetComponent(typeof(Image))
     cardImage.sprite = self.UnoCardSpriteAltas:GetSprite(cardString)
     
-    -- 更新弃牌堆的UI布局
+    -- 卡牌到弃牌堆的动效
     DynamicEffects:AddCardToDiscardPile(discardCard.transform)
 end
 
@@ -251,15 +239,6 @@ function GameMatch1V1Panel:ClearAllButCurrentSelection(playerCardList,cardId)
     end
 end
 
--- 找到现在被点击的牌
-function GameMatch1V1Panel:FindNowClickedCard(playerCardList, cardId)
-    for _, cardData in ipairs(playerCardList) do
-        if cardData.cardId == cardId then
-            return cardData
-        end
-    end
-    return nil
-end
 
 -- 玩家按照规则尝试出牌
 function GameMatch1V1Panel:TryPlayCard(cardData)
@@ -313,9 +292,10 @@ end
 -- 玩家抽到的牌 决定出牌
 function GameMatch1V1Panel:OnBtnPlayDrawCardClick(playerId, cardType,cardColor)
     self.GConfirmShow.gameObject:SetActive(false)
-    -- 1.如果要出的牌是万能牌或万能+4牌
-    if self.gameInstance:IsWildCard(cardType) then
-        -- 显示颜色选择面板，并等待玩家选择颜色
+    local result = self.gameInstance:HandlePlayDrawnCard(playerId, cardType,cardColor)
+
+
+    if result == self.gameInstance.messages.NEED_COLOR then
         self:PlayWildCard(function(selectedColor)
             -- 玩家选择颜色后，发送确认出牌消息
             self.gameInstance.NotifyServerToPlayDrawnCard(selectedColor)
@@ -334,7 +314,7 @@ end
 -- 玩家抽到的牌 决定保留
 function GameMatch1V1Panel:OnBtnCancelClick(playerId, cardType,cardColor,confirmshow)
     
-    self.gameInstance.NotifyServerToKeepDrawnCard(cardColor)
+    self.gameInstance.HandleKeepDrawnCard(cardColor)
     self:OnUnoCardDraw(playerId, cardType,cardColor,confirmshow)
     self.GConfirmShow.gameObject:SetActive(false)
 end
@@ -384,9 +364,8 @@ end
 
 function GameMatch1V1Panel:OnBtnUnoClick()
     MsgPrompt:SetPromptPrefab(self.promptPrefab)
-    if self.gameInstance:IsShoutUnoTime() then
-        self.gameInstance.NotifyServerToShoutUno()
-    else
+    local success = self.gameInstance:HandleShoutUno(self.gameInstance.m_MyPlayerId)
+    if not success then
         MsgPrompt:ShowPrompt("现在不用喊uno", self.panelObj.transform)
     end
 end
