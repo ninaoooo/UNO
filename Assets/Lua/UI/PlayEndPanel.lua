@@ -1,48 +1,57 @@
 PlayEndPanel = {}
 
-function PlayEndPanel:Init(winPlayerId,playerCardList)
+function PlayEndPanel:Init(winPlayerId,playerId2Score)
     if  self.panelObj == nil then
         self.panelObj = ABMgr:LoadRes("UI", "PlayEndPanel")
+        print("self.panelObj",self.panelObj)
         self.panelObj.transform:SetParent(Canvas,false)
         
         self.ImgLabel = self.panelObj.transform:Find("ImgLabel"):GetComponent(typeof(Image))
-        self.TextLabel = self.ImgLabel:Find("TextLabel"):GetComponent(typeof(TextMeshPro))
-        self.GScoreList = self.panelObj.transform:Find("GScoreList")
+        self.TextLabel = self.panelObj.transform:Find("ImgLabel/TextLabel"):GetComponent(typeof(TextMeshPro))
+        self.GScoreList = self.panelObj.transform:Find("GScoreList"):GetComponent(typeof(Transform))
         
-        self.PlayerScoreInfoPrefab = ABMgr:LoadRes("modes", "ImgPlayerScoreInfo")
+        -- self.PlayerScoreInfoPrefab = ABMgr:LoadRes("modes", "ImgPlayerScoreInfo")
         
         self.BtnContinueMatch = self.panelObj.transform:Find("GBtnList/BtnContinueMatch"):GetComponent(typeof(Button))
         self.BtnHome = self.panelObj.transform:Find("GBtnList/BtnHome"):GetComponent(typeof(Button))
 
-        --- 为继续游戏按钮添加点击事件监听器,点击时调用 OnBtnContinueMatchClick 方法
-        -- @private
         self.BtnContinueMatch.onClick:AddListener(function() self:OnBtnContinueMatchClick() end)
         self.BtnHome.onClick:AddListener(function() self:OnBtnHomeClick() end)
         MonoBehaviourMgr:Register(self)
 
-        self:InitData(GameMatch1V1Panel.m_Players,playerCardList)
-        self:InitComponent(GameMatch1V1Panel.m_Players)
+        self:InitData(playerId2Score)
+        self:InitComponent()
+        
     end
 end
 
-function PlayEndPanel:InitData(playerIds,playerCardList)
+function PlayEndPanel:InitData(playerId2Score)
+    self.scoreArray = {}
+    for playerId, score in pairs(playerId2Score) do
+        table.insert(self.scoreArray, {playerId, score})
+    end
+    table.sort(self.scoreArray, function(a, b) return a[2] > b[2] end)
 
 end
 
-function PlayEndPanel:InitComponent(playerCardList)
-    for i, playerId in ipairs(playerCardList) do
-        local playerScoreInfo = GameObject.Instantiate(self.PlayerScoreInfoPrefab,self.GScoreList)
+function PlayEndPanel:InitComponent()
+    local scoreItemPrefeb = self.GScoreList:Find("List").gameObject
+    for rankIndex, scoreData in ipairs(self.scoreArray) do
+        
+        local playerScoreInfo = GameObject.Instantiate(scoreItemPrefeb,self.GScoreList)
         playerScoreInfo.transform:SetParent(self.GScoreList,false)
-
+        playerScoreInfo:SetActive(true)
         -- 设置列表信息
-        local TextPlayerRank = playerScoreInfo.transform:Find("TextPlayerRank"):GetComponent(typeof(TextMeshPro))
-        local TextPlayerName = playerScoreInfo.transform:Find("TextPlayerName"):GetComponent(typeof(TextMeshPro))
-        local TextPlayerScore = playerScoreInfo.transform:Find("TextPlayerName"):GetComponent(typeof(TextMeshPro))
+        local TextRank = playerScoreInfo.transform:Find("TextRank"):GetComponent(typeof(TextMeshPro))
+        local TextName = playerScoreInfo.transform:Find("TextName"):GetComponent(typeof(TextMeshPro))
+        local TextGold = playerScoreInfo.transform:Find("TextName"):GetComponent(typeof(TextMeshPro))
 
-        TextPlayerRank.text = tostring(i)
-        TextPlayerName.text = playerId
+        TextRank.text= rankIndex
+        TextName.text= tostring(scoreData[1]).." "..tostring(scoreData[2])
     end
 end
+
+
 
 function PlayEndPanel:OnBtnContinueMatchClick()
     self:HideMe()
@@ -61,4 +70,8 @@ end
 
 function PlayEndPanel:HideMe()
     self.panelObj:SetActive(false)
+end
+
+function PlayEndPanel:Update()
+    
 end

@@ -52,11 +52,13 @@ public class LuaMgr : BaseManager<LuaMgr>
     private byte[] MyCustomLoaderFormAB(ref string filepath)
     {
         //改为我们的AB包管理器加载
-        TextAsset file2 = ABMgr.GetInstance().LoadRes<TextAsset>("lua", filepath + ".lua");
+        string abPath = filepath.Substring(filepath.LastIndexOf('/') + 1);
+        TextAsset file2 = ABMgr.GetInstance().LoadRes<TextAsset>("lua", abPath + ".lua");
         if (file2 != null)
             return file2.bytes;
         else
             Debug.Log("MyCustomLoaderFormAB重定向失败");
+            Debug.Log("MyCustomLoaderFormAB要重定向的文件路径是：" + filepath);
         return null;
     }
 

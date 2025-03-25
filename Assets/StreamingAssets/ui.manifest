@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3017845866
+CRC: 3330777029
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 074b877b82c6eac616b45b1a7e51eb01
+    Hash: a141d9183d043aa5f1879bd59eba608b
   TypeTreeHash:
     serializedVersion: 2
     Hash: 3f651ffa176850ead6916b69c1142e08
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 074b877b82c6eac616b45b1a7e51eb01
+    Hash: a141d9183d043aa5f1879bd59eba608b
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -108,19 +108,19 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: UnityEngine.UI
   ClassName: UnityEngine.UI.SpriteState
 Assets:
-- Assets/ABRes/Prefabs/UI/GameMatch1V3Panel.prefab
-- Assets/ABRes/Prefabs/UI/PreMatch1V3Panel.prefab
 - Assets/ABRes/SpriteAltas/UnoCard.spriteatlas
 - Assets/ABRes/Prefabs/UI/MatchPanel.prefab
 - Assets/ABRes/Prefabs/UI/StorePanel.prefab
+- Assets/ABRes/Prefabs/UI/GameMatch1V3Panel.prefab
 - Assets/ABRes/Prefabs/UI/StartPanel.prefab
 - Assets/ABRes/Prefabs/UI/MainPanel.prefab
 - Assets/ABRes/Prefabs/UI/LoginPanel.prefab
 - Assets/ABRes/Prefabs/UI/PlayEndPanel.prefab
 - Assets/ABRes/Prefabs/UI/TipsPanel.prefab
 - Assets/ABRes/Prefabs/UI/GameMatch1V1Panel.prefab
-- Assets/ABRes/Prefabs/UI/PreMatch1V1Panel.prefab
+- Assets/ABRes/Prefabs/UI/PreMatchPanel.prefab
 - Assets/ABRes/Prefabs/UI/RegisterPanel.prefab
+- Assets/ABRes/SpriteAltas/UI.spriteatlas
 - Assets/ABRes/Prefabs/UI/NoticePanel.prefab
 Dependencies:
 - F:/Workspase/Unity/UNO/AssetBundles/PC/unocardimage

@@ -60,7 +60,12 @@ UnoCommonConfig = {
         [EnumUnoCardType.eDrawTwo] = 20,
         [EnumUnoCardType.eWild] = 50,
         [EnumUnoCardType.eWildDrawFour] = 50,
-    }
+    },
+    Match1v1NeedGold = 30,
+    Match1v3NeedGold = 30,
+    matchType1V3 = 1,
+    matchType2V2 = 2,
+    matchType1V1 = 3
+    
 }
-
 

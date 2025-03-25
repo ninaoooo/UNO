@@ -1,5 +1,4 @@
 MainPanel = {}
-
 MainPanel.panelObj = nil
 MainPanel.BtnAvatar = nil
 MainPanel.BtnDiamondAdd = nil
@@ -21,21 +20,15 @@ function MainPanel:Init()
 
         self.BtnSetting = self.panelObj.transform:Find("GSettings/Button"):GetComponent(typeof(Button))
         self.BtnStore = self.panelObj.transform:Find("GStore/Button"):GetComponent(typeof(Button))
-        self.BtnModeMatch1V1 = self.panelObj.transform:Find("GPlayMode/Button"):GetComponent(typeof(Button))
+        self.BtnModeMatch1V1 = self.panelObj.transform:Find("GPlayerModeContainer/GPlayMode1V1/Button"):GetComponent(typeof(Button))
+        self.BtnModeMatch1V3 = self.panelObj.transform:Find("GPlayerModeContainer/GPlayMode1V3/Button"):GetComponent(typeof(Button))
         -- 3.为控件加上事件监听 进行点击等的逻辑处理
         self.BtnModeMatch1V1.onClick:AddListener(function() self:OnBtnModeMatch1V1Click() end)
+        self.BtnModeMatch1V3.onClick:AddListener(function() self:OnBtnModeMatch1V3Click() end)
         self.BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick() end)
         MonoBehaviourMgr:Register(self)
     end
 end
-
-
--- local GAvatar = self.panelObj.transform:Find("GAvatar")
---         if GAvatar then
---             self.BtnAvatar = GAvatar:Find("BtnAvatar"):GetComponent(typeof(Button))
---         end 
-
-
 
 function MainPanel:Start()
     print("MainPanel Start")
@@ -63,8 +56,15 @@ function MainPanel:OnBtnStoreClick()
 end
 
 function MainPanel:OnBtnModeMatch1V1Click()
-    MainPanel:HideMe()
-    PreMatch1V1Panel:ShowMe()
+    MainPanel:DestroyPanel()
+    local PreMatchPanel = PreMatch1V1Panel:New()
+    PreMatchPanel:ShowMe()
+end
+
+function MainPanel:OnBtnModeMatch1V3Click()
+    MainPanel:DestroyPanel()
+    local PreMatchPanel = PreMatch1V3Panel:New()
+    PreMatchPanel:ShowMe()
 end
 
 function MainPanel:DestroyPanel()

@@ -60,8 +60,7 @@ function DynamicEffects:SortHandCards(cardList)
 end
 
 -- 更新手牌布局（自适应偏移量）
-function DynamicEffects:UpdateHandLayout(playerId,handContainer)
-    local playerCardList = GameMatch1V1Panel.m_PlayerCardList[playerId]
+function DynamicEffects:UpdateHandLayout(playerId,playerCardList,handContainer)
     local cardCount = #playerCardList
     if cardCount == 0 then return end  -- 如果没有牌，直接返回
 

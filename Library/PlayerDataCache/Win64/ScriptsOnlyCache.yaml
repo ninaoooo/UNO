@@ -72,25 +72,25 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 2216}
+      Script: {instanceID: 2218}
     - Class: 114
-      Script: {instanceID: 2658}
+      Script: {instanceID: 2660}
     - Class: 114
-      Script: {instanceID: 2862}
+      Script: {instanceID: 2864}
     - Class: 114
-      Script: {instanceID: 3506}
+      Script: {instanceID: 3508}
     - Class: 114
-      Script: {instanceID: 4184}
+      Script: {instanceID: 4186}
     - Class: 114
-      Script: {instanceID: 4452}
+      Script: {instanceID: 4454}
     - Class: 114
-      Script: {instanceID: 4874}
+      Script: {instanceID: 4876}
     - Class: 114
-      Script: {instanceID: 5176}
+      Script: {instanceID: 5178}
     - Class: 114
-      Script: {instanceID: 5758}
+      Script: {instanceID: 5760}
     - Class: 114
-      Script: {instanceID: 6294}
+      Script: {instanceID: 6296}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -986,6 +986,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.VisualScripting.Core
     namespaceName: Unity.VisualScripting
     className: UnityOnSliderValueChangedMessageListener
+  - hash:
+      serializedVersion: 2
+      Hash: 9dfe894e59cb5e48b7a49d31b33db22c
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: ABInspector
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity

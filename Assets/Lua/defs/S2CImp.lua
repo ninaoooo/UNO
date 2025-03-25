@@ -2,6 +2,7 @@ S2CDefine = require "defs/S2CRpc"
 msgpack = require "msgpack"
 local PlayerInfo = require("Tools/PlayerInfo")
 local UnoGameLogic = require("UI/UILogic/UnoUILogic")
+local currentGamePanel = nil  -- 全局变量，保存当前游戏面板实例
 -- require "common.Utils"
 
 S2C = {}
@@ -53,19 +54,22 @@ end
 
 function S2C.SyncUnoCardDraw(playerId, cardType, cardColor, confirmshow)
     print("SyncUnoCardDraw playerId: ", playerId, "cardType: ", cardType, "cardColor: ", cardColor, "confirmshow: ", confirmshow)
-    GameMatch1V1Panel:OnUnoCardDraw(playerId, cardType, cardColor, confirmshow)
+    if currentGamePanel then
+        currentGamePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirmshow)
+    end
 end
 
 function S2C.SyncUnoCardPlay(playerId, cardType, cardColor)
     print("SyncUnoCardPlay playerId: ", playerId, "cardType: ", cardType, "cardColor: ", cardColor)
 
-    if PlayerInfo:IsSelf(playerId) then
-        GameMatch1V1Panel:OnSelfUnoCardPlay(playerId,cardType, cardColor)
-    elseif playerId ~= 0 then
-        GameMatch1V1Panel:OnOtherUnoCardPlay(playerId)
+    if currentGamePanel then
+        if PlayerInfo:IsSelf(playerId) then
+            currentGamePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
+        elseif playerId ~= 0 then
+            currentGamePanel:OnOtherUnoCardPlay(playerId)
+        end
+        currentGamePanel:AddCardToDiscardPile(cardType, cardColor)
     end
-    -- 无论是谁 要出的牌都加入到弃牌区
-    GameMatch1V1Panel:AddCardToDiscardPile(cardType, cardColor)
 end
 
 function S2C.ShowUnoWaitConfirmCard(playerId, cardIdx, cardType, cardColor)
@@ -79,7 +83,12 @@ end
 
 function S2C.SyncUnoPlayEnd(winPlayerId, playerCardInfo_U)
     print("SyncUnoPlayEnd winPlayerId: ", winPlayerId)
-    PlayEndPanel:Init(winPlayerId, msgpack.unpack(playerCardInfo_U))
+    local playerCardList,playerId2Score = table.unpack(msgpack.unpack(playerCardInfo_U))
+    if currentGamePanel then
+        currentGamePanel:PlayEndShowCard(playerCardList)
+    end
+    PlayEndPanel:Init(winPlayerId, playerId2Score)
+    -- PlayEndPanel:Init(winPlayerId,playerCardInfo_U)
 end
 
 function S2C.SyncUnoCards(playerId, cardNum, cards_U)
@@ -87,21 +96,33 @@ function S2C.SyncUnoCards(playerId, cardNum, cards_U)
 end
 
 function S2C.SyncUnoPlayRoundInfo(totalRestTime, curOpRestTime, curPlayerId, stage)
-    GameMatch1V1Panel.curPlayerId = curPlayerId
-    GameMatch1V1Panel:TimerMgr(curPlayerId,totalRestTime,curOpRestTime)
-    GameMatch1V1Panel:PlayerStage(curPlayerId,stage) 
+    if currentGamePanel then
+        currentGamePanel.gameInstance.m_currentPlayerId = curPlayerId
+        currentGamePanel:TimerMgr(curPlayerId, totalRestTime, curOpRestTime)
+        currentGamePanel:PlayerStage(curPlayerId, stage)
+    end
     print("SyncUnoPlayRoundInfo totalRestTime: ", totalRestTime, "curOpRestTime: ", curOpRestTime, "curPlayerId: ", curPlayerId, "stage: ", stage)
 end
 
 function S2C.SyncPlayerComeInPlay(matchType, playerIds_U)
     print("SyncPlayerComeInPlay MatchType: ", matchType)
-    if matchType == 3 then
-        PreMatch1V1Panel:DestroyPanel()
-        GameMatch1V1Panel:Init(msgpack.unpack(playerIds_U))
+    -- 如果有旧的实例，先销毁
+    if currentGamePanel then
+        currentGamePanel:DestroyPanel()
+        currentGamePanel = nil
     end
+    if matchType == UnoCommonConfig.matchType1V1 then
+        PreMatch1V1Panel:DestroyPanel()
+        currentGamePanel = GameMatch1V1Panel:New()
+    elseif matchType == UnoCommonConfig.matchType1V3 then
+        PreMatch1V3Panel:DestroyPanel()
+        currentGamePanel = GameMatch1V3Panel:New()
+    end
+    currentGamePanel:Init(msgpack.unpack(playerIds_U))
 end
 
 -- 检查定义的RPC是否都实现了
+
 local function CheckS2CRpcImp()
     for _, v in pairs(S2CDefine) do 
         if not S2C[v[1]] then

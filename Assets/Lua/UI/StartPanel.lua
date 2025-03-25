@@ -41,7 +41,6 @@ function StartPanel:HideMe()
 end
 
 function StartPanel:OnBtnExitLoginClick()
-    print("当前登录账号", PlayerInfo.playerName)
     print(string.format("%s:退出登录",PlayerInfo.playerName))
     PlayerPrefs.SetString("playerId", "")
     PlayerPrefs.SetString("playerName", "")
