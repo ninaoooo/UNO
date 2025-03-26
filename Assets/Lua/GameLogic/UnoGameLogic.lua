@@ -130,6 +130,9 @@ function UnoGameLogic:HandlePlayCard(playerId, cardType, cardColor)
     end
     return false
 end
+function UnoGameLogic:HandleOtherPlayCard(playerId)
+    self:RemoveCardFromPlayer(playerId, 1)
+end
 
 function UnoGameLogic:HandleShoutUno()
     -- 喊 UNO 逻辑
