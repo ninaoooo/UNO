@@ -55,7 +55,7 @@ end
 
 function PlayEndPanel:OnBtnContinueMatchClick()
     self:HideMe()
-    PreMatch1V1Panel:ShowMe()
+    PreMatchPanel:ShowMe()
 end
 
 function PlayEndPanel:OnBtnHomeClick()
