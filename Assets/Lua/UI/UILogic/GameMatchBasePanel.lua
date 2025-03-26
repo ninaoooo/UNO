@@ -39,7 +39,7 @@ end
 
 function GameMatchBasePanel:InitUIComponents()
     -- 通用的 UI 组件初始化
-    self.BtnSetting = self.panelObj.transform:Find("GSettings/Button"):GetComponent(typeof(Button))
+    self.BtnExit = self.panelObj.transform:Find("GExit/Button"):GetComponent(typeof(Button))
     self.ImgBG = self.panelObj.transform:Find("ImgBG"):GetComponent(typeof(Image))
     self.GDiscardPile = self.panelObj.transform:Find("GDiscardPile"):GetComponent(typeof(Transform))
     self.BtnUno = self.panelObj.transform:Find("BtnUno"):GetComponent(typeof(Button))
@@ -50,6 +50,7 @@ function GameMatchBasePanel:InitUIComponents()
 
     self.GConfirmShow = self.panelObj.transform:Find("GConfirmShow"):GetComponent(typeof(Transform))
     self.GWildCardSelectColor = self.panelObj.transform:Find("GWildCardSelectColor"):GetComponent(typeof(Transform))
+    self.BtnExit.onClick:AddListener(function() self:OnBtnExitClick() end)
     self.BtnUno.onClick:AddListener(function() self:OnBtnUnoClick() end)
     self.BtnDrawPile.onClick:AddListener(function() self:OnBtnDrawPileClick() end)
 
@@ -216,9 +217,11 @@ function GameMatchBasePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
 end
 
 -- 对手出牌
-function GameMatchBasePanel:OnOtherUnoCardPlay(playerId)
+function GameMatchBasePanel:OnOtherUnoCardPlay(playerId,cardType,cardColor)
     -- 对手出牌的时候我们只需要看到他少了一张牌就行 所以这里我们默认移除他最左边一张牌
+    self.gameInstance:HandleOtherPlayCard(playerId, cardType, cardColor)
     local HandContainer = self.Player2Info[playerId].HandContainer
+    print("对手卡牌数量：",#self.gameInstance.m_PlayerCardList[playerId])
     DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
 end
 
@@ -247,14 +250,13 @@ end
 function GameMatchBasePanel:OnBtnPlayDrawCardClick(cardType,cardColor)
     self.GConfirmShow.gameObject:SetActive(false)
     if self.gameInstance:IsWildCard(cardType) then
-        print("万能牌")
+        print("万能牌: ",cardType,cardColor)
         self.GWildCardSelectColor.gameObject:SetActive(true)
         self.pendingWildCardType = cardType
         self.isWildCardFromHandContainer =false
     else
         -- 非万能牌，直接发送确认出牌消息
         self.gameInstance.NotifyServerToPlayDrawnCard(cardColor)
-        -- self:AddCardToDiscardPile(cardType, cardColor)
     end  
 end
 
@@ -316,7 +318,8 @@ end
 
 -- 手牌点击事件
 function GameMatchBasePanel:OnCardClick(playerId, cardId)
-    -- 1.复位手牌位置
+    -- 1.如果有别的手牌被点击过 复位手牌位置
+    self.GWildCardSelectColor.gameObject:SetActive(false)
     self:ClearAllButCurrentSelection(self.gameInstance.m_PlayerCardList[playerId],cardId)
     -- 2.找到现在被点击的牌
     local cardData = self.gameInstance:FindCardById(playerId, cardId)
@@ -394,8 +397,10 @@ function GameMatchBasePanel:ClearHandContainer(HandContainer)
 end
 
 function GameMatchBasePanel:PlayEndShowCard(playerCardList)
+    local playerHandCard = {}
     for playerId,cardList in pairs(playerCardList) do
         local HandContainer = self.Player2Info[playerId].HandContainer
+        playerHandCard[playerId] = {}
         self:ClearHandContainer(HandContainer)
 
         for _, cardData in ipairs(cardList) do 
@@ -408,7 +413,7 @@ function GameMatchBasePanel:PlayEndShowCard(playerCardList)
             card.transform:SetParent(HandContainer.transform, false)
             card:SetActive(true)
             
-            cardData[3] = card.transform
+            table.insert(playerHandCard[playerId],{cardType=cardData[1],cardColor=cardData[2],cardTransform=card.transform})
             -- 设置卡面
             local cardString = self.gameInstance:GetCardString(cardData[1], cardData[2])
             if self.gameInstance:IsSelf(playerId) then
@@ -420,7 +425,7 @@ function GameMatchBasePanel:PlayEndShowCard(playerCardList)
             end
         end
 
-        DynamicEffects:UpdateHandLayout(playerId, cardList,HandContainer)
+        DynamicEffects:UpdateHandLayout(playerId, playerHandCard[playerId],HandContainer)
     end
 end
 
@@ -461,6 +466,10 @@ function GameMatchBasePanel:ShowLastCards(playerId, playerLastCardInfo)
     -- 更新布局
     DynamicEffects:UpdateHandLayout(playerId, playerLastCardInfo, HandContainer)
 end
+function GameMatchBasePanel:OnBtnExitClick()
+    self:DestroyPanel()
+    MainPanel:ShowMe()
+end
 
 -- 更新函数
 function GameMatchBasePanel:Update()
@@ -486,6 +495,7 @@ end
 
 function GameMatchBasePanel:DestroyPanel()
     GameObject.Destroy(self.panelObj)
+    self.panelObj = nil
 end
 
 return GameMatchBasePanel
