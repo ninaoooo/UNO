@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 3302766308
+CRC: 957309859
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -11,4 +11,7 @@ AssetBundleManifest:
       Dependencies: {}
     Info_2:
       Name: unocardimage
+      Dependencies: {}
+    Info_3:
+      Name: lua
       Dependencies: {}

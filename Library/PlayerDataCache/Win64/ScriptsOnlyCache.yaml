@@ -74,23 +74,23 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 2218}
     - Class: 114
-      Script: {instanceID: 2660}
+      Script: {instanceID: 2658}
     - Class: 114
-      Script: {instanceID: 2864}
+      Script: {instanceID: 2862}
     - Class: 114
-      Script: {instanceID: 3508}
+      Script: {instanceID: 3504}
     - Class: 114
-      Script: {instanceID: 4186}
+      Script: {instanceID: 4182}
     - Class: 114
-      Script: {instanceID: 4454}
+      Script: {instanceID: 4448}
     - Class: 114
-      Script: {instanceID: 4876}
+      Script: {instanceID: 4868}
     - Class: 114
-      Script: {instanceID: 5178}
+      Script: {instanceID: 5170}
     - Class: 114
-      Script: {instanceID: 5760}
+      Script: {instanceID: 5752}
     - Class: 114
-      Script: {instanceID: 6296}
+      Script: {instanceID: 6286}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -188,6 +188,12 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp
     namespaceName: Tutorial
     className: CustomLoader
+  - hash:
+      serializedVersion: 2
+      Hash: 9dfe894e59cb5e48b7a49d31b33db22c
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: ABInspector
   - hash:
       serializedVersion: 2
       Hash: b12640dfdb5966813e9dd838893e6c4a
@@ -986,13 +992,7 @@ ScriptsOnlyBuild:
     assemblyName: Unity.VisualScripting.Core
     namespaceName: Unity.VisualScripting
     className: UnityOnSliderValueChangedMessageListener
-  - hash:
-      serializedVersion: 2
-      Hash: 9dfe894e59cb5e48b7a49d31b33db22c
-    assemblyName: Assembly-CSharp
-    namespaceName: 
-    className: ABInspector
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/Users/Nina/Desktop/Uno/UNO.exe
+  playerPath: C:/Users/Nina/Desktop/UNO_3/UNO_3.exe

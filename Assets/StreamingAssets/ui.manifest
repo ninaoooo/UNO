@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3330777029
+CRC: 328373719
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a141d9183d043aa5f1879bd59eba608b
+    Hash: d59901420b183dd4fec1e3bdf9327a76
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 3f651ffa176850ead6916b69c1142e08
+    Hash: c10a865a0a39acc0f5db9eb3ebef0c1a
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: a141d9183d043aa5f1879bd59eba608b
+    Hash: d59901420b183dd4fec1e3bdf9327a76
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -25,6 +25,8 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
@@ -38,6 +40,8 @@ ClassTypes:
   Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 04399e98d7cb3f94785fb07aca415f14, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
 - Class: 115
@@ -107,7 +111,10 @@ SerializeReferenceClassIdentifiers:
   ClassName: UnityEngine.UI.Navigation
 - AssemblyName: UnityEngine.UI
   ClassName: UnityEngine.UI.SpriteState
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Toggle/ToggleEvent
 Assets:
+- Assets/ABRes/Prefabs/UI/ChangeUserPanel.prefab
 - Assets/ABRes/SpriteAltas/UnoCard.spriteatlas
 - Assets/ABRes/Prefabs/UI/MatchPanel.prefab
 - Assets/ABRes/Prefabs/UI/StorePanel.prefab

@@ -1,0 +1,77 @@
+PlayEndPanel = {}
+
+function PlayEndPanel:Init(winPlayerId,playerId2Score)
+    if  self.panelObj == nil then
+        self.panelObj = ABMgr:LoadRes("UI", "PlayEndPanel")
+        print("self.panelObj",self.panelObj)
+        self.panelObj.transform:SetParent(Canvas,false)
+        
+        self.ImgLabel = self.panelObj.transform:Find("ImgLabel"):GetComponent(typeof(Image))
+        self.TextLabel = self.panelObj.transform:Find("ImgLabel/TextLabel"):GetComponent(typeof(TextMeshPro))
+        self.GScoreList = self.panelObj.transform:Find("GScoreList"):GetComponent(typeof(Transform))
+        
+        -- self.PlayerScoreInfoPrefab = ABMgr:LoadRes("modes", "ImgPlayerScoreInfo")
+        
+        self.BtnContinueMatch = self.panelObj.transform:Find("GBtnList/BtnContinueMatch"):GetComponent(typeof(Button))
+        self.BtnHome = self.panelObj.transform:Find("GBtnList/BtnHome"):GetComponent(typeof(Button))
+
+        self.BtnContinueMatch.onClick:AddListener(function() self:OnBtnContinueMatchClick() end)
+        self.BtnHome.onClick:AddListener(function() self:OnBtnHomeClick() end)
+        MonoBehaviourMgr:Register(self)
+
+        self:InitData(playerId2Score)
+        self:InitComponent()
+        
+    end
+end
+
+function PlayEndPanel:InitData(playerId2Score)
+    self.scoreArray = {}
+    for playerId, score in pairs(playerId2Score) do
+        table.insert(self.scoreArray, {playerId, score})
+    end
+    table.sort(self.scoreArray, function(a, b) return a[2] > b[2] end)
+
+end
+
+function PlayEndPanel:InitComponent()
+    local scoreItemPrefeb = self.GScoreList:Find("List").gameObject
+    for rankIndex, scoreData in ipairs(self.scoreArray) do
+        
+        local playerScoreInfo = GameObject.Instantiate(scoreItemPrefeb,self.GScoreList)
+        playerScoreInfo.transform:SetParent(self.GScoreList,false)
+        playerScoreInfo:SetActive(true)
+        -- 设置列表信息
+        local TextRank = playerScoreInfo.transform:Find("TextRank"):GetComponent(typeof(TextMeshPro))
+        local TextName = playerScoreInfo.transform:Find("TextName"):GetComponent(typeof(TextMeshPro))
+        local TextGold = playerScoreInfo.transform:Find("TextName"):GetComponent(typeof(TextMeshPro))
+
+        TextRank.text= rankIndex
+        TextName.text= tostring(scoreData[1]).." "..tostring(scoreData[2])
+    end
+end
+
+
+
+function PlayEndPanel:OnBtnContinueMatchClick()
+    self:HideMe()
+    PreMatch1V1Panel:ShowMe()
+end
+
+function PlayEndPanel:OnBtnHomeClick()
+    self:HideMe()
+    MainPanel:ShowMe()
+end
+
+function PlayEndPanel:ShowMe()
+    self:Init()
+    self.panelObj:SetActive(true)
+end
+
+function PlayEndPanel:HideMe()
+    self.panelObj:SetActive(false)
+end
+
+function PlayEndPanel:Update()
+    
+end

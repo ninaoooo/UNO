@@ -1,5 +1,5 @@
 StartPanel = {}
-
+local PlayerInfo = require("Tools/PlayerInfo")
 StartPanel.panelObj = nil
 StartPanel.BtnStart = nil
 StartPanel.BtnExitLogin = nil
@@ -41,7 +41,7 @@ function StartPanel:HideMe()
 end
 
 function StartPanel:OnBtnExitLoginClick()
-    print(string.format("%s:退出登录",PlayerInfo.playerName))
+    print(string.format("%s:退出登录",PlayerInfo:GetPlayerName()))
     PlayerPrefs.SetString("playerId", "")
     PlayerPrefs.SetString("playerName", "")
     PlayerPrefs.SetString("passWord", "")
@@ -54,10 +54,11 @@ function StartPanel:OnBtnExitLoginClick()
 end
 
 function StartPanel:OnBtnChangeUserClick()
-    print("切换账号")
+    ChangeUserPanel:ShowMe()
 end
 
 function StartPanel:OnBtnStartClick()
+    ChangeUserPanel:Destroy()
     RpcMgr:Connect("124.220.67.240", 9010)
     -- 自动登录
     -- 检查 PlayerPrefs 中是否有账号和密码

@@ -366,6 +366,7 @@
 "Assets/Scripts/ProjectBase/Base/SingletonAutoMono.cs"
 "Assets/Scripts/ProjectBase/Base/SingletonMono.cs"
 "Assets/Scripts/ProjectBase/LuaMgr.cs"
+"Assets/Scripts/TimerUtility.cs"
 "Assets/XLua/Src/CodeEmit.cs"
 "Assets/XLua/Src/CopyByValue.cs"
 "Assets/XLua/Src/DelegateBridge.cs"

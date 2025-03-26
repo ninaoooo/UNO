@@ -1,0 +1,219 @@
+UnoGameLogic = {}
+local PlayerInfo = require("Tools/PlayerInfo")
+function UnoGameLogic:Init(playerIds)
+    local instance = {
+        -- 初始化玩家列表
+        m_Players = playerIds,
+        -- 初始化所有玩家手牌列表
+        m_PlayerCardList = {},
+        -- 初始化弃牌堆手牌列表
+        m_DiscardList = {},
+        -- 初始化当前玩家id
+        m_currentPlayerId = playerIds[1],
+        -- 初始化喊了Uno的玩家
+        m_hasUno = {},
+        -- 初始化自身玩家
+        m_MyPlayerId = PlayerInfo:GetPlayerId(),
+        -- 初始化cardId
+        nextCardId = 1,
+        messages = {
+            NOT_YOUR_TURN = "现在不是你的出牌时间",
+            INVALID_PLAY = "选中的牌不符合出牌规则",
+            NEED_COLOR = "需要选择颜色",
+            CAN_PLAY = "可以出牌"
+        }
+    }
+    
+    -- 初始化所有玩家手牌列表
+    for i = 1, #playerIds do
+        instance.m_PlayerCardList[playerIds[i]] = {}
+    end
+
+    -- 初始化所有玩家喊Uno列表
+    for i = 1, #playerIds do
+        instance.m_hasUno[playerIds[i]] = false
+    end
+    setmetatable(instance, { __index = UnoGameLogic })
+    return instance
+end
+
+
+
+function UnoGameLogic:IsSelf(playerId)
+    return playerId == self.m_MyPlayerId
+end
+
+function UnoGameLogic:GetCardId()
+    local cardId = self.nextCardId
+    self.nextCardId = self.nextCardId + 1
+    return cardId
+end
+
+function UnoGameLogic:GetCardString(cardType,cardColor)
+    return EnumCardColour[cardColor]..EnumCardType[cardType]
+end
+
+function UnoGameLogic:FindCardIndex(playerId,cardType,cardColor)
+    for i, cardData in ipairs(self.m_PlayerCardList[playerId]) do
+        if cardData.cardType == cardType and (cardData.cardColor == cardColor or self:IsWildCard(cardData.cardType)) then
+            return i
+        end
+    end
+end 
+
+function UnoGameLogic:FindCardById(playerId, cardId)
+    for _, cardData in ipairs(self.m_PlayerCardList[playerId]) do
+        if cardData.cardId == cardId then
+            return cardData
+        end
+    end
+    return nil
+end
+
+function UnoGameLogic:IsWildCard(cardType)
+    print("cardType",cardType)
+    return cardType == EnumUnoCardType.eWild or cardType == EnumUnoCardType.eWildDrawFour
+end
+
+-- 判断玩家选择的牌是否符合出牌规则
+function UnoGameLogic:IsValidPlay(cardType,cardColor)
+    local otherValidType = {[EnumUnoCardType.eWild] = true,[EnumUnoCardType.eWildDrawFour] = true}
+    local lastPlayedCard = self.m_DiscardList[#self.m_DiscardList]
+    -- 判断条件:颜色相同或者类型相同或符合某些类型(万能牌\万能+4牌)
+    if lastPlayedCard.cardColor == cardColor or lastPlayedCard.cardType == cardType or otherValidType[cardType] then
+        return true
+    end
+    return false
+end
+
+function UnoGameLogic:IsShoutUnoTime()
+    return #self.m_PlayerCardList[self.m_MyPlayerId] <= 2
+end
+
+
+
+function UnoGameLogic:AddCardToPlayer(playerId,cardId,cardType,cardColor)
+    table.insert(self.m_PlayerCardList[playerId],{cardId = cardId, cardType = cardType, cardColor = cardColor, cardTransform = nil})
+end
+
+function UnoGameLogic:SetCardTransformToPlayer(playerId,cardId,cardTransform)
+    for _, cardData in ipairs(self.m_PlayerCardList[playerId]) do
+        if cardData.cardId == cardId then
+            cardData.cardTransform = cardTransform
+            break
+        end
+    end
+end
+
+function UnoGameLogic:RemoveCardFromPlayer(playerId, cardIndex)
+    table.remove(self.m_PlayerCardList[playerId], cardIndex)
+end
+
+function UnoGameLogic:AddCardToDiscard(cardType, cardColor)
+    table.insert(self.m_DiscardList, {cardType = cardType, cardColor = cardColor})
+end
+
+function UnoGameLogic:HandleDrawCard(playerId, cardType, cardColor)
+    -- 抽牌逻辑
+    local cardId = self:GetCardId()
+    self:AddCardToPlayer(playerId, cardId, cardType, cardColor)
+    return cardId
+end
+
+function UnoGameLogic:HandlePlayCard(playerId, cardType, cardColor)
+    -- 出牌逻辑
+    local cardIndex = self:FindCardIndex(playerId, cardType, cardColor)
+    if cardIndex then
+        local cardTransform = self.m_PlayerCardList[playerId][cardIndex].cardTransform
+        self:RemoveCardFromPlayer(playerId, cardIndex)
+        return true, cardTransform
+    else
+        print("没找到自己的卡牌")
+    end
+    return false
+end
+function UnoGameLogic:HandleOtherPlayCard(playerId)
+    -- 对手的牌你是不知道详情的 出牌直接删掉第一张就行
+    self:RemoveCardFromPlayer(playerId, 1)
+end
+
+function UnoGameLogic:HandleShoutUno()
+    -- 喊 UNO 逻辑
+    if self:IsShoutUnoTime() then
+        self:NotifyServerToShoutUno()
+        return true
+    end
+    return false
+end
+
+function UnoGameLogic:CheckPlayCardRules(cardType, cardColor)
+    print("检查出牌规则：当前牌：cardType, cardColor")
+    -- 检查是否是当前玩家的轮次
+    if not self:IsSelf(self.m_currentPlayerId) then
+        return false, self.messages.NOT_YOUR_TURN
+    end
+
+    -- 检查是否符合出牌规则
+    if not self:IsValidPlay(cardType, cardColor) then
+        return false, self.messages.INVALID_PLAY
+    end
+
+    -- 如果是万能牌，返回需要选择颜色的标志
+    if self:IsWildCard(cardType) then
+        print("万能牌")
+        return true, self.messages.NEED_COLOR
+    end
+
+    -- 非万能牌，直接出牌
+    return true, self.messages.CAN_PLAY
+end
+
+function UnoGameLogic:IsNeedToShoutUno(playerId)
+    if #self.m_PlayerCardList[playerId] == 1 and self.m_hasUno[playerId]==false then
+        return playerId
+    end
+    return nil
+end
+
+
+function UnoGameLogic.NotifyServerToSuspicionDrawFour(isCancel)
+    if isCancel then
+        C2S.UnoPlayPlayerResponseDrawFour(true)
+    else
+        C2S.UnoPlayPlayerResponseDrawFour(false)
+    end
+end
+
+function UnoGameLogic.NotifyServerToPlayDrawnCard(cardColor)
+    C2S.UnoPlayPlayerConfirmOut(true,cardColor)
+end
+
+function UnoGameLogic.NotifyServerToKeepDrawnCard(cardColor)
+    C2S.UnoPlayPlayerConfirmOut(false,cardColor)
+end
+
+function UnoGameLogic.NotifyServerToPlayCard(cardType,cardColor)
+    C2S.UnoPlayPlayerPlayCard(cardType,cardColor)
+    
+end
+
+function UnoGameLogic.NotifyServerToShoutUno()
+    C2S.UnoPlayPlayerShoutUno()
+end
+
+function UnoGameLogic.NotifyServerToDrawCard()
+    C2S.UnoPlayPlayerDrawCard()
+end
+
+function UnoGameLogic:NotifyServerToCatchUno(playerId)
+    C2S.UnoPlayPlayerCatchNoUno(playerId)
+end
+
+
+
+
+
+
+
+
+return UnoGameLogic

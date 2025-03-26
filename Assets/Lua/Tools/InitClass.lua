@@ -47,12 +47,15 @@ ScrollRect = UI.ScrollRect
 -- 操作相关
 Input = CS.UnityEngine.Input
 KeyCode = CS.UnityEngine.KeyCode
+PlayerPrefs = CS.UnityEngine.PlayerPrefs
 
 -- 时间相关
 Time = CS.UnityEngine.Time
 WaitForSeconds = CS.UnityEngine.WaitForSeconds
+
 -- 自己写的C#相关脚本 直接获得单例对象
 ABMgr = CS.ABMgr.GetInstance()
-
 LuaBehaviour = CS.LuaBehaviour
-PlayerPrefs = CS.UnityEngine.PlayerPrefs
+TimerUtility = CS.TimerUtility.GetInstance()
+
+

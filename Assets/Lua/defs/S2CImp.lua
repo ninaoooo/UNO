@@ -25,9 +25,10 @@ end
 
 function S2C.RegisterUserResult(a)
     if a then
-        print("Register Success")
+        
+        RegisterPanel:HandleRegisterResult(true)
     else
-        print("Register Failed")
+        RegisterPanel:HandleRegisterResult(false)
     end
 end
 
@@ -35,12 +36,9 @@ function S2C.LoginUserResult(a, playerId, playername)
     if a then
         PlayerInfo:SetPlayerId(playerId)
         PlayerInfo:SetPlayerName(playername)
-        print("Hello " .. playername)
-        StartPanel:DestroyPanel()
-        MainPanel:ShowMe()
+        LoginPanel:HandleLoginResult(true)
     else
-        TipsPanel:SetTipsText("通知", "账号或密码不正确")
-        TipsPanel:ShowMe()
+        LoginPanel:HandleLoginResult(false)
     end
 end
 
@@ -66,7 +64,7 @@ function S2C.SyncUnoCardPlay(playerId, cardType, cardColor)
         if PlayerInfo:IsSelf(playerId) then
             currentGamePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
         elseif playerId ~= 0 then
-            currentGamePanel:OnOtherUnoCardPlay(playerId)
+            currentGamePanel:OnOtherUnoCardPlay(playerId, cardType, cardColor)
         end
         currentGamePanel:AddCardToDiscardPile(cardType, cardColor)
     end
@@ -112,13 +110,13 @@ function S2C.SyncPlayerComeInPlay(matchType, playerIds_U)
         currentGamePanel = nil
     end
     if matchType == UnoCommonConfig.matchType1V1 then
-        PreMatch1V1Panel:DestroyPanel()
         currentGamePanel = GameMatch1V1Panel:New()
+        currentGamePanel:Init(msgpack.unpack(playerIds_U))
     elseif matchType == UnoCommonConfig.matchType1V3 then
-        PreMatch1V3Panel:DestroyPanel()
         currentGamePanel = GameMatch1V3Panel:New()
+        currentGamePanel:Init(msgpack.unpack(playerIds_U))
     end
-    currentGamePanel:Init(msgpack.unpack(playerIds_U))
+    
 end
 
 -- 检查定义的RPC是否都实现了
