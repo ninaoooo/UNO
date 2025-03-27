@@ -68,6 +68,7 @@ function LoginPanel:HandleLoginResult(result)
     if result then
         MainPanel:ShowMe()
         LoginPanel:DestroyPanel()
+        StartPanel:DestroyPanel()
     else 
         TextAlertShowAndClose(self.TextAlert,2,"账号或密码不正确")
     end

@@ -313,6 +313,7 @@
 "Assets/Scripts/LuaBehaviour.cs"
 "Assets/Scripts/Main.cs"
 "Assets/Scripts/ProjectBase/ABMgr.cs"
+"Assets/Scripts/ProjectBase/AudioMgr.cs"
 "Assets/Scripts/ProjectBase/Base/BaseManager.cs"
 "Assets/Scripts/ProjectBase/Base/SingletonAutoMono.cs"
 "Assets/Scripts/ProjectBase/Base/SingletonMono.cs"
