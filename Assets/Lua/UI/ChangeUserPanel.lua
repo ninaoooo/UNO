@@ -56,11 +56,14 @@ function ChangeUserPanel:OnBtnLoginFromOtherUserLoginClick()
     PlayerPrefs.SetString("passWord", passWord)
     PlayerPrefs.Save()
 
+    self:OtherUserLoginHideMe()
+    self:LoginInfoShowMe()
+    self:HideMe()
     StartPanel:ShowMe()
 end
 
 function ChangeUserPanel:OnBtnReturnFromLoginInfoClick()
-    self:LoginInfoHideMe()
+    self:HideMe()
     StartPanel:ShowMe()
 end
 
@@ -99,4 +102,8 @@ end
 function ChangeUserPanel:ShowMe()
     self:Init()
     self.panelObj:SetActive(true)
+end
+
+function ChangeUserPanel:HideMe()
+    self.panelObj:SetActive(false)
 end
