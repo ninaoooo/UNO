@@ -15,6 +15,18 @@ GameMatchBasePanel.WildCardColorButtons = {
     { name = "BtnYellow", color = EnumUnoCardColor.eYellow },
 }
 
+GameMatchBasePanel.PlaySoundByType = {
+    [EnumUnoCardType.eSkip] = true,     -- 10
+    [EnumUnoCardType.eReverse] = true,  -- 11
+    [EnumUnoCardType.eDrawTwo] = true,  -- 12
+}
+
+GameMatchBasePanel.PlaySoundByColor = {
+    [EnumUnoCardColor.eRed] = true,        
+    [EnumUnoCardColor.eGreen] = true,
+    [EnumUnoCardColor.eBlue] = true,
+    [EnumUnoCardColor.eYellow] = true,
+}
 
 function GameMatchBasePanel:Init(playerIds)
     if self.panelObj == nil then
@@ -221,7 +233,6 @@ function GameMatchBasePanel:OnOtherUnoCardPlay(playerId,cardType,cardColor)
     -- 对手出牌的时候我们只需要看到他少了一张牌就行 所以这里我们默认移除他最左边一张牌
     self.gameInstance:HandleOtherPlayCard(playerId, cardType, cardColor)
     local HandContainer = self.Player2Info[playerId].HandContainer
-    print("对手卡牌数量：",#self.gameInstance.m_PlayerCardList[playerId])
     DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
 end
 
@@ -404,7 +415,7 @@ function GameMatchBasePanel:PlayEndShowCard(playerCardList)
         self:ClearHandContainer(HandContainer)
 
         for _, cardData in ipairs(cardList) do 
-            -- 根据玩家 ID 决定卡牌生成的位置
+            -- 根据玩家 ID 决定卡牌的GameObject名字
             local cardPrefab = self.gameInstance:IsSelf(playerId) and HandContainer:Find("BtnCard").gameObject or 
             HandContainer:Find("BtnCardOthers").gameObject
 
@@ -466,6 +477,20 @@ function GameMatchBasePanel:ShowLastCards(playerId, playerLastCardInfo)
     -- 更新布局
     DynamicEffects:UpdateHandLayout(playerId, playerLastCardInfo, HandContainer)
 end
+
+-- 播放音效
+function GameMatchBasePanel:PlaySound(cardType, cardColor)
+    local soundName = nil
+    if self.PlaySoundByType[cardType] then
+        soundName = LuaAudioMgr:GetSoundNameById(cardType)
+        LuaAudioMgr:PlaySound(LuaAudioMgr.soundABName, soundName)
+    elseif self.gameInstance:IsWildCard(cardType) then
+        soundName = LuaAudioMgr:GetSoundNameById(cardColor)
+        LuaAudioMgr:PlaySound(LuaAudioMgr.soundABName, soundName)
+    end
+end
+
+
 function GameMatchBasePanel:OnBtnExitClick()
     self:DestroyPanel()
     MainPanel:ShowMe()
@@ -475,14 +500,6 @@ end
 function GameMatchBasePanel:Update()
     self.totalTimer:Update()
     self.actionTimer:Update()
-    local playerCardInfo = {[10000019] =  {{cardType=1,cardColor=1}, {cardType=1,cardColor=1},{cardType=1,cardColor=1}},
-                            [10000018] = {{cardType=1,cardColor=1}, {cardType=1,cardColor=1},{cardType=1,cardColor=1}}}
-    local playerId2Score = {[10000019] = 100, [10000018] = 90}
-
-    local cardPack = msgpack.pack({playerCardInfo,playerId2Score})
-    if InputMgr:GetKey(KeyCode.A) then
-        S2C.SyncUnoPlayEnd(10000019, cardPack)
-    end
 end
 -- 绑定按钮点击事件
 function GameMatchBasePanel:BindButtonClick(button, onClickCallback)

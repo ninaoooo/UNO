@@ -33,14 +33,21 @@ function DynamicEffects:SetCardOffset(offsetX)
     self.cardOffsetX = offsetX
 end
 
-function DynamicEffects:DrawCard(cardTransform, drawPilePos, handContainerPos)
-    -- 设置卡牌的初始位置
-    cardTransform.localPosition = drawPilePos
-    local path = { drawPilePos, Vector3((drawPilePos.x + handContainerPos.x) / 2, drawPilePos.y + 100, 0), handContainerPos }
-    cardTransform:DOLocalPath(path, 3.0, PathType.CatmullRom, PathMode.Full3D, 10)
-        :SetEase(Ease.OutQuad)
-end
+-- 根据手牌容器余量来计算偏移量
+function DynamicEffects:CalculateCardOffset(cardCount, handContainer)
+    -- 获取 HandContainer 的宽度
+    local containerWidth = handContainer:GetComponent(typeof(RectTransform)).rect.width
 
+    -- 计算每张牌需要的总宽度
+    local totalWidthNeeded = cardCount * self.fixedOffsetX
+
+    -- 如果总宽度超过容器宽度，则使用自适应偏移量
+    local offsetX = self.fixedOffsetX
+    if totalWidthNeeded > containerWidth then
+        offsetX = math.max(self.minOffsetX, containerWidth / cardCount)
+    end
+    return offsetX
+end
 
 -- 排序手牌数据
 function DynamicEffects:SortHandCards(cardList)
@@ -64,17 +71,17 @@ function DynamicEffects:UpdateHandLayout(playerId,playerCardList,handContainer)
     local cardCount = #playerCardList
     if cardCount == 0 then return end  -- 如果没有牌，直接返回
 
-    -- 获取 HandContainer 的宽度
-    local containerWidth = handContainer:GetComponent(typeof(RectTransform)).rect.width
+    -- -- 获取 HandContainer 的宽度
+    -- local containerWidth = handContainer:GetComponent(typeof(RectTransform)).rect.width
 
-    -- 计算每张牌需要的总宽度
-    local totalWidthNeeded = cardCount * self.fixedOffsetX
+    -- -- 计算每张牌需要的总宽度
+    -- local totalWidthNeeded = cardCount * self.fixedOffsetX
 
-    -- 如果总宽度超过容器宽度，则使用自适应偏移量
-    local offsetX = self.fixedOffsetX
-    if totalWidthNeeded > containerWidth then
-        offsetX = math.max(self.minOffsetX, containerWidth / cardCount)
-    end
+    -- -- 如果总宽度超过容器宽度，则使用自适应偏移量
+    local offsetX = self:CalculateCardOffset(cardCount, handContainer)
+    -- if totalWidthNeeded > containerWidth then
+    --     offsetX = math.max(self.minOffsetX, containerWidth / cardCount)
+    -- end
 
     -- 计算中间位置的索引
     local middleIndex = math.floor(cardCount / 2)
@@ -117,6 +124,34 @@ function DynamicEffects:AddCardToDiscardPile(cardTransform)
 end
 
 
+function DynamicEffects:AddCardToHandConatinerFromDrawPile(cardTransform,playerCardList,drawPilePos,handContainer)
+    -- 计算新牌的目标位置（手牌最右侧 + 偏移量）
+    local newCardPos 
+    -- 这里要获取的就是手牌容器里的卡牌数量，而不是手牌列表里的卡牌数量
+    local childCount = handContainer.childCount 
+    local cardCount = #playerCardList
+    local offsetX = self:CalculateCardOffset(cardCount, handContainer)
 
+    if childCount == 0 then
+        -- 如果手牌为空，则放到 handContainer 的中心位置
+        newCardPos = handContainer.position
+    else
+        -- 获取手牌最右侧的牌
+        local lastCard = handContainer:GetChild(childCount - 1)
+        local lastCardPos = lastCard.position
+        newCardPos = Vector3(lastCardPos.x + offsetX, lastCardPos.y, lastCardPos.z)
+    end
+
+    -- 先把牌放到牌堆位置
+    cardTransform.position = drawPilePos.position
+
+    -- 让牌移动到计算出的目标位置
+    cardTransform:DOMove(newCardPos, 0.5)
+        :SetEase(Ease.OutQuad)
+        :OnComplete(function()
+            -- 动画完成后，更新手牌显示
+            DynamicEffects:UpdateHandLayout(playerCardList,handContainer)
+        end)
+end
 
 return DynamicEffects
