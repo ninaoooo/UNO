@@ -12,7 +12,7 @@ local soundList = SoundData.LoadSoundList()
 -- 加载音乐音效
 function LuaAudioMgr.LoadAudio(abName, audioList)
     for _, audioData in ipairs(audioList) do
-        AudioMgr:LoadAudio(abName, audioData.Name)
+        AudioMgr:LoadAudio(audioData.Name,abName)
     end
 end
 
