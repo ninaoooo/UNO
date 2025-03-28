@@ -28,6 +28,18 @@ GameMatchBasePanel.PlaySoundByColor = {
     [EnumUnoCardColor.eYellow] = true,
 }
 
+GameMatchBasePanel.ShowTextByType = {
+    [EnumUnoCardType.eSkip] = "Skip",     -- 10
+    [EnumUnoCardType.eReverse] = "Reverse",  -- 11
+    [EnumUnoCardType.eDrawTwo] = "Draw 2",  -- 12
+}
+GameMatchBasePanel.ShowTextByColor = {
+    [EnumUnoCardColor.eRed] = "Red",        
+    [EnumUnoCardColor.eGreen] = "Green",
+    [EnumUnoCardColor.eBlue] = "Blue",
+    [EnumUnoCardColor.eYellow] = "Yellow",
+}
+
 function GameMatchBasePanel:Init(playerIds)
     if self.panelObj == nil then
         -- 检查 panelName 是否已设置
@@ -67,6 +79,7 @@ function GameMatchBasePanel:InitUIComponents()
     self.BtnDrawPile.onClick:AddListener(function() self:OnBtnDrawPileClick() end)
 
     self.GSuspicionDrawFour = self.panelObj.transform:Find("GSuspicionDrawFour"):GetComponent(typeof(Transform))
+    self.Text = self.panelObj.transform:Find("Text"):GetComponent(typeof(TextMeshPro))
     MonoBehaviourMgr:Register(self)
 end
 
@@ -226,6 +239,10 @@ function GameMatchBasePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
     -- 2.丢牌到弃牌堆
     if success then
         DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,true)
+        if self.gameInstance:IsWildCard(cardType) then
+            local cardImage = cardTransform:Find("ImgCard"):GetComponent(typeof(Image))
+            self:SetCardImg(cardImg,cardType, cardColor)
+        end
     -- 3.更新手牌布局
         local HandContainer = self.Player2Info[playerId].HandContainer
         DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
@@ -481,6 +498,18 @@ function GameMatchBasePanel:PlaySound(cardType, cardColor)
     end
 end
 
+function GameMatchBasePanel:ShowText(cardType, cardColor)
+    if self.gameInstance:IsWildCard(cardType) then
+        -- self.Text.gameObject:SetActive(true)
+        self.Text.text = self.ShowTextByColor[cardColor]
+        DynamicEffects:ShowText(self.Text.transform)
+    elseif self.ShowTextByType[cardType] ~= nil then
+        -- self.Text.gameObject:SetActive(true)
+        self.Text.text = self.ShowTextByType[cardType]
+        DynamicEffects:ShowText(self.Text.transform)
+    end
+    
+end
 
 function GameMatchBasePanel:OnBtnExitClick()
     self:DestroyPanel()

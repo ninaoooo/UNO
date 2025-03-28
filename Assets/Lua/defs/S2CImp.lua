@@ -70,6 +70,7 @@ function S2C.SyncUnoCardPlay(playerId, cardType, cardColor)
         end
         currentGamePanel.gameInstance:AddCardToDiscard(cardType, cardColor)
         currentGamePanel:PlaySound(cardType, cardColor)
+        currentGamePanel:ShowText(cardType, cardColor)
     end
 end
 

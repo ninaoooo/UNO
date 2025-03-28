@@ -141,5 +141,13 @@ function DynamicEffects:AddCardToDiscardPile(cardTransform, discardPile, doScale
     return sequence
 end
 
+function DynamicEffects:ShowText(textTransform)
+    textTransform.gameObject:SetActive(true)
+    textTransform:DOScale(Vector3(2, 2, 1), 1)
+    :SetEase(CS.DG.Tweening.Ease.InOutQuad)
+    :OnComplete(function()
+        textTransform.gameObject:SetActive(false)
+    end)
+end
 
 return DynamicEffects
