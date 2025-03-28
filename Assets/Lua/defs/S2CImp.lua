@@ -65,8 +65,11 @@ function S2C.SyncUnoCardPlay(playerId, cardType, cardColor)
             currentGamePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
         elseif playerId ~= 0 then
             currentGamePanel:OnOtherUnoCardPlay(playerId, cardType, cardColor)
+        else 
+            currentGamePanel:InitFirstCardToDiscardPile(cardType, cardColor)
         end
-        currentGamePanel:AddCardToDiscardPile(cardType, cardColor)
+        currentGamePanel.gameInstance:AddCardToDiscard(cardType, cardColor)
+        currentGamePanel:PlaySound(cardType, cardColor)
     end
 end
 

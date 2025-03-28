@@ -71,17 +71,7 @@ function DynamicEffects:UpdateHandLayout(playerId,playerCardList,handContainer)
     local cardCount = #playerCardList
     if cardCount == 0 then return end  -- 如果没有牌，直接返回
 
-    -- -- 获取 HandContainer 的宽度
-    -- local containerWidth = handContainer:GetComponent(typeof(RectTransform)).rect.width
-
-    -- -- 计算每张牌需要的总宽度
-    -- local totalWidthNeeded = cardCount * self.fixedOffsetX
-
-    -- -- 如果总宽度超过容器宽度，则使用自适应偏移量
     local offsetX = self:CalculateCardOffset(cardCount, handContainer)
-    -- if totalWidthNeeded > containerWidth then
-    --     offsetX = math.max(self.minOffsetX, containerWidth / cardCount)
-    -- end
 
     -- 计算中间位置的索引
     local middleIndex = math.floor(cardCount / 2)
@@ -117,41 +107,39 @@ function DynamicEffects:PlayCard(card)
     print("Play card: ", card.name)
 end
 
-function DynamicEffects:AddCardToDiscardPile(cardTransform)
-    -- 设置随机旋转角度
-    local randomRotation = math.random(-15,15)
-    cardTransform.rotation = Quaternion.Euler(0,0,randomRotation)
-end
-
-
-function DynamicEffects:AddCardToHandConatinerFromDrawPile(cardTransform,playerCardList,drawPilePos,handContainer)
-    -- 计算新牌的目标位置（手牌最右侧 + 偏移量）
-    local newCardPos 
-    -- 这里要获取的就是手牌容器里的卡牌数量，而不是手牌列表里的卡牌数量
-    local childCount = handContainer.childCount 
-    local cardCount = #playerCardList
-    local offsetX = self:CalculateCardOffset(cardCount, handContainer)
-
-    if childCount == 0 then
-        -- 如果手牌为空，则放到 handContainer 的中心位置
-        newCardPos = handContainer.position
-    else
-        -- 获取手牌最右侧的牌
-        local lastCard = handContainer:GetChild(childCount - 1)
-        local lastCardPos = lastCard.position
-        newCardPos = Vector3(lastCardPos.x + offsetX, lastCardPos.y, lastCardPos.z)
+function DynamicEffects:AddCardToDiscardPile(cardTransform, discardPile, doScale)
+    -- 设置父对象
+    cardTransform:SetParent(discardPile.transform)
+    
+    -- 获取目标位置
+    local discardPilePos = discardPile.transform.localPosition
+    local newPos = Vector2(discardPilePos.x, discardPilePos.y)
+    
+    -- 创建动画序列
+    local sequence = CS.DG.Tweening.DOTween.Sequence()
+    
+    -- 1. 移动动画
+    sequence:Append(cardTransform:DOAnchorPos(newPos, 0.3)
+        :SetEase(CS.DG.Tweening.Ease.InOutQuad))
+    
+    -- 2. 旋转动画（随机角度）
+    local randomRotation = math.random(-30, 30)
+    sequence:Join(cardTransform:DORotate(Vector3(0, 0, randomRotation), 0.1)
+        :SetEase(CS.DG.Tweening.Ease.InOutQuad))
+    
+    -- 3. 根据参数决定是否添加缩小动画
+    if doScale then
+        sequence:Join(cardTransform:DOScale(Vector3(0.7, 0.7, 1), 0.3)
+            :SetEase(CS.DG.Tweening.Ease.InOutQuad))
     end
-
-    -- 先把牌放到牌堆位置
-    cardTransform.position = drawPilePos.position
-
-    -- 让牌移动到计算出的目标位置
-    cardTransform:DOMove(newCardPos, 0.5)
-        :SetEase(Ease.OutQuad)
-        :OnComplete(function()
-            -- 动画完成后，更新手牌显示
-            DynamicEffects:UpdateHandLayout(playerCardList,handContainer)
-        end)
+    
+    -- 动画完成回调
+    sequence:OnComplete(function()
+        -- 可以在这里添加动画完成后的逻辑
+    end)
+    
+    return sequence
 end
+
 
 return DynamicEffects

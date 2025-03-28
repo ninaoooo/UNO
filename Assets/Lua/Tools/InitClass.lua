@@ -33,6 +33,8 @@ Vector2 = CS.UnityEngine.Vector2
 -- Canvas
 Canvas = GameObject.Find("Canvas").transform
 
+MainCamara = CS.UnityEngine.Camera.main
+
 -- UI相关
 UIBehaviour = CS.UnityEngine.EventSystems.UIBehaviour
 UI = CS.UnityEngine.UI

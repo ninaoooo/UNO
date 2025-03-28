@@ -131,7 +131,9 @@ function UnoGameLogic:HandlePlayCard(playerId, cardType, cardColor)
     return false
 end
 function UnoGameLogic:HandleOtherPlayCard(playerId)
+    local cardTransform = self.m_PlayerCardList[playerId][1].cardTransform
     self:RemoveCardFromPlayer(playerId, 1)
+    return cardTransform
 end
 
 function UnoGameLogic:HandleShoutUno()
