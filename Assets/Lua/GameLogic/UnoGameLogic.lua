@@ -8,6 +8,9 @@ function UnoGameLogic:Init(playerIds)
         m_PlayerCardList = {},
         -- 初始化弃牌堆手牌列表
         m_DiscardList = {},
+        -- 初始化我的要确认的临时手牌
+        m_TempConfirmCard = nil,
+        confirmshow = false,
         -- 初始化当前玩家id
         m_currentPlayerId = playerIds[1],
         -- 初始化喊了Uno的玩家
@@ -49,9 +52,7 @@ function UnoGameLogic:GetCardId()
     return cardId
 end
 
-function UnoGameLogic:GetCardString(cardType,cardColor)
-    return EnumCardColour[cardColor]..EnumCardType[cardType]
-end
+
 
 function UnoGameLogic:FindCardIndex(playerId,cardType,cardColor)
     for i, cardData in ipairs(self.m_PlayerCardList[playerId]) do
@@ -127,6 +128,10 @@ function UnoGameLogic:HandlePlayCard(playerId, cardType, cardColor)
         local cardTransform = self.m_PlayerCardList[playerId][cardIndex].cardTransform
         self:RemoveCardFromPlayer(playerId, cardIndex)
         return true, cardTransform
+    elseif self.confirmshow and self.m_TempConfirmCard ~= nil then
+        if self.m_TempConfirmCard.cardType == cardType and self.m_TempConfirmCard.cardColor == cardColor then
+            return true, self.m_TempConfirmCard.cardTransform
+        end
     end
     return false
 end

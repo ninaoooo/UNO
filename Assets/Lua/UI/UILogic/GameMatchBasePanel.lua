@@ -165,7 +165,7 @@ function GameMatchBasePanel:OnColorSelected(color)
 end
 
 function GameMatchBasePanel:SetCardImg(cardImage,cardType, cardColor)
-    local cardString = self.gameInstance:GetCardString(cardType,cardColor)
+    local cardString = string.format("card%d_%s", cardType, cardColor)
     cardImage.sprite = self.UnoCardSpriteAltas:GetSprite(cardString)
 end
 
@@ -181,7 +181,7 @@ end
 function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirmshow)
     local HandContainer = self.Player2Info[playerId].HandContainer
     --1.如果是 confirmshow = true 的牌 要在屏幕上展示，并让玩家确认是否需要出掉这张牌
-    if confirmshow then
+    if self.gameInstance:IsSelf(playerId) and confirmshow then
         self.GConfirmShow.gameObject:SetActive(true)
         local BtnChupai = self.panelObj.transform:Find("GConfirmShow/BtnChupai"):GetComponent(typeof(Button))
         local BtnCancel = self.panelObj.transform:Find("GConfirmShow/BtnCancel"):GetComponent(typeof(Button))
@@ -191,12 +191,16 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
         self:SetCardImg(cardImage,cardType, cardColor)
         
         BtnChupai.onClick:AddListener(function()
+            self.gameInstance.confirmshow = true
+            self.gameInstance.m_TempConfirmCard = {cardType = cardType, cardColor = cardColor, cardTransform = showCard.transform}
             self:OnBtnPlayDrawCardClick(cardType, cardColor)
         end)
         BtnCancel.onClick:AddListener(function()
             self:OnBtnCancelClick(playerId, cardType,cardColor,false)
         end)
     else
+        self.gameInstance.confirmshow = false
+        self.gameInstance.m_TempConfirmCard = nil
         -- 先更新玩家的手牌数据，返回新插入的牌的cardId
         local cardId = self.gameInstance:HandleDrawCard(playerId,cardType,cardColor)
 
@@ -226,7 +230,7 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
             self:SetCardImg(cardImage,cardType, cardColor)
         else
             local cardImage = card.transform:Find("ImgCardOthers"):GetComponent(typeof(Image))
-            cardImage.sprite = self.UnoCardSpriteAltas:GetSprite("CardBack")
+            self:SetCardImg(cardImage,cardType, cardColor)
         end
         DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
     end
@@ -241,7 +245,7 @@ function GameMatchBasePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
         DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,true)
         if self.gameInstance:IsWildCard(cardType) then
             local cardImage = cardTransform:Find("ImgCard"):GetComponent(typeof(Image))
-            self:SetCardImg(cardImg,cardType, cardColor)
+            self:SetCardImg(cardImage,cardType, cardColor)
         end
     -- 3.更新手牌布局
         local HandContainer = self.Player2Info[playerId].HandContainer
@@ -500,11 +504,9 @@ end
 
 function GameMatchBasePanel:ShowText(cardType, cardColor)
     if self.gameInstance:IsWildCard(cardType) then
-        -- self.Text.gameObject:SetActive(true)
         self.Text.text = self.ShowTextByColor[cardColor]
         DynamicEffects:ShowText(self.Text.transform)
     elseif self.ShowTextByType[cardType] ~= nil then
-        -- self.Text.gameObject:SetActive(true)
         self.Text.text = self.ShowTextByType[cardType]
         DynamicEffects:ShowText(self.Text.transform)
     end

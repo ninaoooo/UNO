@@ -16,7 +16,6 @@ function MainPanel:Init()
         self.panelObj.transform:SetParent(Canvas,false)        -- 2.找到对应控件 再找到挂在身上想要的脚本
         
         self.BtnAvatar = self.panelObj.transform:Find("GAvatar/BtnAvatar"):GetComponent(typeof(Button))
-        self.BtnAvatar:GetComponent(typeof(Image)).sprite = ABMgr:LoadRes("unocardimage", "Blue_1")
 
         self.BtnSetting = self.panelObj.transform:Find("GSettings/Button"):GetComponent(typeof(Button))
         self.BtnStore = self.panelObj.transform:Find("GStore/Button"):GetComponent(typeof(Button))
