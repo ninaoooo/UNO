@@ -56,6 +56,9 @@ function PreMatchBasePanel:ShowMe()
     error("ShowMe must be set in subclass")
 end
 
+function PreMatchBasePanel:HideMe()
+    self.panelObj:SetActive(false)
+end
 function PreMatchBasePanel:OnBtnReturnClick()
     -- 返回的时候要取消匹配状态
     
@@ -84,7 +87,6 @@ function PreMatchBasePanel:GetCancelMatchModeToRpc()
 end
 
 function PreMatchBasePanel:DestroyPanel()
-    self.panelObj:SetActive(false)
     GameObject.Destroy(self.panelObj)
     self.panelObj = nil
     self.BtnReturn = nil

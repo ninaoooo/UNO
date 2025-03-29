@@ -54,10 +54,11 @@ function StartPanel:OnBtnExitLoginClick()
 end
 
 function StartPanel:OnBtnChangeUserClick()
-    LoginPanel:ShowMe()
+    ChangeUserPanel:ShowMe()
 end
 
 function StartPanel:OnBtnStartClick()
+    ChangeUserPanel:Destroy()
     RpcMgr:Connect("124.220.67.240", 9010)
     -- 自动登录
     -- 检查 PlayerPrefs 中是否有账号和密码

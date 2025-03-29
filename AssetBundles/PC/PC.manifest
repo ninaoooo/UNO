@@ -1,26 +1,22 @@
 ManifestFileVersion: 0
-CRC: 3284710199
+CRC: 4114434143
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
       Name: ui
-      Dependencies:
-        Dependency_0: unocardimage
+      Dependencies: {}
     Info_1:
       Name: modes
       Dependencies: {}
     Info_2:
-      Name: unocardimage
-      Dependencies: {}
-    Info_3:
       Name: lua
       Dependencies: {}
-    Info_4:
+    Info_3:
       Name: json
       Dependencies: {}
-    Info_5:
+    Info_4:
       Name: music
       Dependencies: {}
-    Info_6:
+    Info_5:
       Name: sound
       Dependencies: {}

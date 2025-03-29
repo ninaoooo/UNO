@@ -25,9 +25,10 @@ end
 
 function S2C.RegisterUserResult(a)
     if a then
-        print("Register Success")
+        
+        RegisterPanel:HandleRegisterResult(true)
     else
-        print("Register Failed")
+        RegisterPanel:HandleRegisterResult(false)
     end
 end
 
@@ -35,12 +36,9 @@ function S2C.LoginUserResult(a, playerId, playername)
     if a then
         PlayerInfo:SetPlayerId(playerId)
         PlayerInfo:SetPlayerName(playername)
-        print("Hello " .. playername)
-        StartPanel:DestroyPanel()
-        MainPanel:ShowMe()
+        LoginPanel:HandleLoginResult(true)
     else
-        TipsPanel:SetTipsText("通知", "账号或密码不正确")
-        TipsPanel:ShowMe()
+        LoginPanel:HandleLoginResult(false)
     end
 end
 
@@ -67,8 +65,12 @@ function S2C.SyncUnoCardPlay(playerId, cardType, cardColor)
             currentGamePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
         elseif playerId ~= 0 then
             currentGamePanel:OnOtherUnoCardPlay(playerId, cardType, cardColor)
+        else 
+            currentGamePanel:InitFirstCardToDiscardPile(cardType, cardColor)
         end
-        currentGamePanel:AddCardToDiscardPile(cardType, cardColor)
+        currentGamePanel.gameInstance:AddCardToDiscard(cardType, cardColor)
+        currentGamePanel:PlaySound(cardType, cardColor)
+        currentGamePanel:ShowText(cardType, cardColor)
     end
 end
 
@@ -111,7 +113,6 @@ function S2C.SyncPlayerComeInPlay(matchType, playerIds_U)
         currentGamePanel:DestroyPanel()
         currentGamePanel = nil
     end
-    PreMatchPanel:DestroyPanel()
     if matchType == UnoCommonConfig.matchType1V1 then
         currentGamePanel = GameMatch1V1Panel:New()
         currentGamePanel:Init(msgpack.unpack(playerIds_U))

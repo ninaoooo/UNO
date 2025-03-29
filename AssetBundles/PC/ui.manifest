@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 677292629
+CRC: 1127026129
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a2e11ff14dc751b357be4bb3be83a444
+    Hash: b192c920542d9313442f03d7d3eea19c
   TypeTreeHash:
     serializedVersion: 2
-    Hash: c10a865a0a39acc0f5db9eb3ebef0c1a
+    Hash: 806cc405f4bf0f112028ff34e45a5171
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: a2e11ff14dc751b357be4bb3be83a444
+    Hash: b192c920542d9313442f03d7d3eea19c
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -25,9 +25,9 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
 - Class: 114
@@ -115,9 +115,9 @@ SerializeReferenceClassIdentifiers:
   ClassName: UnityEngine.UI.Toggle/ToggleEvent
 Assets:
 - Assets/ABRes/Prefabs/UI/ChangeUserPanel.prefab
-- Assets/ABRes/SpriteAltas/UnoCard.spriteatlas
 - Assets/ABRes/Prefabs/UI/MatchPanel.prefab
 - Assets/ABRes/Prefabs/UI/StorePanel.prefab
+- Assets/ABRes/SpriteAltas/UnoCard.spriteatlas
 - Assets/ABRes/Prefabs/UI/GameMatch1V3Panel.prefab
 - Assets/ABRes/Prefabs/UI/StartPanel.prefab
 - Assets/ABRes/Prefabs/UI/MainPanel.prefab
@@ -129,5 +129,4 @@ Assets:
 - Assets/ABRes/Prefabs/UI/RegisterPanel.prefab
 - Assets/ABRes/SpriteAltas/UI.spriteatlas
 - Assets/ABRes/Prefabs/UI/NoticePanel.prefab
-Dependencies:
-- F:/Workspase/Unity/UNO/AssetBundles/PC/unocardimage
+Dependencies: []
