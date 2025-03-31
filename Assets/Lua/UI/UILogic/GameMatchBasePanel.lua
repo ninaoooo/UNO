@@ -141,14 +141,14 @@ function GameMatchBasePanel:InitWildCardButtons()
         if button then
             local color = buttonInfo.color
             self:BindButtonClick(button, function()
-                self:OnColorSelected(color)
+                self:OnWildCradColorSelected(color)
                 end)
         end
     end
 end
 
--- 颜色选择回调
-function GameMatchBasePanel:OnColorSelected(color)
+-- 万能牌颜色选择回调
+function GameMatchBasePanel:OnWildCradColorSelected(color)
     -- 根据万能牌出牌状态 isWildCardFromHandContainer：玩家从手牌中出万能牌、玩家从牌堆中摸到的万能牌
     if self.isWildCardFromHandContainer then
         self.gameInstance.NotifyServerToPlayCard(self.pendingWildCardType,color)
@@ -169,7 +169,7 @@ function GameMatchBasePanel:InitFirstCardToDiscardPile(cardType, cardColor)
     local discardCard = GameObject.Instantiate(self.GDiscardPile:Find("BtnCardOthers").gameObject,self.GDiscardPile)
     discardCard:SetActive(true)
     discardCard.transform:SetParent(self.GDiscardPile, false)
-    local cardImage = discardCard.transform:Find("ImgCard"):GetComponent(typeof(Image))
+    local cardImage = discardCard:GetComponent(typeof(Image))
     self:SetCardImg(cardImage,cardType, cardColor)
 end
 
@@ -215,7 +215,7 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
             local BtnCard = card:GetComponent(typeof(Button))
             BtnCard.onClick:AddListener(function() self:OnCardClick(playerId, cardId) end)
         end
-        local cardImage = card.transform:Find("ImgCard"):GetComponent(typeof(Image))
+        local cardImage = card:GetComponent(typeof(Image))
         self:SetCardImg(cardImage,cardType, cardColor)
         DynamicEffects:DrawCardToHandContainer(card.transform,HandContainer,function ()
             DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
@@ -232,7 +232,7 @@ function GameMatchBasePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
     if success then
         DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,false)
         if self.gameInstance:IsWildCard(cardType) then
-            local cardImage = cardTransform:Find("ImgCard"):GetComponent(typeof(Image))
+            local cardImage = cardTransform:GetComponent(typeof(Image))
             self:SetCardImg(cardImage,cardType, cardColor)
         end
     -- 3.更新手牌布局
@@ -246,7 +246,7 @@ function GameMatchBasePanel:OnOtherUnoCardPlay(playerId,cardType,cardColor)
     -- 对手出牌的时候我们只需要看到他少了一张牌就行 所以这里我们默认移除他最左边一张牌
     local cardTransform = self.gameInstance:HandleOtherPlayCard(playerId, cardType, cardColor)
     local HandContainer = self.Player2Info[playerId].HandContainer
-    local cardImg = cardTransform.gameObject.transform:Find("ImgCard"):GetComponent(typeof(Image))
+    local cardImg = cardTransform:GetComponent(typeof(Image))
     DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,false)
     self:SetCardImg(cardImg,cardType, cardColor)
     DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
@@ -276,7 +276,7 @@ end
 -- 玩家自行点击牌堆 决定出牌
 function GameMatchBasePanel:OnBtnPlayDrawCardClick(cardType,cardColor)
     if self.gameInstance:IsWildCard(cardType) then
-        print("万能牌: ",cardType,cardColor)
+        print("玩家获取到的是万能牌: ",cardType,cardColor)
         self.GWildCardSelectColor.gameObject:SetActive(true)
         self.pendingWildCardType = cardType
         self.isWildCardFromHandContainer =false
@@ -289,7 +289,6 @@ end
 
 -- 玩家自行点击牌堆 决定保留
 function GameMatchBasePanel:OnBtnCancelClick(playerId, cardType,cardColor,confirmshow)
-    
     self.gameInstance.NotifyServerToKeepDrawnCard(cardColor)
     self:OnUnoCardDraw(playerId, cardType,cardColor,confirmshow)
     self.GConfirmShow.gameObject:SetActive(false)
@@ -323,10 +322,12 @@ function GameMatchBasePanel:TryPlayCard(cardData)
         self.GWildCardSelectColor.gameObject:SetActive(true)
         self.pendingWildCardType = cardData.cardType
         self.isWildCardFromHandContainer = true
+
         return
     end
     -- 非万能牌，直接出牌
     self.gameInstance.NotifyServerToPlayCard(cardData.cardType, cardData.cardColor)
+    
 end
 
 -- 手牌点击事件
@@ -393,7 +394,7 @@ end
 
 function GameMatchBasePanel:OnBtnUnoClick()
     MsgPrompt:SetPromptPrefab(self.promptPrefab)
-    if not self.gameInstance:IsTimeToShoutUno(self.gameInstance.m_MyPlayerId) then
+    if not self.gameInstance:IsTimeToShoutUno() then
         MsgPrompt:ShowPrompt("现在不用喊uno", self.panelObj.transform)
     end
 end
@@ -421,7 +422,7 @@ function GameMatchBasePanel:CreateBtnCard(parentObj)
     
     rectTransform.anchorMin = Vector2(0.5, 0)
     rectTransform.anchorMax = Vector2(0.5, 0)
-    rectTransform.pivot = Vector2(0.5, 1)
+    rectTransform.pivot = Vector2(0.5, 0)
     rectTransform.anchoredPosition = Vector2(0, 0)
     return btnCard
 end
