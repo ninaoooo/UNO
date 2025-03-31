@@ -2,7 +2,7 @@ S2CDefine = require "defs/S2CRpc"
 msgpack = require "msgpack"
 local PlayerInfo = require("Tools/PlayerInfo")
 local UnoGameLogic = require("UI/UILogic/UnoUILogic")
-local currentGamePanel = nil  -- 全局变量，保存当前游戏面板实例
+currentGamePanel = nil  -- 全局变量，保存当前游戏面板实例
 -- require "common.Utils"
 
 S2C = {}
@@ -81,6 +81,9 @@ end
 
 function S2C.SyncUnoShoutUno(playerId, hasUno)
     print("SyncUnoShutUno playerId: ", playerId, "hasUno: ", hasUno)
+    if currentGamePanel then
+        currentGamePanel:SetShoutUnoStatus(playerId,hasUno)
+    end
 end
 
 function S2C.SyncUnoPlayEnd(winPlayerId, playerCardInfo_U)
@@ -90,7 +93,6 @@ function S2C.SyncUnoPlayEnd(winPlayerId, playerCardInfo_U)
         currentGamePanel:PlayEndShowCard(playerCardList)
     end
     PlayEndPanel:Init(winPlayerId, playerId2Score)
-    -- PlayEndPanel:Init(winPlayerId,playerCardInfo_U)
 end
 
 function S2C.SyncUnoCards(playerId, cardNum, cards_U)

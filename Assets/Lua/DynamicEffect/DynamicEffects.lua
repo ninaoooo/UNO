@@ -1,6 +1,5 @@
 DynamicEffects = {}
 
-
 local DOTween = CS.DG.Tweening.DOTween
 local PathType = CS.DG.Tweening.PathType
 local PathMode = CS.DG.Tweening.PathMode
@@ -139,6 +138,43 @@ function DynamicEffects:AddCardToDiscardPile(cardTransform, discardPile, doScale
     end)
     
     return sequence
+end
+
+function DynamicEffects:DrawCardToHandContainer(cardTransform, handContainer,onCompleteCallBack)
+    -- 1. 记录卡牌当前的世界坐标（切换父对象前）
+    local worldPos = cardTransform.position
+    cardTransform:SetParent(handContainer.transform)
+    cardTransform.gameObject:SetActive(true)
+     -- 2. 强制重置RectTransform状态（关键！）
+     cardTransform.anchorMin = Vector2(0.5, 0)  -- 底部居中锚点
+     cardTransform.anchorMax = Vector2(0.5, 0)
+     cardTransform.pivot = Vector2(0.5, 0)     -- 轴心点在卡牌底部中心
+     cardTransform.anchoredPosition = Vector2(0, 0)  -- 紧贴锚点
+
+
+    
+    local handContainerChildCout = handContainer.transform.childCount
+    -- local handContainerPos = handContainer.transform.localPosition
+    local offset = self:CalculateCardOffset(handContainerChildCout, handContainer)
+
+    -- 如果手牌堆中没有牌，则牌发到手牌堆的中间位置
+    local newPos = Vector2.zero
+    -- 如果手牌堆中有牌，则发到手牌堆中最右侧牌的右侧
+    if handContainerChildCout > 0 then
+        local lastCard = handContainer.transform:GetChild(handContainerChildCout - 1)
+        -- local lastCardPos = lastCard.localPosition
+
+        newPos = Vector2(lastCard.anchoredPosition.x + offset,0)
+        cardTransform:SetAsLastSibling()
+    end
+
+    cardTransform:DOAnchorPos(newPos, 0.3)
+    :SetEase(CS.DG.Tweening.Ease.InOutQuad)
+    :OnComplete(function()
+        if onCompleteCallBack then
+            onCompleteCallBack()
+        end
+    end)
 end
 
 function DynamicEffects:ShowText(textTransform)

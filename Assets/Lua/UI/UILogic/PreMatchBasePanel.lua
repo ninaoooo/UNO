@@ -15,9 +15,10 @@ function PreMatchBasePanel:Init(playerNum,MatchNeedGold)
         end
         self.panelObj = ABMgr:LoadRes("UI", self.panelName)
         self.panelObj.transform:SetParent(Canvas, false)
+        self:InitUIComponents(MatchNeedGold)
+        self:InitComponents(playerNum)
     end
-    self:InitUIComponents(MatchNeedGold)
-    self:InitComponents(playerNum)
+    self.TextBtnStartMatch.text = "开始匹配"
 end
 
 function PreMatchBasePanel:InitUIComponents(MatchNeedGold)

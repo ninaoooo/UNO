@@ -87,8 +87,10 @@ function UnoGameLogic:IsValidPlay(cardType,cardColor)
     return false
 end
 
-function UnoGameLogic:IsShoutUnoTime()
-    return #self.m_PlayerCardList[self.m_MyPlayerId] <= 2
+function UnoGameLogic:IsTimeToShoutUno()
+    if #self.m_PlayerCardList[self.m_MyPlayerId] <= 2 then
+        self:NotifyServerToShoutUno()
+    end
 end
 
 
@@ -141,14 +143,6 @@ function UnoGameLogic:HandleOtherPlayCard(playerId)
     return cardTransform
 end
 
-function UnoGameLogic:HandleShoutUno()
-    -- 喊 UNO 逻辑
-    if self:IsShoutUnoTime() then
-        self:NotifyServerToShoutUno()
-        return true
-    end
-    return false
-end
 
 function UnoGameLogic:CheckPlayCardRules(cardType, cardColor)
     print("检查出牌规则：当前牌：cardType, cardColor")

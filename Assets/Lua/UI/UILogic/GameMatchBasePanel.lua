@@ -67,7 +67,9 @@ function GameMatchBasePanel:InitUIComponents()
     self.ImgBG = self.panelObj.transform:Find("ImgBG"):GetComponent(typeof(Image))
     self.GDiscardPile = self.panelObj.transform:Find("GDiscardPile"):GetComponent(typeof(Transform))
     self.BtnUno = self.panelObj.transform:Find("BtnUno"):GetComponent(typeof(Button))
-    self.BtnDrawPile = self.panelObj.transform:Find("BtnDrawPile"):GetComponent(typeof(Button))
+    self.GDrawPile = self.panelObj.transform:Find("GDrawPile"):GetComponent(typeof(Transform))
+    self.BtnDrawPile = self.panelObj.transform:Find("GDrawPile/BtnDrawPile"):GetComponent(typeof(Button))
+    self.CardPrefab = self.panelObj.transform:Find("GDrawPile/BtnCard").gameObject
     self.ImgGameTimer = self.panelObj.transform:Find("GGameTimer/ImgTimer"):GetComponent(typeof(Image))
     self.TextGameTimer = self.panelObj.transform:Find("GGameTimer/TextTimer"):GetComponent(typeof(TextMeshPro))
     self.TextPrepareTimer = self.panelObj.transform:Find("TextPrepareTime"):GetComponent(typeof(TextMeshPro))
@@ -110,17 +112,14 @@ function GameMatchBasePanel:InitComponent(playerIds)
         end
         local curPlayerId = playerIds[idx]
         self.Player2Info[curPlayerId] = {}
-        self.Player2Info[curPlayerId].BtnAvatar = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgBG/BtnAvatar"):GetComponent(typeof(Button))
+        self.Player2Info[curPlayerId].BtnAvatar = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/BtnAvatar"):GetComponent(typeof(Button))
         self.Player2Info[curPlayerId].playerName = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/Text"):GetComponent(typeof(TextMeshPro))
         self.Player2Info[curPlayerId].playerName.text = curPlayerId
         self.Player2Info[curPlayerId].HandContainer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer"):GetComponent(typeof(Transform))
         self.Player2Info[curPlayerId].TextTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextTurnTimer"):GetComponent(typeof(TextMeshPro))
         self.Player2Info[curPlayerId].TextPlayingCard = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextPlayingCard"):GetComponent(typeof(TextMeshPro))
-        self.Player2Info[curPlayerId].ImgShoutUno = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgShoutUno"):GetComponent(typeof(Image))
-        self.Player2Info[curPlayerId].BtnCatchUno = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/BtnCatchUno"):GetComponent(typeof(Button))
-        self.Player2Info[curPlayerId].BtnCatchUno.onClick:AddListener(function()
-            self:OnBtnCatchUnoClicked(curPlayerId) -- 传递当前玩家ID
-        end)
+        
+        self.Player2Info[curPlayerId].BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick(curPlayerId) end)
 
         pos = pos + 1
         print("已初始化完成ID"..curPlayerId.."的组件")
@@ -150,9 +149,6 @@ end
 
 -- 颜色选择回调
 function GameMatchBasePanel:OnColorSelected(color)
-    print(string.format("颜色选择触发 | 面板激活状态：%s", 
-        self.GWildCardSelectColor.gameObject.activeSelf
-    ))
     -- 根据万能牌出牌状态 isWildCardFromHandContainer：玩家从手牌中出万能牌、玩家从牌堆中摸到的万能牌
     if self.isWildCardFromHandContainer then
         self.gameInstance.NotifyServerToPlayCard(self.pendingWildCardType,color)
@@ -173,7 +169,7 @@ function GameMatchBasePanel:InitFirstCardToDiscardPile(cardType, cardColor)
     local discardCard = GameObject.Instantiate(self.GDiscardPile:Find("BtnCardOthers").gameObject,self.GDiscardPile)
     discardCard:SetActive(true)
     discardCard.transform:SetParent(self.GDiscardPile, false)
-    local cardImage = discardCard:GetComponent(typeof(Image))
+    local cardImage = discardCard.transform:Find("ImgCard"):GetComponent(typeof(Image))
     self:SetCardImg(cardImage,cardType, cardColor)
 end
 
@@ -183,10 +179,10 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
     --1.如果是 confirmshow = true 的牌 要在屏幕上展示，并让玩家确认是否需要出掉这张牌
     if self.gameInstance:IsSelf(playerId) and confirmshow then
         self.GConfirmShow.gameObject:SetActive(true)
-        local BtnChupai = self.panelObj.transform:Find("GConfirmShow/BtnChupai"):GetComponent(typeof(Button))
-        local BtnCancel = self.panelObj.transform:Find("GConfirmShow/BtnCancel"):GetComponent(typeof(Button))
-        local showCard = self.panelObj.transform:Find("GConfirmShow/BtnCardOthers"):GetComponent(typeof(Button))
-        local cardImage = showCard:GetComponent(typeof(Image))
+        local BtnChupai = self.GConfirmShow:Find("BtnChupai"):GetComponent(typeof(Button))
+        local BtnCancel = self.GConfirmShow:Find("BtnCancel"):GetComponent(typeof(Button))
+        local showCard = self.GConfirmShow:Find("BtnCardOthers"):GetComponent(typeof(Transform))
+        local cardImage = showCard:Find("ImgCard"):GetComponent(typeof(Image))
 
         self:SetCardImg(cardImage,cardType, cardColor)
         
@@ -209,15 +205,8 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
             DynamicEffects:SortHandCards(self.gameInstance.m_PlayerCardList[playerId])
         end
 
-        -- 根据玩家 ID 决定卡牌生成的位置
-        local cardPrefab = self.gameInstance:IsSelf(playerId) and HandContainer:Find("BtnCard").gameObject or 
-        HandContainer:Find("BtnCardOthers").gameObject
-
         -- 生成卡牌
-        local card = GameObject.Instantiate(cardPrefab, HandContainer)
-        card.transform:SetParent(HandContainer.transform, false)
-        card:SetActive(true)
-        
+        local card = GameObject.Instantiate(self.CardPrefab, self.GDrawPile)
         -- 将 card.tramsform 存入
         self.gameInstance:SetCardTransformToPlayer(playerId,cardId,card.transform)
 
@@ -225,14 +214,13 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
         if self.gameInstance:IsSelf(playerId) then
             local BtnCard = card:GetComponent(typeof(Button))
             BtnCard.onClick:AddListener(function() self:OnCardClick(playerId, cardId) end)
-
-            local cardImage = card.transform:Find("ImgCard"):GetComponent(typeof(Image))
-            self:SetCardImg(cardImage,cardType, cardColor)
-        else
-            local cardImage = card.transform:Find("ImgCardOthers"):GetComponent(typeof(Image))
-            self:SetCardImg(cardImage,cardType, cardColor)
         end
-        DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
+        local cardImage = card.transform:Find("ImgCard"):GetComponent(typeof(Image))
+        self:SetCardImg(cardImage,cardType, cardColor)
+        DynamicEffects:DrawCardToHandContainer(card.transform,HandContainer,function ()
+            DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
+        end)
+        
     end
 end
 
@@ -242,7 +230,7 @@ function GameMatchBasePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
     local success,cardTransform = self.gameInstance:HandlePlayCard(playerId, cardType, cardColor)
     -- 2.丢牌到弃牌堆
     if success then
-        DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,true)
+        DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,false)
         if self.gameInstance:IsWildCard(cardType) then
             local cardImage = cardTransform:Find("ImgCard"):GetComponent(typeof(Image))
             self:SetCardImg(cardImage,cardType, cardColor)
@@ -258,7 +246,7 @@ function GameMatchBasePanel:OnOtherUnoCardPlay(playerId,cardType,cardColor)
     -- 对手出牌的时候我们只需要看到他少了一张牌就行 所以这里我们默认移除他最左边一张牌
     local cardTransform = self.gameInstance:HandleOtherPlayCard(playerId, cardType, cardColor)
     local HandContainer = self.Player2Info[playerId].HandContainer
-    local cardImg = cardTransform.gameObject.transform:Find("ImgCardOthers"):GetComponent(typeof(Image))
+    local cardImg = cardTransform.gameObject.transform:Find("ImgCard"):GetComponent(typeof(Image))
     DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,false)
     self:SetCardImg(cardImg,cardType, cardColor)
     DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
@@ -287,7 +275,6 @@ end
 
 -- 玩家自行点击牌堆 决定出牌
 function GameMatchBasePanel:OnBtnPlayDrawCardClick(cardType,cardColor)
-    self.GConfirmShow.gameObject:SetActive(false)
     if self.gameInstance:IsWildCard(cardType) then
         print("万能牌: ",cardType,cardColor)
         self.GWildCardSelectColor.gameObject:SetActive(true)
@@ -297,6 +284,7 @@ function GameMatchBasePanel:OnBtnPlayDrawCardClick(cardType,cardColor)
         -- 非万能牌，直接发送确认出牌消息
         self.gameInstance.NotifyServerToPlayDrawnCard(cardColor)
     end  
+    self.GConfirmShow.gameObject:SetActive(false)
 end
 
 -- 玩家自行点击牌堆 决定保留
@@ -389,22 +377,24 @@ function GameMatchBasePanel:PlayerStage(playerId,stage)
     end
 end
 
-function GameMatchBasePanel:ShoutUnoStage(playerId,hasUno)
-    if not hasUno then
-        self.Player2Info[playerId].BtnCatchUno.gameObject:SetActive(true)
+function GameMatchBasePanel:SetShoutUnoStatus(playerId,hasUno)
+    -- 1. 播放音效（只要 hasUno=true 就播放）
+    if hasUno then
+        self:PlaySoundUno()
+    end
+
+    -- 2. 仅当玩家是自己时才更新 UI
+    if self.gameInstance:IsSelf(playerId) then
+        local ImgUno = self.BtnUno:GetComponent(typeof(Image))
+        local spriteName = hasUno and "ShoutUno" or "NotTimeToShoutUno"
+        ImgUno.sprite = self.UISpriteAltas:GetSprite(spriteName)
     end
 end
 
 function GameMatchBasePanel:OnBtnUnoClick()
     MsgPrompt:SetPromptPrefab(self.promptPrefab)
-    local success = self.gameInstance:HandleShoutUno(self.gameInstance.m_MyPlayerId)
-    if success then
-        local ImgUno = self.BtnUno:GetComponent(typeof(Image))
-        ImgUno.sprite = self.UISpriteAltas:GetSprite("ShoutUno")
-    else 
+    if not self.gameInstance:IsTimeToShoutUno(self.gameInstance.m_MyPlayerId) then
         MsgPrompt:ShowPrompt("现在不用喊uno", self.panelObj.transform)
-        local ImgUno = self.BtnUno:GetComponent(typeof(Image))
-        ImgUno.sprite = self.UISpriteAltas:GetSprite("NotTimeToShoutUno")
     end
 end
 
@@ -421,6 +411,21 @@ function GameMatchBasePanel:ClearHandContainer(HandContainer)
     end
 end
 
+function GameMatchBasePanel:CreateBtnCard(parentObj)
+    local btnCard = GameObject("BtnCard")
+    btnCard:AddComponent(typeof(Image))
+    
+    btnCard.transform:SetParent(parentObj.transform, false)
+    local rectTransform = btnCard:GetComponent(typeof(RectTransform))
+    rectTransform.sizeDelta = Vector2(144, 216) -- 默认大小
+    
+    rectTransform.anchorMin = Vector2(0.5, 0)
+    rectTransform.anchorMax = Vector2(0.5, 0)
+    rectTransform.pivot = Vector2(0.5, 1)
+    rectTransform.anchoredPosition = Vector2(0, 0)
+    return btnCard
+end
+
 function GameMatchBasePanel:PlayEndShowCard(playerCardList)
     local playerHandCard = {}
     for playerId,cardList in pairs(playerCardList) do
@@ -429,65 +434,18 @@ function GameMatchBasePanel:PlayEndShowCard(playerCardList)
         self:ClearHandContainer(HandContainer)
 
         for _, cardData in ipairs(cardList) do 
-            -- 根据玩家 ID 决定卡牌的GameObject名字
-            local cardPrefab = self.gameInstance:IsSelf(playerId) and HandContainer:Find("BtnCard").gameObject or 
-            HandContainer:Find("BtnCardOthers").gameObject
-
-            -- 生成卡牌
-            local card = GameObject.Instantiate(cardPrefab, HandContainer)
+            local card = self:CreateBtnCard(HandContainer)
             card.transform:SetParent(HandContainer.transform, false)
             card:SetActive(true)
-            
+
+            cardData[3] = card.transform
             table.insert(playerHandCard[playerId],{cardType=cardData[1],cardColor=cardData[2],cardTransform=card.transform})
             -- 设置卡面
-            if self.gameInstance:IsSelf(playerId) then
-                local cardImage = card.transform:Find("ImgCard"):GetComponent(typeof(Image))
-                self:SetCardImg(cardImage, cardData[1], cardData[2])
-            else
-                local cardImage = card.transform:Find("ImgCardOthers"):GetComponent(typeof(Image))
-                self:SetCardImg(cardImage, cardData[1], cardData[2])
-            end
+            local cardImage = card:GetComponent(typeof(Image))
+            self:SetCardImg(cardImage, cardData[1], cardData[2])
         end
-
         DynamicEffects:UpdateHandLayout(playerId, playerHandCard[playerId],HandContainer)
     end
-end
-
-function GameMatchBasePanel:ShowLastCards(playerId, playerLastCardInfo)
-    local HandContainer = self.Player2Info[playerId].HandContainer
-
-    -- 清理 HandContainer
-    self:ClearHandContainer(HandContainer)
-
-    -- 遍历 playerLastCardInfo，生成卡面图片
-    for _, cardInfo in ipairs(playerLastCardInfo) do
-        local cardType = cardInfo.cardType
-        local cardColor = cardInfo.cardColor
-
-        -- 根据玩家 ID 决定卡牌生成的位置
-        local cardPrefab = self.gameInstance:IsSelf(playerId) and HandContainer:Find("BtnCard").gameObject or 
-                           HandContainer:Find("BtnCardOthers").gameObject
-
-        -- 生成卡牌
-        local card = GameObject.Instantiate(cardPrefab, HandContainer)
-        card.transform:SetParent(HandContainer.transform, false)
-        card:SetActive(true)
-
-        -- 为自己的牌设置卡面
-        if self.gameInstance:IsSelf(playerId) then
-            local cardImage = card.transform:Find("ImgCard"):GetComponent(typeof(Image))
-            self:SetCardImg(cardImage, cardType, cardColor)
-        else
-            local cardImage = card.transform:Find("ImgCardOthers"):GetComponent(typeof(Image))
-            cardImage.sprite = self.UnoCardSpriteAltas:GetSprite("CardBack")
-        end
-
-        -- 将 card.transform 存储到 cardInfo 中
-        cardInfo.cardTransform = card.transform
-    end
-
-    -- 更新布局
-    DynamicEffects:UpdateHandLayout(playerId, playerLastCardInfo, HandContainer)
 end
 
 -- 播放音效
@@ -502,6 +460,10 @@ function GameMatchBasePanel:PlaySound(cardType, cardColor)
     end
 end
 
+function GameMatchBasePanel:PlaySoundUno()
+    LuaAudioMgr:PlaySound(LuaAudioMgr.soundABName, "UNO")
+end
+
 function GameMatchBasePanel:ShowText(cardType, cardColor)
     if self.gameInstance:IsWildCard(cardType) then
         self.Text.text = self.ShowTextByColor[cardColor]
@@ -511,6 +473,13 @@ function GameMatchBasePanel:ShowText(cardType, cardColor)
         DynamicEffects:ShowText(self.Text.transform)
     end
     
+end
+
+function GameMatchBasePanel:OnBtnAvatarClick(playerId)
+    if #self.gameInstance.m_PlayerCardList[playerId]<2 then
+        C2S.UnoPlayPlayerCatchNoUno(playerId)
+        print("抓住你啦")
+    end
 end
 
 function GameMatchBasePanel:OnBtnExitClick()

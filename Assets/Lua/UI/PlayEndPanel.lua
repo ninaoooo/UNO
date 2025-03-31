@@ -54,7 +54,8 @@ end
 
 
 function PlayEndPanel:OnBtnContinueMatchClick()
-    self:HideMe()
+    currentGamePanel:DestroyPanel()
+    self:DestroyPanel()
     PreMatchPanel:ShowMe()
 end
 
@@ -74,4 +75,9 @@ end
 
 function PlayEndPanel:Update()
     
+end
+
+function  PlayEndPanel:DestroyPanel()
+    GameObject.Destroy(self.panelObj)
+    self.panelObj = nil
 end
