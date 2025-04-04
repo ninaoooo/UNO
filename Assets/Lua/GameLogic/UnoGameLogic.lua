@@ -90,7 +90,9 @@ end
 function UnoGameLogic:IsTimeToShoutUno()
     if #self.m_PlayerCardList[self.m_MyPlayerId] <= 2 then
         self:NotifyServerToShoutUno()
+        return true
     end
+    return false
 end
 
 

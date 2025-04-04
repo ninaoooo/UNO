@@ -10,14 +10,6 @@ function RegisterPanel:Init()
         self.panelObj = ABMgr:LoadRes("UI", "RegisterPanel")
         self.panelObj.transform:SetParent(Canvas, false)
 
-        -- self.BtnClose = self.panelObj.transform:Find("ImgBG/BtnClose"):GetComponent(typeof(Button))
-        -- self.BtnRegister = self.panelObj.transform:Find("ImgBG/BtnRegister"):GetComponent(typeof(Button))
-
-        -- self.playerName = self.panelObj.transform:Find("ImgBG/InputPlayerName"):GetComponent(typeof(TextMeshProInputField))
-        -- self.passWord = self.panelObj.transform:Find("ImgBG/InputPassword"):GetComponent(typeof(TextMeshProInputField))
-
-        -- self.BtnClose.onClick:AddListener(function() self:OnBtnCloseClick() end)
-        -- self.BtnRegister.onClick:AddListener(function() self:OnBtnRegisterClick() end)
         self.BtnReturn = self.panelObj.transform:Find("GRegisterBox/BtnReturn"):GetComponent(typeof(Button))
         self.playerName = self.panelObj.transform:Find("GRegisterBox/ImgLoginUserName/InputUserName"):GetComponent(typeof(TextMeshProInputField))
         self.passWord = self.panelObj.transform:Find("GRegisterBox/ImgLoginUserPassword/InputPassword"):GetComponent(typeof(TextMeshProInputField))

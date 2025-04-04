@@ -10,6 +10,8 @@ local SoundData = require("Tools/SoundData")
 local musicVolume = PlayerPrefs.HasKey("MusicVolume") and PlayerPrefs.GetFloat("MusicVolume") or 1.0
 local soundVolume = PlayerPrefs.HasKey("SoundVolume") and PlayerPrefs.GetFloat("SoundVolume") or 1.0
 
+local ToggleMusicIsOn = PlayerPrefs.GetInt("ToogleMusicIsOn",1) == 1 
+local ToggleSoundIsOn = PlayerPrefs.GetInt("ToogleSoundIsOn",1) == 1
 -- 加载音乐音效
 function LuaAudioMgr:LoadAudio(abName, audioList)
     for _, audioData in ipairs(audioList) do
@@ -25,8 +27,18 @@ function LuaAudioMgr:Init()
     LuaAudioMgr:LoadAudio(self.musicList, self.musicABName)
     LuaAudioMgr:LoadAudio(self.soundList, self.soundABName)
     LuaAudioMgr:PlayMusic(self.musicABName,"Village Tarantella")
-    LuaAudioMgr.SetMusicVolume(musicVolume)
-    LuaAudioMgr.SetSoundVolume(soundVolume)
+    if not ToggleMusicIsOn then
+        LuaAudioMgr.SetMusicVolume(0)
+    else
+        LuaAudioMgr.SetMusicVolume(musicVolume)
+    end
+    if not ToggleSoundIsOn then
+        LuaAudioMgr.SetSoundVolume(0)
+    else 
+        LuaAudioMgr.SetSoundVolume(soundVolume)
+    end
+    
+    
 end
 
 function LuaAudioMgr:PlayMusic(abName, musicName)

@@ -17,8 +17,9 @@ function PreMatchBasePanel:Init(playerNum,MatchNeedGold)
         self.panelObj.transform:SetParent(Canvas, false)
         self:InitUIComponents(MatchNeedGold)
         self:InitComponents(playerNum)
+        self.TextBtnStartMatch.text = "开始匹配"
     end
-    self.TextBtnStartMatch.text = "开始匹配"
+    
 end
 
 function PreMatchBasePanel:InitUIComponents(MatchNeedGold)
@@ -41,9 +42,10 @@ function PreMatchBasePanel:InitComponents(playerNum)
         GPlayer.transform:SetParent(self.GPlayerContainer, false)
         GPlayer:SetActive(true)
         local TextSelfPlayerName = GPlayer.transform:Find("Text"):GetComponent(typeof(TextMeshPro))
-        local ImgAvatar = GPlayer.transform:Find("ImgBG/BtnAvatar"):GetComponent(typeof(Image))
+        local ImgAvatar = GPlayer.transform:Find("BtnAvatar"):GetComponent(typeof(Image))
         if playerIndex == 1 then
             TextSelfPlayerName.text = PlayerInfo:GetPlayerName()
+            ImgAvatar.sprite = AvatarSpriteAltas:GetSprite(PlayerInfo:GetPlayerAvatar())
         else
             TextSelfPlayerName.text = "等待匹配"
         end

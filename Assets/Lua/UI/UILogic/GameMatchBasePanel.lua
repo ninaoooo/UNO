@@ -51,7 +51,6 @@ function GameMatchBasePanel:Init(playerIds)
         self.panelObj.transform:SetParent(Canvas, false)
 
         self.UnoCardSpriteAltas = ABMgr:LoadRes("UI", "UnoCard")
-        self.UISpriteAltas = ABMgr:LoadRes("UI", "UI")
         self.promptPrefab = ABMgr:LoadRes("modes", "GMsgPrompt")
 
         self:InitUIComponents()
@@ -111,9 +110,14 @@ function GameMatchBasePanel:InitComponent(playerIds)
             idx = #playerIds
         end
         local curPlayerId = playerIds[idx]
+        local avatarIdx = curPlayerId%13
         self.Player2Info[curPlayerId] = {}
         self.Player2Info[curPlayerId].BtnAvatar = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/BtnAvatar"):GetComponent(typeof(Button))
+        self.Player2Info[curPlayerId].ImgAvatar = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/BtnAvatar"):GetComponent(typeof(Image))
+        self.Player2Info[curPlayerId].ImgAvatar.sprite = AvatarSpriteAltas:GetSprite("avatar ("..avatarIdx..")")
         self.Player2Info[curPlayerId].playerName = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/Text"):GetComponent(typeof(TextMeshPro))
+        self.Player2Info[curPlayerId].ImgWin = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgWin"):GetComponent(typeof(Image))
+        self.Player2Info[curPlayerId].ImgShoutUno = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgShoutUno"):GetComponent(typeof(Image))
         self.Player2Info[curPlayerId].playerName.text = curPlayerId
         self.Player2Info[curPlayerId].HandContainer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer"):GetComponent(typeof(Transform))
         self.Player2Info[curPlayerId].TextTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextTurnTimer"):GetComponent(typeof(TextMeshPro))
@@ -271,6 +275,16 @@ function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
     self.actionTimer.onUpdate = function (timestr)
         self.Player2Info[playerId].TextTurnTimer.text = timestr
     end
+
+    -- -- 设置计时器回调
+    -- self.actionTimer.onFinish = function()
+    --     -- 关键判断：只有当确认弹窗处于激活状态时才执行保留
+    --     if self.GConfirmShow and self.GConfirmShow.gameObject.activeSelf then
+    --         print("[倒计时结束] 自动保留卡牌")
+    --         -- 调用与"取消"按钮相同的逻辑
+    --         self:OnBtnCancelClick(playerId, self.currentCardInfo.cardType, self.currentCardInfo.cardColor, false)
+    --     end
+    -- end
 end
 
 -- 玩家自行点击牌堆 决定出牌
@@ -382,13 +396,9 @@ function GameMatchBasePanel:SetShoutUnoStatus(playerId,hasUno)
     -- 1. 播放音效（只要 hasUno=true 就播放）
     if hasUno then
         self:PlaySoundUno()
-    end
-
-    -- 2. 仅当玩家是自己时才更新 UI
-    if self.gameInstance:IsSelf(playerId) then
-        local ImgUno = self.BtnUno:GetComponent(typeof(Image))
-        local spriteName = hasUno and "ShoutUno" or "NotTimeToShoutUno"
-        ImgUno.sprite = self.UISpriteAltas:GetSprite(spriteName)
+        self.Player2Info[playerId].ImgShoutUno.gameObject:SetActive(true)
+    else
+        self.Player2Info[playerId].ImgShoutUno.gameObject:SetActive(false)
     end
 end
 

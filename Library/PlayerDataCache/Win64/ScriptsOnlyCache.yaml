@@ -73,27 +73,27 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 2224}
+      Script: {instanceID: 2222}
     - Class: 114
       Script: {instanceID: 2666}
     - Class: 114
       Script: {instanceID: 2870}
     - Class: 114
-      Script: {instanceID: 3514}
+      Script: {instanceID: 3520}
     - Class: 114
-      Script: {instanceID: 4192}
+      Script: {instanceID: 4202}
     - Class: 114
-      Script: {instanceID: 4458}
+      Script: {instanceID: 4468}
     - Class: 114
-      Script: {instanceID: 4884}
+      Script: {instanceID: 4894}
     - Class: 114
-      Script: {instanceID: 5188}
+      Script: {instanceID: 5198}
     - Class: 114
-      Script: {instanceID: 5402}
+      Script: {instanceID: 5416}
     - Class: 114
-      Script: {instanceID: 5770}
+      Script: {instanceID: 5784}
     - Class: 114
-      Script: {instanceID: 6284}
+      Script: {instanceID: 6330}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -419,6 +419,12 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.TestRunner
     namespaceName: UnityEngine.TestTools.TestRunner.Callbacks
     className: PlayerQuitHandler
+  - hash:
+      serializedVersion: 2
+      Hash: 8c93afe59838d51b36fb8aef765497af
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: DOTweenTest
   - hash:
       serializedVersion: 2
       Hash: 2a4bf9bfa4fc85b7c3fd76767f844af6
@@ -1007,13 +1013,7 @@ ScriptsOnlyBuild:
     assemblyName: Unity.VisualScripting.Core
     namespaceName: Unity.VisualScripting
     className: UnityOnSliderValueChangedMessageListener
-  - hash:
-      serializedVersion: 2
-      Hash: 8c93afe59838d51b36fb8aef765497af
-    assemblyName: Assembly-CSharp
-    namespaceName: 
-    className: DOTweenTest
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/Users/Nina/Desktop/NewestUno/UNO.exe
+  playerPath: C:/Users/Nina/Desktop/NewestUno_3/UNO.exe

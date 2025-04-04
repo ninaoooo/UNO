@@ -45,7 +45,7 @@ TextMeshProInputField = CS.TMPro.TMP_InputField
 Button = UI.Button 
 Toggle = UI.Toggle
 ScrollRect = UI.ScrollRect
-
+Slider = CS.UnityEngine.UI.Slider
 -- 操作相关
 Input = CS.UnityEngine.Input
 KeyCode = CS.UnityEngine.KeyCode

@@ -10,13 +10,15 @@ MainPanel.BtnStore = nil
 MainPanel.BtnModeMatch1V1 = nil
 MainPanel.BtnModeRoom = nil
 
+local PlayerInfo = require("Tools/PlayerInfo")
+AvatarSpriteAltas = ABMgr:LoadRes("UI", "Avatar")
 function MainPanel:Init()
     if  self.panelObj == nil then
         self.panelObj = ABMgr:LoadRes("UI","MainPanel")
         self.panelObj.transform:SetParent(Canvas,false)        -- 2.找到对应控件 再找到挂在身上想要的脚本
         
         self.BtnAvatar = self.panelObj.transform:Find("GAvatar/BtnAvatar"):GetComponent(typeof(Button))
-
+        self.ImgAvatar = self.BtnAvatar.transform:GetComponent(typeof(Image))
         self.BtnSetting = self.panelObj.transform:Find("GSettings/Button"):GetComponent(typeof(Button))
         self.BtnStore = self.panelObj.transform:Find("GStore/Button"):GetComponent(typeof(Button))
         self.BtnModeMatch1V1 = self.panelObj.transform:Find("GPlayerModeContainer/GPlayMode1V1/Button"):GetComponent(typeof(Button))
@@ -25,7 +27,12 @@ function MainPanel:Init()
         self.BtnModeMatch1V1.onClick:AddListener(function() self:OnBtnModeMatch1V1Click() end)
         self.BtnModeMatch1V3.onClick:AddListener(function() self:OnBtnModeMatch1V3Click() end)
         self.BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick() end)
+        self.BtnSetting.onClick:AddListener(function() self:OnBtnSettingClick() end)
         MonoBehaviourMgr:Register(self)
+
+        
+        self.avatarString = PlayerInfo:GetPlayerAvatar()
+        self.ImgAvatar.sprite = AvatarSpriteAltas:GetSprite(self.avatarString)
     end
 end
 
@@ -47,7 +54,8 @@ function MainPanel:OnBtnAvatarClick()
 end
 
 function MainPanel:OnBtnSettingClick()
-    print("OnBtnSettingClick")
+    self:HideMe()
+    SettingPanel:ShowMe()
 end
 
 function MainPanel:OnBtnStoreClick()
@@ -65,6 +73,8 @@ function MainPanel:OnBtnModeMatch1V3Click()
     PreMatchPanel = PreMatch1V3Panel:New()
     PreMatchPanel:ShowMe()
 end
+
+
 
 function MainPanel:DestroyPanel()
     GameObject.Destroy(self.panelObj)

@@ -102,7 +102,7 @@ public static class ExampleConfig
     //[CSharpCallLua]
     //public static List<Type> CSharpCallLua
     //{
-    //    get
+    //    get                                    c
     //    {
     //        var lua_call_csharp = LuaCallCSharp;
     //        var delegate_types = new List<Type>();

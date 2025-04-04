@@ -36,6 +36,8 @@ function S2C.LoginUserResult(a, playerId, playername)
     if a then
         PlayerInfo:SetPlayerId(playerId)
         PlayerInfo:SetPlayerName(playername)
+        local idx = playerId%13
+        PlayerInfo:SetPlayerAvatar("avatar ("..idx..")")
         LoginPanel:HandleLoginResult(true)
     else
         LoginPanel:HandleLoginResult(false)

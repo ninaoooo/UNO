@@ -1,21 +1,22 @@
 ManifestFileVersion: 0
-CRC: 1104488310
+CRC: 1859423799
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 2215b83c88a7496c6b3b52287c392bc4
+    Hash: 7c12ad0200bbfb4d54ada366bb0d8df4
   TypeTreeHash:
     serializedVersion: 2
     Hash: 9a2ca7bdbd1871f7131daf57de908e0c
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 2215b83c88a7496c6b3b52287c392bc4
+    Hash: 7c12ad0200bbfb4d54ada366bb0d8df4
 HashAppended: 0
 ClassTypes:
 - Class: 83
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
+- Assets/ABRes/Sound/CatchYou.wav
 - Assets/ABRes/Sound/Green.wav
 - Assets/ABRes/Sound/Yellow.wav
 - Assets/ABRes/Sound/Reverse.wav
