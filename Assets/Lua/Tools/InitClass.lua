@@ -1,6 +1,7 @@
 -- 常用别名都在这里定位
 require("Tools/Object")
 require("Tools/SplitTools")
+require("Base/HotReloadManager")
 require("Tools/UnoCardImageReflect")
 require("Tools/Quaternion")
 DynamicEffects = require("DynamicEffect/DynamicEffects")

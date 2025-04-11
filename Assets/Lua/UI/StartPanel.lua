@@ -26,7 +26,10 @@ end
 
 function StartPanel:Start()
     print("StartPanel Start")
+    RpcMgr:Connect("124.220.67.240", 9010)
 end
+
+
 
 function StartPanel:Update()
     
@@ -58,7 +61,7 @@ function StartPanel:OnBtnChangeUserClick()
 end
 
 function StartPanel:OnBtnStartClick()
-    ChangeUserPanel:Destroy()
+    ChangeUserPanel:Destroy() 
     RpcMgr:Connect("124.220.67.240", 9010)
     -- 自动登录
     -- 检查 PlayerPrefs 中是否有账号和密码
@@ -76,9 +79,6 @@ function StartPanel:OnBtnStartClick()
     end
 end
 
-function StartPanel:OnDestroy()
-    print("StartPanel OnDestroy")
-end
 
 function StartPanel:DestroyPanel()
     GameObject.Destroy(self.panelObj)

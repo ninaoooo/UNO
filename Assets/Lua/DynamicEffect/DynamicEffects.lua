@@ -15,7 +15,7 @@ end
 
 -- 默认卡牌偏移量
 DynamicEffects.fixedOffsetX = 50  -- 固定偏移量（空间足够时使用）
-DynamicEffects.minOffsetX = 10    -- 最小偏移量（空间不足时使用）
+DynamicEffects.minOffsetX = 5    -- 最小偏移量（空间不足时使用）
 
 -- 设置固定偏移量
 function DynamicEffects:SetFixedOffsetX(offsetX)
@@ -140,7 +140,7 @@ function DynamicEffects:AddCardToDiscardPile(cardTransform, discardPile, doScale
     return sequence
 end
 
-function DynamicEffects:DrawCardToHandContainer(cardTransform, handContainer,onCompleteCallBack)
+function DynamicEffects:DrawCardToHandContainer(cardTransform, handContainer,location,onCompleteCallBack)
     -- 1. 记录卡牌当前的世界坐标（切换父对象前）
     local worldPos = cardTransform.position
     cardTransform:SetParent(handContainer.transform)
@@ -150,9 +150,11 @@ function DynamicEffects:DrawCardToHandContainer(cardTransform, handContainer,onC
      cardTransform.anchorMax = Vector2(0.5, 0)
      cardTransform.pivot = Vector2(0.5, 0)     -- 轴心点在卡牌底部中心
      cardTransform.anchoredPosition = Vector2(0, 0)  -- 紧贴锚点
-
-
-    
+    if location == "Left" or location == "Right" then
+        print("154")
+        cardTransform.localRotation = Quaternion.Euler(0, 0, 0)
+        -- cardTransform.rotation = Vector3(0,0,0)
+    end
     local handContainerChildCout = handContainer.transform.childCount
     -- local handContainerPos = handContainer.transform.localPosition
     local offset = self:CalculateCardOffset(handContainerChildCout, handContainer)

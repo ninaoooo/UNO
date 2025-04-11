@@ -1,6 +1,7 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
+    - AudioMgr
     - Main
     DOTween.dll:
     - DG.Tweening.Core.DOTweenSettings
@@ -72,25 +73,27 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 2218}
+      Script: {instanceID: 2230}
     - Class: 114
-      Script: {instanceID: 2658}
+      Script: {instanceID: 2676}
     - Class: 114
-      Script: {instanceID: 2862}
+      Script: {instanceID: 2884}
     - Class: 114
-      Script: {instanceID: 3504}
+      Script: {instanceID: 3540}
     - Class: 114
-      Script: {instanceID: 4182}
+      Script: {instanceID: 4224}
     - Class: 114
-      Script: {instanceID: 4448}
+      Script: {instanceID: 4492}
     - Class: 114
-      Script: {instanceID: 4868}
+      Script: {instanceID: 4918}
     - Class: 114
-      Script: {instanceID: 5170}
+      Script: {instanceID: 5226}
     - Class: 114
-      Script: {instanceID: 5752}
+      Script: {instanceID: 5446}
     - Class: 114
-      Script: {instanceID: 6286}
+      Script: {instanceID: 5816}
+    - Class: 114
+      Script: {instanceID: 6372}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -118,6 +121,12 @@ ScriptsOnlyBuild:
     className: HorizontalLayoutGroup
   - hash:
       serializedVersion: 2
+      Hash: dd9dda1dfd39e605c49e72003342ef5d
+    assemblyName: UnityEngine.UI
+    namespaceName: UnityEngine.UI
+    className: Image
+  - hash:
+      serializedVersion: 2
       Hash: 8dc40a01667ca02b3354a4e7a61be082
     assemblyName: UnityEngine.UI
     namespaceName: UnityEngine.UI
@@ -134,12 +143,6 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.UI
     namespaceName: UnityEngine.UIElements
     className: PanelRaycaster
-  - hash:
-      serializedVersion: 2
-      Hash: dd9dda1dfd39e605c49e72003342ef5d
-    assemblyName: UnityEngine.UI
-    namespaceName: UnityEngine.UI
-    className: Image
   - hash:
       serializedVersion: 2
       Hash: f45600bcc886206dd55a3208474aad61
@@ -400,6 +403,12 @@ ScriptsOnlyBuild:
     className: ScriptMachine
   - hash:
       serializedVersion: 2
+      Hash: 8d21cb87b7a080d791ebde040086d4e5
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: TimerUtility
+  - hash:
+      serializedVersion: 2
       Hash: 43ebd945b04bced376c791411cf5a289
     assemblyName: Unity.VisualScripting.Core
     namespaceName: Unity.VisualScripting
@@ -410,6 +419,12 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.TestRunner
     namespaceName: UnityEngine.TestTools.TestRunner.Callbacks
     className: PlayerQuitHandler
+  - hash:
+      serializedVersion: 2
+      Hash: 8c93afe59838d51b36fb8aef765497af
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: DOTweenTest
   - hash:
       serializedVersion: 2
       Hash: 2a4bf9bfa4fc85b7c3fd76767f844af6
@@ -680,6 +695,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline
     namespaceName: UnityEngine.Timeline
     className: GroupTrack
+  - hash:
+      serializedVersion: 2
+      Hash: 10cbc60478d8daa66e18f2925197e4ca
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: AudioMgr
   - hash:
       serializedVersion: 2
       Hash: bf0842d88681628b29beb00b5e2ab785
@@ -995,4 +1016,4 @@ ScriptsOnlyBuild:
   platform: 5
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: "C:/Users/Nina/Desktop/\u6253\u5305/UNO.exe"
+  playerPath: C:/Users/Nina/Desktop/0407UNO/UNO.exe

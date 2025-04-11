@@ -5,6 +5,8 @@ RegisterPanel.BtnRegister = nil
 RegisterPanel.playerName = nil
 RegisterPanel.passWord = nil
 
+
+
 function RegisterPanel:Init()
     if self.panelObj == nil then
         self.panelObj = ABMgr:LoadRes("UI", "RegisterPanel")
@@ -24,11 +26,18 @@ function RegisterPanel:Init()
         self.BtnReturn.onClick:AddListener(function() self:OnBtnReturnClick() end)
         self.BtnRegister.onClick:AddListener(function() self:OnBtnRegisterClick() end)
         self.BtnPolicy.onClick:AddListener(function() self:OnBtnPolicyClick() end)
+
+        MessageSystem.RegisterListener("S2C.RegisterUserResult",function (result)
+            RegisterPanel:HandleRegisterResult(result) 
+        end) 
         MonoBehaviourMgr:Register(self)
     end
 end
 
+
+
 function RegisterPanel:Start()
+    
 end
 
 function RegisterPanel:ShowMe()
@@ -46,31 +55,34 @@ function RegisterPanel:OnBtnRegisterClick()
     local passWord = self.passWord.text
     local acceptPolicy = self.Toggle.isOn
     if acceptPolicy then 
-        RpcMgr:Connect("124.220.67.240", 9010)
         C2S.RegisterUser(playerName, passWord)
+        print("已发送注册请求")
     else 
-        TextAlertShowAndClose(self.TextAlertAccept.gameObject,2)
+        TextAlertShowAndClose(self.TextAlertAccept,1,"请先阅读并同意隐私政策")
     end
 end
 
 function RegisterPanel:HandleRegisterResult(result)
     if result then
-        TextAlertShowAndClose(self.TextAlertRegisterResult.gameObject, 2, "注册成功,请登录")
-        self:Destroy()
-        LoginPanel:ShowMe()
+        TextAlertShowAndClose(self.TextAlertRegisterResult, 1, "注册成功,请登录")
+        TimerUtility:StartTimer("alertTimer", 1, function()
+            self:DestroyPanel()
+            LoginPanel:ShowMe()
+        end)
     else 
-        TextAlertShowAndClose(self.TextAlertRegisterResult.gameObject, 2, "注册失败,请重新注册")
+        TextAlertShowAndClose(self.TextAlertRegisterResult, 1, "注册失败,请重新注册")
     end
 end
 function TextAlertShowAndClose(TextAlert, delay, text)
-    TextAlert:SetActive(true)
+    TextAlert.gameObject:SetActive(true)
+    TextAlert.text = text
     TimerUtility:StartTimer("alertTimer", delay, function()
-        TextAlert:SetActive(false)
+        TextAlert.gameObject:SetActive(false)
     end)
 end
 
 function RegisterPanel:OnBtnReturnClick()
-    RegisterPanel:Destroy()
+    RegisterPanel:DestroyPanel()
     StartPanel:ShowMe()
 end
 
@@ -78,7 +90,7 @@ function RegisterPanel:OnBtnPolicyClick()
     print("这里是隐私政策")
 end
 
-function RegisterPanel:Destroy()
+function RegisterPanel:DestroyPanel()
     GameObject.Destroy(self.panelObj)
     self.panelObj = nil
 end

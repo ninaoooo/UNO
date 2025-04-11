@@ -5,6 +5,7 @@ local UnoGameLogic = require("UI/UILogic/UnoUILogic")
 currentGamePanel = nil  -- 全局变量，保存当前游戏面板实例
 -- require "common.Utils"
 
+print("yireggh")
 S2C = {}
 
 function S2C.SyncName(a,b)
@@ -24,24 +25,11 @@ function S2C.NoParam()
 end
 
 function S2C.RegisterUserResult(a)
-    if a then
-        
-        RegisterPanel:HandleRegisterResult(true)
-    else
-        RegisterPanel:HandleRegisterResult(false)
-    end
+    MessageSystem.Dispatch("S2C.RegisterUserResult", a)
 end
 
 function S2C.LoginUserResult(a, playerId, playername)
-    if a then
-        PlayerInfo:SetPlayerId(playerId)
-        PlayerInfo:SetPlayerName(playername)
-        local idx = playerId%13
-        PlayerInfo:SetPlayerAvatar("avatar ("..idx..")")
-        LoginPanel:HandleLoginResult(true)
-    else
-        LoginPanel:HandleLoginResult(false)
-    end
+    MessageSystem.Dispatch("S2C.LoginUserResult", a, playerId, playername)
 end
 
 function S2C.ChangePasswardResult(a)

@@ -74,6 +74,10 @@ function GameMatchBasePanel:InitUIComponents()
     self.TextPrepareTimer = self.panelObj.transform:Find("TextPrepareTime"):GetComponent(typeof(TextMeshPro))
 
     self.GConfirmShow = self.panelObj.transform:Find("GConfirmShow"):GetComponent(typeof(Transform))
+    self.BtnChupai = self.GConfirmShow:Find("BtnChupai"):GetComponent(typeof(Button))
+    self.BtnCancel = self.GConfirmShow:Find("BtnCancel"):GetComponent(typeof(Button))
+    self.showCard = self.GConfirmShow:Find("BtnCardOthers"):GetComponent(typeof(Transform))
+
     self.GWildCardSelectColor = self.panelObj.transform:Find("GWildCardSelectColor"):GetComponent(typeof(Transform))
     self.BtnExit.onClick:AddListener(function() self:OnBtnExitClick() end)
     self.BtnUno.onClick:AddListener(function() self:OnBtnUnoClick() end)
@@ -119,6 +123,7 @@ function GameMatchBasePanel:InitComponent(playerIds)
         self.Player2Info[curPlayerId].ImgWin = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgWin"):GetComponent(typeof(Image))
         self.Player2Info[curPlayerId].ImgShoutUno = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgShoutUno"):GetComponent(typeof(Image))
         self.Player2Info[curPlayerId].playerName.text = curPlayerId
+        self.Player2Info[curPlayerId].Location = positionMap[pos]
         self.Player2Info[curPlayerId].HandContainer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer"):GetComponent(typeof(Transform))
         self.Player2Info[curPlayerId].TextTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextTurnTimer"):GetComponent(typeof(TextMeshPro))
         self.Player2Info[curPlayerId].TextPlayingCard = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextPlayingCard"):GetComponent(typeof(TextMeshPro))
@@ -183,19 +188,14 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
     --1.如果是 confirmshow = true 的牌 要在屏幕上展示，并让玩家确认是否需要出掉这张牌
     if self.gameInstance:IsSelf(playerId) and confirmshow then
         self.GConfirmShow.gameObject:SetActive(true)
-        local BtnChupai = self.GConfirmShow:Find("BtnChupai"):GetComponent(typeof(Button))
-        local BtnCancel = self.GConfirmShow:Find("BtnCancel"):GetComponent(typeof(Button))
-        local showCard = self.GConfirmShow:Find("BtnCardOthers"):GetComponent(typeof(Transform))
-        local cardImage = showCard:Find("ImgCard"):GetComponent(typeof(Image))
-
+        local cardImage = self.showCard:GetComponent(typeof(Image))
         self:SetCardImg(cardImage,cardType, cardColor)
-        
-        BtnChupai.onClick:AddListener(function()
+        self.BtnChupai.onClick:AddListener(function()
             self.gameInstance.confirmshow = true
-            self.gameInstance.m_TempConfirmCard = {cardType = cardType, cardColor = cardColor, cardTransform = showCard.transform}
+            self.gameInstance.m_TempConfirmCard = {cardType = cardType, cardColor = cardColor, cardTransform = self.showCard.transform}
             self:OnBtnPlayDrawCardClick(cardType, cardColor)
         end)
-        BtnCancel.onClick:AddListener(function()
+        self.BtnCancel.onClick:AddListener(function()
             self:OnBtnCancelClick(playerId, cardType,cardColor,false)
         end)
     else
@@ -221,7 +221,7 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
         end
         local cardImage = card:GetComponent(typeof(Image))
         self:SetCardImg(cardImage,cardType, cardColor)
-        DynamicEffects:DrawCardToHandContainer(card.transform,HandContainer,function ()
+        DynamicEffects:DrawCardToHandContainer(card.transform,HandContainer,self.Player2Info[playerId].Location,function ()
             DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
         end)
         
@@ -277,14 +277,17 @@ function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
     end
 
     -- -- 设置计时器回调
-    -- self.actionTimer.onFinish = function()
-    --     -- 关键判断：只有当确认弹窗处于激活状态时才执行保留
-    --     if self.GConfirmShow and self.GConfirmShow.gameObject.activeSelf then
-    --         print("[倒计时结束] 自动保留卡牌")
-    --         -- 调用与"取消"按钮相同的逻辑
-    --         self:OnBtnCancelClick(playerId, self.currentCardInfo.cardType, self.currentCardInfo.cardColor, false)
-    --     end
-    -- end
+    self.actionTimer.onFinish = function()
+        
+        -- 关键判断：只有当确认弹窗处于激活状态时才执行保留
+        if self.GConfirmShow and self.GConfirmShow.gameObject.activeSelf then
+            print("[倒计时结束] 自动保留卡牌")
+            -- 调用与"取消"按钮相同的逻辑
+            self:OnBtnCancelClick(playerId, self.currentCardInfo.cardType, self.currentCardInfo.cardColor, false)
+        end
+        self.GConfirmShow.gameObject:SetActive(false) -- 关闭确认弹窗
+        self.GWildCardSelectColor.gameObject:SetActive(false) -- 关闭颜色选择面板
+    end
 end
 
 -- 玩家自行点击牌堆 决定出牌
@@ -298,7 +301,6 @@ function GameMatchBasePanel:OnBtnPlayDrawCardClick(cardType,cardColor)
         -- 非万能牌，直接发送确认出牌消息
         self.gameInstance.NotifyServerToPlayDrawnCard(cardColor)
     end  
-    self.GConfirmShow.gameObject:SetActive(false)
 end
 
 -- 玩家自行点击牌堆 决定保留
@@ -502,6 +504,12 @@ end
 function GameMatchBasePanel:Update()
     self.totalTimer:Update()
     self.actionTimer:Update()
+
+    if InputMgr:GetKey(KeyCode.A) then
+        self.GConfirmShow.gameObject:SetActive(true)
+        local cardImage = self.showCard:GetComponent(typeof(Image))
+        self:SetCardImg(cardImage, 1, 1)
+    end
 end
 -- 绑定按钮点击事件
 function GameMatchBasePanel:BindButtonClick(button, onClickCallback)

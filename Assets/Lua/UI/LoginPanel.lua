@@ -26,6 +26,10 @@ function LoginPanel:Init()
         self.BtnReturn.onClick:AddListener(function() self:OnBtnReturnClick() end)
         self.BtnLogin.onClick:AddListener(function() self:OnBtnLoginClick() end)
         self.BtnRegister.onClick:AddListener(function() self:OnBtnRegisterClick() end)
+
+        MessageSystem.RegisterListener("S2C.LoginUserResult",function (result)
+            self:HandleLoginResult(result)
+        end)
         MonoBehaviourMgr:Register(self)
     end
 end
@@ -75,9 +79,10 @@ function LoginPanel:HandleLoginResult(result)
 end
 
 function TextAlertShowAndClose(TextAlert, delay, text)
-    TextAlert:SetActive(true)
+    TextAlert.gameObject:SetActive(true)
+    TextAlert.text = text
     TimerUtility:StartTimer("alertTimer", delay, function()
-        TextAlert:SetActive(false)
+        TextAlert.gameObject:SetActive(false)
     end)
 end
 

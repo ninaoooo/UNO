@@ -1,0 +1,59 @@
+ManifestFileVersion: 0
+CRC: 1425559154
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 568880ce3d113fef6371a4cdf56acc02
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 5ad585dd02dfb5016c0dad519eab8f49
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 568880ce3d113fef6371a4cdf56acc02
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/LuaTxt/UI/Tools/MsgPrompt.lua.txt
+- Assets/LuaTxt/Base/MonoBehaviourMgr.lua.txt
+- Assets/LuaTxt/GameLogic/UnoGameLogic.lua.txt
+- Assets/LuaTxt/UI/GameMatch1V3Panel.lua.txt
+- Assets/LuaTxt/defs/UnoConfig.lua.txt
+- Assets/LuaTxt/Tools/CountdownTimer.lua.txt
+- Assets/LuaTxt/UI/PlayEndPanel.lua.txt
+- Assets/LuaTxt/DynamicEffect/PlayCard.lua.txt
+- Assets/LuaTxt/Tools/LuaAudioMgr.lua.txt
+- Assets/LuaTxt/UI/ChangeUserPanel.lua.txt
+- Assets/LuaTxt/Tools/JsonUtility.lua.txt
+- Assets/LuaTxt/UI/SettingPanel.lua.txt
+- Assets/LuaTxt/UI/UILogic/PreMatchBasePanel.lua.txt
+- Assets/LuaTxt/UI/Tools/CoroutineMgr.lua.txt
+- Assets/LuaTxt/DynamicEffect/DynamicEffects.lua.txt
+- Assets/LuaTxt/Tools/SplitTools.lua.txt
+- Assets/LuaTxt/UI/PreMatch1V3Panel.lua.txt
+- Assets/LuaTxt/UI/RegisterPanel.lua.txt
+- Assets/LuaTxt/UI/TipsPanel.lua.txt
+- Assets/LuaTxt/Base/InputMgr.lua.txt
+- Assets/LuaTxt/UI/UILogic/GameMatchBasePanel.lua.txt
+- Assets/LuaTxt/UI/GameMatch1v1Panel.lua.txt
+- Assets/LuaTxt/Tools/PlayerInfo.lua.txt
+- Assets/LuaTxt/Main.lua.txt
+- Assets/LuaTxt/Tools/Quaternion.lua.txt
+- Assets/LuaTxt/UI/LoginPanel.lua.txt
+- Assets/LuaTxt/Tools/InitClass.lua.txt
+- Assets/LuaTxt/Tools/SoundData.lua.txt
+- Assets/LuaTxt/UI/StartPanel.lua.txt
+- Assets/LuaTxt/defs/S2CRpc.lua.txt
+- Assets/LuaTxt/UIPanels.lua.txt
+- Assets/LuaTxt/defs/S2CImp.lua.txt
+- Assets/LuaTxt/UI/UILogic/UnoUILogic.lua.txt
+- Assets/LuaTxt/UI/MainPanel.lua.txt
+- Assets/LuaTxt/Base/RpcMgr.lua.txt
+- Assets/LuaTxt/Tools/MusicData.lua.txt
+- Assets/LuaTxt/Tools/Object.lua.txt
+- Assets/LuaTxt/defs/C2SRpc.lua.txt
+- Assets/LuaTxt/Tools/UnoCardImageReflect.lua.txt
+- Assets/LuaTxt/UI/PreMatch1V1Panel.lua.txt
+Dependencies: []

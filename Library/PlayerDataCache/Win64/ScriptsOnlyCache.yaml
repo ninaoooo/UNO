@@ -2,6 +2,7 @@ ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
     - AudioMgr
+    - LuaBehaviour
     - Main
     DOTween.dll:
     - DG.Tweening.Core.DOTweenSettings
@@ -17,6 +18,7 @@ ScriptsOnlyBuild:
     - TMPro.TMP_Settings
     - TMPro.TMP_SpriteAsset
     - TMPro.TMP_StyleSheet
+    - TMPro.TextMeshProUGUI
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
     - UnityEditor.TestTools.TestRunner.TestListCacheData
@@ -24,8 +26,10 @@ ScriptsOnlyBuild:
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
+    - UnityEngine.UI.Button
     - UnityEngine.UI.CanvasScaler
     - UnityEngine.UI.GraphicRaycaster
+    - UnityEngine.UI.Image
   serializedClasses:
     DOTween:
     - DG.Tweening.Core.DOTweenSettings/ModulesSetup
@@ -73,27 +77,27 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 2222}
+      Script: {instanceID: 2230}
     - Class: 114
-      Script: {instanceID: 2666}
+      Script: {instanceID: 2676}
     - Class: 114
-      Script: {instanceID: 2870}
+      Script: {instanceID: 2884}
     - Class: 114
-      Script: {instanceID: 3520}
+      Script: {instanceID: 3540}
     - Class: 114
-      Script: {instanceID: 4202}
+      Script: {instanceID: 4224}
     - Class: 114
-      Script: {instanceID: 4468}
+      Script: {instanceID: 4492}
     - Class: 114
-      Script: {instanceID: 4894}
+      Script: {instanceID: 4918}
     - Class: 114
-      Script: {instanceID: 5198}
+      Script: {instanceID: 5226}
     - Class: 114
-      Script: {instanceID: 5416}
+      Script: {instanceID: 5446}
     - Class: 114
-      Script: {instanceID: 5784}
+      Script: {instanceID: 5816}
     - Class: 114
-      Script: {instanceID: 6330}
+      Script: {instanceID: 6372}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -1016,4 +1020,4 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/Users/Nina/Desktop/NewestUno_3/UNO.exe
+  playerPath: C:/Users/Nina/Desktop/0407_2UNO/UNO.exe

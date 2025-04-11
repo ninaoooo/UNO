@@ -4,6 +4,19 @@ local PlayerInfo = {
     playerAvatar = ""
 }
 
+function PlayerInfo:InitPlayerInfo(result,playerId,playerName)
+    if result then
+        local idx = playerId%13
+        self:SetPlayerId(playerId)
+        self:SetPlayerName(playerName)
+        self:SetPlayerAvatar("avatar ("..idx..")")
+    end
+end
+MessageSystem.RegisterListener("S2C.LoginUserResult",function(result,playerId,playerName)
+    PlayerInfo:InitPlayerInfo(result,playerId,playerName)
+end)
+
+
 -- Set 方法
 function PlayerInfo:SetPlayerId(playerId)
     self.playerId = playerId

@@ -30,7 +30,7 @@ function PlayEndPanel:InitData(playerId2Score)
     for playerId, score in pairs(playerId2Score) do
         table.insert(self.scoreArray, {playerId, score})
     end
-    table.sort(self.scoreArray, function(a, b) return a[2] > b[2] end)
+    table.sort(self.scoreArray, function(a, b) return a[2] < b[2] end)
 
 end
 
