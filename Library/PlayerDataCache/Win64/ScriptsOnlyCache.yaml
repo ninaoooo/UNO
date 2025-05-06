@@ -2,7 +2,6 @@ ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
     - AudioMgr
-    - LuaBehaviour
     - Main
     DOTween.dll:
     - DG.Tweening.Core.DOTweenSettings
@@ -13,12 +12,6 @@ ScriptsOnlyBuild:
     - TMPro.TMP_Settings
     - TMPro.TMP_SpriteAsset
     - TMPro.TMP_StyleSheet
-    Unity.TextMeshPro.dll:
-    - TMPro.TMP_FontAsset
-    - TMPro.TMP_Settings
-    - TMPro.TMP_SpriteAsset
-    - TMPro.TMP_StyleSheet
-    - TMPro.TextMeshProUGUI
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
     - UnityEditor.TestTools.TestRunner.TestListCacheData
@@ -26,10 +19,8 @@ ScriptsOnlyBuild:
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
-    - UnityEngine.UI.Button
     - UnityEngine.UI.CanvasScaler
     - UnityEngine.UI.GraphicRaycaster
-    - UnityEngine.UI.Image
   serializedClasses:
     DOTween:
     - DG.Tweening.Core.DOTweenSettings/ModulesSetup
@@ -83,21 +74,21 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 2884}
     - Class: 114
-      Script: {instanceID: 3540}
+      Script: {instanceID: 3542}
     - Class: 114
-      Script: {instanceID: 4224}
+      Script: {instanceID: 4228}
     - Class: 114
-      Script: {instanceID: 4492}
+      Script: {instanceID: 4496}
     - Class: 114
-      Script: {instanceID: 4918}
+      Script: {instanceID: 4922}
     - Class: 114
-      Script: {instanceID: 5226}
+      Script: {instanceID: 5230}
     - Class: 114
-      Script: {instanceID: 5446}
+      Script: {instanceID: 5450}
     - Class: 114
-      Script: {instanceID: 5816}
+      Script: {instanceID: 5820}
     - Class: 114
-      Script: {instanceID: 6372}
+      Script: {instanceID: 6376}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -905,6 +896,12 @@ ScriptsOnlyBuild:
     className: EventTrigger
   - hash:
       serializedVersion: 2
+      Hash: 713ba0aa7d0dc362896dd4034ac0ab63
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: MD5Utility
+  - hash:
+      serializedVersion: 2
       Hash: a89b0448af4e1cd103a77f9fec0a961f
     assemblyName: Unity.VisualScripting.Core
     namespaceName: Unity.VisualScripting
@@ -1020,4 +1017,4 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/Users/Nina/Desktop/0407_2UNO/UNO.exe
+  playerPath: C:/Users/Nina/Desktop/0516-1/UNO.exe

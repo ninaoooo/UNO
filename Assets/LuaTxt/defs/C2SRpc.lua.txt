@@ -1,0 +1,16 @@
+return {
+	{"Test", "ss"},
+	{"Test2", "sss"},
+	{"Int3", "III"},
+	{"NoParam", ""},
+	{"RegisterUser", "ss"},
+	{"LoginUser", "ss"},
+	{"ChangePassward", "sss"},
+	{"RequestDoMatch", "I"},
+	{"UnoPlayPlayerDrawCard", ""},
+	{"UnoPlayPlayerConfirmOut", "yI"},
+	{"UnoPlayPlayerPlayCard", "II"},
+	{"UnoPlayPlayerResponseDrawFour", "y"},
+	{"UnoPlayPlayerShoutUno", ""},
+	{"UnoPlayPlayerCatchNoUno", "I"},
+}

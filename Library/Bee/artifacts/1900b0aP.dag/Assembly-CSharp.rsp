@@ -317,6 +317,7 @@
 "Assets/Scripts/DOTWeenTest.cs"
 "Assets/Scripts/LuaBehaviour.cs"
 "Assets/Scripts/Main.cs"
+"Assets/Scripts/MD5.cs"
 "Assets/Scripts/ProjectBase/ABMgr.cs"
 "Assets/Scripts/ProjectBase/AudioMgr.cs"
 "Assets/Scripts/ProjectBase/Base/BaseManager.cs"
