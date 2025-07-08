@@ -5,6 +5,7 @@
 	<assembly fullname="Assembly-CSharp">
 	    <type fullname="DOTweenExtention" preserve="all"/>
 		<type fullname="LuaBehaviour" preserve="all"/>
+		<type fullname="LuaProfilerHelper" preserve="all"/>
 		<type fullname="Tutorial.BaseClass" preserve="all"/>
 		<type fullname="Tutorial.TestEnum" preserve="all"/>
 		<type fullname="Tutorial.DerivedClass" preserve="all"/>

@@ -1,6 +1,7 @@
 -- 基类 GameMatchBasePanel
 local GameMatchBasePanel = {}
 local PlayerInfo = require("Tools/PlayerInfo")
+local PoolMgr = require("UI/Pools/PoolMgr")
 GameMatchBasePanel.__index = GameMatchBasePanel
 
 function GameMatchBasePanel:New()
