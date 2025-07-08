@@ -99,6 +99,13 @@ public class ABMgr : SingletonAutoMono<ABMgr>
         else
             return obj;
     }
+    public Object LoadRawRes(string abName, string resName)
+    {
+        //加载AB包
+        LoadAB(abName);
+        Object obj = abDic[abName].LoadAsset(resName);
+        return obj;
+    }
 
     //同步加载 根据type指定类型
     public Object LoadRes(string abName, string resName, System.Type type)
