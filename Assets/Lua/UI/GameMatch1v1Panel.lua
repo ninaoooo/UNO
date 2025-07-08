@@ -63,17 +63,17 @@ function GameMatch1V1Panel:cardPrefabsTest()
     -- print("Test finished: 100 cards got.")
 end
 
-function GameMatch1V1Panel:Update()
-    self.totalTimer:Update()
-    self.actionTimer:Update()
+-- function GameMatch1V1Panel:Update()
+--     self.totalTimer:Update()
+--     self.actionTimer:Update()
 
     
-    if InputMgr:GetKey(KeyCode.A) then
-        -- self.GConfirmShow.gameObject:SetActive(true)
-        -- local cardImage = self.showCard:GetComponent(typeof(Image))
-        -- self:SetCardImg(cardImage, 1, 1)
-        self:cardPrefabsTest()
-    end
-end
+--     if InputMgr:GetKey(KeyCode.A) then
+--         -- self.GConfirmShow.gameObject:SetActive(true)
+--         -- local cardImage = self.showCard:GetComponent(typeof(Image))
+--         -- self:SetCardImg(cardImage, 1, 1)
+--         self:cardPrefabsTest()
+--     end
+-- end
 
 return GameMatch1V1Panel

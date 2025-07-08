@@ -128,7 +128,7 @@ function DynamicEffects:AddCardToDiscardPile(cardTransform, discardPile, doScale
     
     -- 3. 根据参数决定是否添加缩小动画
     if doScale then
-        sequence:Join(cardTransform:DOScale(Vector3(0.7, 0.7, 1), 0.3)
+        sequence:Join(cardTransform:DOScale(Vector3(0.8, 0.8, 1), 0.3)
             :SetEase(CS.DG.Tweening.Ease.InOutQuad))
     end
     

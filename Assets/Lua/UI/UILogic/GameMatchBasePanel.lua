@@ -2,6 +2,7 @@
 local GameMatchBasePanel = {}
 local PlayerInfo = require("Tools/PlayerInfo")
 local PoolMgr = require("UI/Pools/PoolMgr")
+local cardPool = PoolMgr:getPool("card")
 GameMatchBasePanel.__index = GameMatchBasePanel
 
 function GameMatchBasePanel:New()
@@ -79,7 +80,7 @@ function GameMatchBasePanel:InitUIComponents()
     self.GConfirmShow = self.panelObj.transform:Find("GConfirmShow"):GetComponent(typeof(Transform))
     self.BtnChupai = self.GConfirmShow:Find("BtnChupai"):GetComponent(typeof(Button))
     self.BtnCancel = self.GConfirmShow:Find("BtnCancel"):GetComponent(typeof(Button))
-    self.showCard = self.GConfirmShow:Find("BtnCardOthers").gameObject
+    -- self.showCard = self.GConfirmShow:Find("BtnCardOthers").gameObject
 
     self.GWildCardSelectColor = self.panelObj.transform:Find("GWildCardSelectColor"):GetComponent(typeof(Transform))
     self.BtnExit.onClick:AddListener(function() self:OnBtnExitClick() end)
@@ -218,11 +219,16 @@ function GameMatchBasePanel:SetCardImg(cardImage,cardType, cardColor)
 end
 
 function GameMatchBasePanel:InitFirstCardToDiscardPile(cardType, cardColor)
-    local discardCard = GameObject.Instantiate(self.GDiscardPile:Find("BtnCardOthers").gameObject,self.GDiscardPile)
-    discardCard:SetActive(true)
-    discardCard.transform:SetParent(self.GDiscardPile, false)
+    -- local discardCard = GameObject.Instantiate(self.GDiscardPile:Find("BtnCardOthers").gameObject,self.GDiscardPile)
+    local discardCard = cardPool:get()
     local cardImage = discardCard:GetComponent(typeof(Image))
     self:SetCardImg(cardImage,cardType, cardColor)
+
+    discardCard.transform:SetParent(self.GDiscardPile, false)
+    local discardCardRect = discardCard:GetComponent(typeof(RectTransform))
+    discardCardRect.localPosition  = Vector3(0, 0, 0)
+    discardCardRect.localScale  = Vector3(0.8, 0.8,0.8)    -- 正常大小
+    
 end
 
 -- 系统发牌至玩家
@@ -230,12 +236,17 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
     local HandContainer = self.Player2Info[playerId].HandContainer
     --1.如果是 confirmshow = true 的牌 要在屏幕上展示，并让玩家确认是否需要出掉这张牌
     if self.gameInstance:IsSelf(playerId) and confirmshow then
-        local card = GameObject.Instantiate(self.showCard, self.GConfirmShow)
-        self.gameInstance.confirmshow = true
-        self.confirmParas = {playerId,cardType,cardColor,confirmshow,card.transform}
         self.GConfirmShow.gameObject:SetActive(true)
-        local cardImage = card:GetComponent(typeof(Image))
-        self:SetCardImg(cardImage,cardType, cardColor)
+        local showCard = cardPool:get()
+        showCard.transform:SetParent(self.GConfirmShow, false)
+        local cardImage = showCard:GetComponent(typeof(Image))
+        self:SetCardImg(cardImage, 1, 1)
+        local showCardRect = showCard:GetComponent(typeof(RectTransform))
+        showCardRect.localPosition  = Vector3(0, 0, 0)
+        showCardRect.anchorMin = Vector2(0, 0.5)
+        showCardRect.anchorMax = Vector2(0, 0.5)
+        showCardRect.pivot = Vector2(0, 0.5)
+        showCardRect.localScale  = Vector3(0.7, 0.7,0.7) 
     else
         self.gameInstance.confirmshow = false
         self.gameInstance.m_TempConfirmCard = nil
@@ -248,7 +259,9 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
         end
 
         -- 生成卡牌
-        local card = GameObject.Instantiate(self.CardPrefab, self.GDrawPile)
+        -- local card = GameObject.Instantiate(self.CardPrefab, self.GDrawPile)
+        local card = cardPool:get()
+        card.transform:SetParent(self.GDrawPile, false)
         -- 将 card.tramsform 存入
         self.gameInstance:SetCardTransformToPlayer(playerId,cardId,card.transform)
 
@@ -271,7 +284,7 @@ function GameMatchBasePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
     local success,cardTransform = self.gameInstance:HandlePlayCard(playerId, cardType, cardColor)
     -- 2.丢牌到弃牌堆
     if success then
-        DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,false)
+        DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,true)
         if self.gameInstance:IsWildCard(cardType) then
             local cardImage = cardTransform:GetComponent(typeof(Image))
             self:SetCardImg(cardImage,cardType, cardColor)
@@ -288,7 +301,7 @@ function GameMatchBasePanel:OnOtherUnoCardPlay(playerId,cardType,cardColor)
     local cardTransform = self.gameInstance:HandleOtherPlayCard(playerId, cardType, cardColor)
     local HandContainer = self.Player2Info[playerId].HandContainer
     local cardImg = cardTransform:GetComponent(typeof(Image))
-    DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,false)
+    DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,true)
     self:SetCardImg(cardImg,cardType, cardColor)
     DynamicEffects:UpdateHandLayout(playerId,self.gameInstance.m_PlayerCardList[playerId],HandContainer)
 end
@@ -555,11 +568,19 @@ function GameMatchBasePanel:Update()
     self.totalTimer:Update()
     self.actionTimer:Update()
 
-    if InputMgr:GetKey(KeyCode.A) then
-        self.GConfirmShow.gameObject:SetActive(true)
-        local cardImage = self.showCard:GetComponent(typeof(Image))
-        self:SetCardImg(cardImage, 1, 1)
-    end
+    -- if Input.GetKeyDown(KeyCode.A) then
+    --     self.GConfirmShow.gameObject:SetActive(true)
+    --     local showCard = cardPool:get()
+    --     showCard.transform:SetParent(self.GConfirmShow, false)
+    --     local cardImage = showCard:GetComponent(typeof(Image))
+    --     self:SetCardImg(cardImage, 1, 1)
+    --     local showCardRect = showCard:GetComponent(typeof(RectTransform))
+    --     showCardRect.localPosition  = Vector3(0, 0, 0)
+    --     showCardRect.anchorMin = Vector2(0, 0.5)
+    --     showCardRect.anchorMax = Vector2(0, 0.5)
+    --     showCardRect.pivot = Vector2(0, 0.5)
+    --     showCardRect.localScale  = Vector3(0.7, 0.7,0.7) 
+    -- end
 end
 -- 绑定按钮点击事件
 function GameMatchBasePanel:BindButtonClick(button, onClickCallback)

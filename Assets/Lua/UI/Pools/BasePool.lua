@@ -14,6 +14,7 @@ end
 function BasePool:warmup()
     for i=1, self.count do
         local obj = GameObject.Instantiate(self.prefab,self.parent)
+        print("BasePool:warmup - prefab name: " .. self.prefab.name)
         obj:SetActive(false)
         table.insert(self.pool, obj)
     end
@@ -29,7 +30,7 @@ function BasePool:get()
     else
         obj = GameObject.Instantiate(self.prefab, self.parent)
     end
-    obj:SetActive(false)
+    obj:SetActive(true)
     return obj
 end
 
