@@ -18,7 +18,7 @@ function BasePool:warmup()
         obj:SetActive(false)
         table.insert(self.pool, obj)
     end
-    print("BasePool:warmup - Warmed up pool with " .. self.count .. " objects.")
+    print("BasePool:warmup - Warmed up pool with " .. #self.pool .. " objects.")
 end
 
 -- 2. 从池中取出一个对象
@@ -37,7 +37,7 @@ end
 
 -- 3. 清理对象状态
 function BasePool:clean(obj)
-    error("BasePool:clean should be overridden by subclass")
+    -- error("BasePool:clean should be overridden by subclass")
 end
 
 -- 4. 将对象放回池中
@@ -56,4 +56,7 @@ function BasePool:destoryPool()
     self.pool = {}
 end
 
+function BasePool:getPoolLength()
+    return #self.pool
+end
 return BasePool

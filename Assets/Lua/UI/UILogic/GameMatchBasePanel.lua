@@ -72,7 +72,7 @@ function GameMatchBasePanel:InitUIComponents()
     self.BtnUno = self.panelObj.transform:Find("BtnUno"):GetComponent(typeof(Button))
     self.GDrawPile = self.panelObj.transform:Find("GDrawPile"):GetComponent(typeof(Transform))
     self.BtnDrawPile = self.panelObj.transform:Find("GDrawPile/BtnDrawPile"):GetComponent(typeof(Button))
-    self.CardPrefab = self.panelObj.transform:Find("GDrawPile/BtnCard").gameObject
+    -- self.CardPrefab = self.panelObj.transform:Find("GDrawPile/BtnCard").gameObject
     self.ImgGameTimer = self.panelObj.transform:Find("GGameTimer/ImgTimer"):GetComponent(typeof(Image))
     self.TextGameTimer = self.panelObj.transform:Find("GGameTimer/TextTimer"):GetComponent(typeof(TextMeshPro))
     self.TextPrepareTimer = self.panelObj.transform:Find("TextPrepareTime"):GetComponent(typeof(TextMeshPro))
@@ -177,7 +177,7 @@ function GameMatchBasePanel:InitComponent(playerIds)
         pos = pos + 1
         print("已初始化完成ID"..curPlayerId.."的组件")
     end
-    self.GDiscardPile:Find("BtnCardOthers").gameObject:SetActive(false)
+    -- self.GDiscardPile:Find("BtnCardOthers").gameObject:SetActive(false)
     self.totalTimer = CountdownTimer.New()
     self.actionTimer = CountdownTimer.New()
 end
@@ -485,42 +485,40 @@ function GameMatchBasePanel:ClearHandContainer(HandContainer)
     end
 end
 
-function GameMatchBasePanel:CreateBtnCard(parentObj)
-    local btnCard = GameObject("BtnCard")
-    btnCard:AddComponent(typeof(Image))
-    
-    btnCard.transform:SetParent(parentObj.transform, false)
-    local rectTransform = btnCard:GetComponent(typeof(RectTransform))
-    rectTransform.sizeDelta = Vector2(144, 216) -- 默认大小
-    
-    rectTransform.anchorMin = Vector2(0.5, 0)
-    rectTransform.anchorMax = Vector2(0.5, 0)
-    rectTransform.pivot = Vector2(0.5, 0)
-    rectTransform.anchoredPosition = Vector2(0, 0)
-    return btnCard
+
+function GameMatchBasePanel:SetCard(parent)
+    local card = cardPool:get()
+    card.transform:SetParent(parent, false)
+    local cardRect = card:GetComponent(typeof(RectTransform))
+    cardRect.localPosition = Vector3(0, 0, 0)
+    cardRect.anchorMin = Vector2(0, 0.5)
+    cardRect.anchorMax = Vector2(0, 0.5)
+    cardRect.pivot = Vector2(0, 0.5)
+    cardRect.localScale = Vector3(0.7, 0.7, 0.7) 
 end
 
 function GameMatchBasePanel:PlayEndShowCard(playerCardList)
     local playerHandCard = {}
     for playerId,cardList in pairs(playerCardList) do
         local HandContainer = self.Player2Info[playerId].HandContainer
+        for i = HandContainer.transform.childCount - 1, 0, -1 do
+            local card = HandContainer.transform:GetChild(i).gameObject
+            cardPool:clean(card) 
+            cardPool:put(card)
+        end
         playerHandCard[playerId] = {}
-        self:ClearHandContainer(HandContainer)
 
         for _, cardData in ipairs(cardList) do 
-            local card = self:CreateBtnCard(HandContainer)
+            local card = cardPool:get()
             card.transform:SetParent(HandContainer.transform, false)
-            card:SetActive(true)
-
-            cardData[3] = card.transform
-            table.insert(playerHandCard[playerId],{cardType=cardData[1],cardColor=cardData[2],cardTransform=card.transform})
-            -- 设置卡面
+            table.insert(playerHandCard[playerId],{cardTransform=card.transform})
             local cardImage = card:GetComponent(typeof(Image))
             self:SetCardImg(cardImage, cardData[1], cardData[2])
         end
         DynamicEffects:UpdateHandLayout(playerId, playerHandCard[playerId],HandContainer)
     end
 end
+
 
 -- 播放音效
 function GameMatchBasePanel:PlaySound(cardType, cardColor)
@@ -557,10 +555,8 @@ function GameMatchBasePanel:OnBtnAvatarClick(playerId)
 end
 
 function GameMatchBasePanel:OnBtnExitClick()
-    print("546")
     self:DestroyPanel()
     MainPanel:ShowMe()
-    print("548")
 end
 
 -- 更新函数
@@ -569,6 +565,9 @@ function GameMatchBasePanel:Update()
     self.actionTimer:Update()
 
     -- if Input.GetKeyDown(KeyCode.A) then
+    --     print("按下A键，测试对象池")
+    --     local showCard = cardPool:get()
+    --     cardPool:clean(showCard) -- 清理卡牌状态
     --     self.GConfirmShow.gameObject:SetActive(true)
     --     local showCard = cardPool:get()
     --     showCard.transform:SetParent(self.GConfirmShow, false)
@@ -591,6 +590,26 @@ function GameMatchBasePanel:BindButtonClick(button, onClickCallback)
     button.onClick:AddListener(onClickCallback)
 end
 
+
+function GameMatchBasePanel:BatchReturnCardsToPool(playerIds)
+    -- 清理玩家手牌
+    for _, playerId in ipairs(playerIds) do
+        local HandContainer = self.Player2Info[playerId].HandContainer
+        if HandContainer then
+            for i = HandContainer.transform.childCount - 1, 0, -1 do
+                local card = HandContainer.transform:GetChild(i).gameObject
+                cardPool:clean(card)
+                cardPool:put(card)
+            end
+        end
+    end
+    -- 清理弃牌堆
+    for i = self.GDiscardPile.childCount - 1,0,-1 do
+        local  card = self.GDiscardPile:GetChild(i).gameObject
+        cardPool:clean(card) 
+        cardPool:put(card)
+    end
+end
 function GameMatchBasePanel:DestroyPanel()
     print("销毁游戏面板")
     GameObject.Destroy(self.panelObj)

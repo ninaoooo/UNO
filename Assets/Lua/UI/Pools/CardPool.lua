@@ -10,6 +10,7 @@ function CardPool:new(prefab, parent, count)
 end
 
 function CardPool:clean(obj)
+    print("CardPool:clean - Cleaning card object: ")
     local btn = obj:GetComponent("Button")
     if btn then
         btn.onClick:RemoveAllListeners()
