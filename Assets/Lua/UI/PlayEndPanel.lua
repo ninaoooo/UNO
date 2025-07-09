@@ -1,5 +1,5 @@
 PlayEndPanel = {}
-
+local GameMatchBasePanel = require("UI/UILogic/GameMatchBasePanel")
 function PlayEndPanel:Init(winPlayerId,playerId2Score)
     if  self.panelObj == nil then
         self.panelObj = ABMgr:LoadRes("UI", "PlayEndPanel")
@@ -54,11 +54,15 @@ end
 
 function PlayEndPanel:OnBtnContinueMatchClick()
     GameEntry.currentGamePanel:DestroyPanel()
+    GameMatchBasePanel:BatchReturnCardsToPool()
+    print("PlayEndPanel:OnBtnHomeClick - Returning cards to pool and showing main panel")
     self:DestroyPanel()
     PreMatchPanel:ShowMe()
 end
 
 function PlayEndPanel:OnBtnHomeClick()
+    GameMatchBasePanel:BatchReturnCardsToPool()
+    print("PlayEndPanel:OnBtnHomeClick - Returning cards to pool and showing main panel")
     self:HideMe()
     MainPanel:ShowMe()
 end

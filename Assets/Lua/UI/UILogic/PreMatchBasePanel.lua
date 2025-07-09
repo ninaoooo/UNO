@@ -1,43 +1,45 @@
 local PlayerInfo = require("Tools/PlayerInfo")
-local PreMatchBasePanel = {}
-PreMatchBasePanel.__index = PreMatchBasePanel
+PreMatchBasePanel = {}
+-- PreMatchBasePanel.__index = PreMatchBasePanel
 
-function PreMatchBasePanel:New()
-    local self = setmetatable({}, PreMatchBasePanel)
-    return self
-end
+-- function PreMatchBasePanel:New()
+--     local self = setmetatable({}, PreMatchBasePanel)
+--     return self
+-- end
 
-function PreMatchBasePanel:Init(playerNum,MatchNeedGold)
+function PreMatchBasePanel:InitUI()
+    
     if self.panelObj == nil then
         -- 检查 panelName 是否已设置
-        if not self.panelName then
-            error("panelName must be set in subclass")
-        end
-        self.panelObj = ABMgr:LoadRes("UI", self.panelName)
+        -- if not self.panelName then
+        --     error("panelName must be set in subclass")
+        -- end
+        self.panelObj = ABMgr:LoadRes("UI", "PreMatchPanel")
         self.panelObj.transform:SetParent(Canvas, false)
-        self:InitUIComponents(MatchNeedGold)
-        self:InitComponents(playerNum)
+        
+        self.BtnReturn = self.panelObj.transform:Find("GReturn/BtnReturn"):GetComponent(typeof(Button))
+        self.GPlayerContainer = self.panelObj.transform:Find("GPlayerContainer"):GetComponent(typeof(Transform))
+        self.BtnStartMatch = self.panelObj.transform:Find("BtnStart"):GetComponent(typeof(Button))
+        self.TextBtnStartMatch = self.panelObj.transform:Find("BtnStart/Text (TMP)"):GetComponent(typeof(TextMeshPro))
         self.TextBtnStartMatch.text = "开始匹配"
-    end
-    
-end
-
-function PreMatchBasePanel:InitUIComponents(MatchNeedGold)
-    self.BtnReturn = self.panelObj.transform:Find("GReturn/BtnReturn"):GetComponent(typeof(Button))
-    self.GPlayerContainer = self.panelObj.transform:Find("GPlayerContainer"):GetComponent(typeof(Transform))
-    self.BtnStartMatch = self.panelObj.transform:Find("BtnStart"):GetComponent(typeof(Button))
-    self.TextBtnStartMatch = self.panelObj.transform:Find("BtnStart/Text (TMP)"):GetComponent(typeof(TextMeshPro))
-    self.TextBtnStartMatch.text = "开始匹配"
-    self.BtnStartMatch.onClick:AddListener(function() self:OnBtnStartMatchClick() end)
-    self.TextMatchNeedGold = self.panelObj.transform:Find("GUseGoldTip/TextUseGoldTip"):GetComponent(typeof(TextMeshPro))
-    self.TextMatchNeedGold.text = "匹配消耗\n" .. MatchNeedGold .. "金币"
-    self.BtnReturn.onClick:AddListener(function() self:OnBtnReturnClick() end)
+        self.BtnStartMatch.onClick:AddListener(function() self:OnBtnStartMatchClick() end)
+        self.TextMatchNeedGold = self.panelObj.transform:Find("GUseGoldTip/TextUseGoldTip"):GetComponent(typeof(TextMeshPro))
+        self.TextMatchNeedGold.text = "匹配消耗\n" .. self.matchGold .. "金币"
+        self.BtnReturn.onClick:AddListener(function() self:OnBtnReturnClick() end)
+    end   
     MonoBehaviourMgr:Register(self)
 end
 
-function PreMatchBasePanel:InitComponents(playerNum)
+function PreMatchBasePanel:InitData(playerNum,playMode,matchGold)
+    self.playerNum = playerNum
+    self.playMode = playMode    
+    self.matchGold = matchGold
+end
+
+
+function PreMatchBasePanel:InitPlayerComponents()
     local playerPrefab = self.panelObj.transform:Find("GPlayerContainer/GPlayer").gameObject
-    for playerIndex = 1, playerNum do
+    for playerIndex = 1, self.playerNum do
         local GPlayer = GameObject.Instantiate(playerPrefab,self.GPlayerContainer)
         GPlayer.transform:SetParent(self.GPlayerContainer, false)
         GPlayer:SetActive(true)
@@ -53,10 +55,14 @@ function PreMatchBasePanel:InitComponents(playerNum)
 end
 
 function PreMatchBasePanel:Start()
+    
 end
 
-function PreMatchBasePanel:ShowMe()
-    error("ShowMe must be set in subclass")
+function PreMatchBasePanel:ShowMe(playerNum,playMode,matchGold)
+    PreMatchBasePanel:InitData(playerNum,playMode,matchGold)
+    PreMatchBasePanel:InitUI()
+    PreMatchBasePanel:InitPlayerComponents()
+    self.TextBtnStartMatch.text = "开始匹配"
 end
 
 function PreMatchBasePanel:HideMe()
@@ -64,38 +70,27 @@ function PreMatchBasePanel:HideMe()
 end
 function PreMatchBasePanel:OnBtnReturnClick()
     -- 返回的时候要取消匹配状态
-    
-    -- 返回主界面
     self:DestroyPanel()
     MainPanel:ShowMe()
 end
 
 function PreMatchBasePanel:OnBtnStartMatchClick()
-    local matchModeToRpc = self:GetMatchModeToRpc()
-    local cancelMatchModeToRpc = self:GetCancelMatchModeToRpc()
     if self.TextBtnStartMatch.text == "开始匹配" then
         self.TextBtnStartMatch.text = "取消匹配"
-        C2S.RequestDoMatch(matchModeToRpc)
+        if self.playMode == UnoCommonConfig.matchType1V1 then
+            C2S.RequestDoMatch(UnoCommonConfig.matchType1V1)
+        elseif self.playMode == UnoCommonConfig.matchType1V3 then
+            C2S.RequestDoMatch(UnoCommonConfig.matchType1V3)
+        end
     elseif  self.TextBtnStartMatch.text == "取消匹配" then
         self.TextBtnStartMatch.text = "开始匹配"
     end
 end
 
-function PreMatchBasePanel:GetMatchModeToRpc()
-    error("GetMatchModeToRpc must be set in subclass")
-end
-
-function PreMatchBasePanel:GetCancelMatchModeToRpc()
-    error("GetCancelMatchModeToRpc must be set in subclass")
-end
 
 function PreMatchBasePanel:DestroyPanel()
     GameObject.Destroy(self.panelObj)
     self.panelObj = nil
-    self.BtnReturn = nil
-    self.GPlayerContainer = nil
-    self.BtnStartMatch = nil
-    self.TextBtnStartMatch = nil
 end
 
-return  PreMatchBasePanel
+-- return  PreMatchBasePanel

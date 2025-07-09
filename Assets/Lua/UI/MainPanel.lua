@@ -37,7 +37,6 @@ function MainPanel:Init()
 end
 
 function MainPanel:Start()
-    print("MainPanel Start")
 end
 
 
@@ -51,7 +50,6 @@ function MainPanel:HideMe()
 end
 
 function MainPanel:OnBtnAvatarClick()
-    print("OnBtnAvatarClick")
 end
 
 function MainPanel:OnBtnSettingClick()
@@ -60,19 +58,16 @@ function MainPanel:OnBtnSettingClick()
 end
 
 function MainPanel:OnBtnStoreClick()
-    print("OnBtnStoreClick")
 end
 
 function MainPanel:OnBtnModeMatch1V1Click()
     MainPanel:DestroyPanel()
-    PreMatchPanel = PreMatch1V1Panel:New()
-    PreMatchPanel:ShowMe()
+    PreMatchBasePanel:ShowMe(2,UnoCommonConfig.matchType1V1,UnoCommonConfig.Match1v1NeedGold)
 end
 
 function MainPanel:OnBtnModeMatch1V3Click()
     MainPanel:DestroyPanel()
-    PreMatchPanel = PreMatch1V3Panel:New()
-    PreMatchPanel:ShowMe()
+    PreMatchBasePanel:ShowMe(4,UnoCommonConfig.matchType1V3,UnoCommonConfig.Match1v3NeedGold)
 end
 
 

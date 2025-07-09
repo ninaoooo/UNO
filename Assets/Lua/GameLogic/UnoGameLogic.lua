@@ -208,12 +208,4 @@ end
 function UnoGameLogic:NotifyServerToCatchUno(playerId)
     C2S.UnoPlayPlayerCatchNoUno(playerId)
 end
-
-
-
-
-
-
-
-
 return UnoGameLogic

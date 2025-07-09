@@ -591,9 +591,9 @@ function GameMatchBasePanel:BindButtonClick(button, onClickCallback)
 end
 
 
-function GameMatchBasePanel:BatchReturnCardsToPool(playerIds)
+function GameMatchBasePanel:BatchReturnCardsToPool()
     -- 清理玩家手牌
-    for _, playerId in ipairs(playerIds) do
+    for _, playerId in ipairs(self.gameInstance.m_Players) do
         local HandContainer = self.Player2Info[playerId].HandContainer
         if HandContainer then
             for i = HandContainer.transform.childCount - 1, 0, -1 do
