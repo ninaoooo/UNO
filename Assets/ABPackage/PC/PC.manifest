@@ -1,0 +1,22 @@
+ManifestFileVersion: 0
+CRC: 2924377230
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: ui
+      Dependencies: {}
+    Info_1:
+      Name: modes
+      Dependencies: {}
+    Info_2:
+      Name: json
+      Dependencies: {}
+    Info_3:
+      Name: music
+      Dependencies: {}
+    Info_4:
+      Name: lua
+      Dependencies: {}
+    Info_5:
+      Name: sound
+      Dependencies: {}

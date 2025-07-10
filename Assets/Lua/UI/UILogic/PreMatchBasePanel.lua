@@ -1,4 +1,5 @@
 local PlayerInfo = require("Tools/PlayerInfo")
+require("DynamicEffect/DEPreMatch")
 PreMatchBasePanel = {}
 -- PreMatchBasePanel.__index = PreMatchBasePanel
 
@@ -8,15 +9,12 @@ PreMatchBasePanel = {}
 -- end
 
 function PreMatchBasePanel:InitUI()
-    
     if self.panelObj == nil then
-        -- 检查 panelName 是否已设置
-        -- if not self.panelName then
-        --     error("panelName must be set in subclass")
-        -- end
         self.panelObj = ABMgr:LoadRes("UI", "PreMatchPanel")
         self.panelObj.transform:SetParent(Canvas, false)
         
+        self.behaviour = self.panelObj:GetComponent(typeof(CS.LuaBehaviour))
+
         self.BtnReturn = self.panelObj.transform:Find("GReturn/BtnReturn"):GetComponent(typeof(Button))
         self.GPlayerContainer = self.panelObj.transform:Find("GPlayerContainer"):GetComponent(typeof(Transform))
         self.BtnStartMatch = self.panelObj.transform:Find("BtnStart"):GetComponent(typeof(Button))
@@ -41,21 +39,29 @@ function PreMatchBasePanel:InitPlayerComponents()
     local playerPrefab = self.panelObj.transform:Find("GPlayerContainer/GPlayer").gameObject
     for playerIndex = 1, self.playerNum do
         local GPlayer = GameObject.Instantiate(playerPrefab,self.GPlayerContainer)
+        self.cardHeight = 200
         GPlayer.transform:SetParent(self.GPlayerContainer, false)
         GPlayer:SetActive(true)
         local TextSelfPlayerName = GPlayer.transform:Find("Text"):GetComponent(typeof(TextMeshPro))
-        local ImgAvatar = GPlayer.transform:Find("BtnAvatar"):GetComponent(typeof(Image))
+        local CardA = GPlayer.transform:Find("AvatarObj/BtnAvatar")
+        local ImgAvatarA = CardA:GetComponent(typeof(Image))
         if playerIndex == 1 then
             TextSelfPlayerName.text = PlayerInfo:GetPlayerName()
-            ImgAvatar.sprite = AvatarSpriteAltas:GetSprite(PlayerInfo:GetPlayerAvatar())
+            ImgAvatarA.sprite = AvatarSpriteAltas:GetSprite(PlayerInfo:GetPlayerAvatar())
         else
             TextSelfPlayerName.text = "等待匹配"
+            local CardB = GPlayer.transform:Find("AvatarObj/BtnAvatarB")
+
+            CardA:GetComponent(typeof(RectTransform)).anchoredPosition = CS.UnityEngine.Vector2(0, 0)
+            CardB:GetComponent(typeof(RectTransform)).anchoredPosition = CS.UnityEngine.Vector2(0, -self.cardHeight)
+            CardB.gameObject:SetActive(true)
+            table.insert(DEPreMatch.slots, {CardA = CardA, CardB = CardB, isAActive = true})
         end
     end
 end
 
 function PreMatchBasePanel:Start()
-    
+    PreMatchBasePanel:InitUI()
 end
 
 function PreMatchBasePanel:ShowMe(playerNum,playMode,matchGold)
@@ -70,13 +76,17 @@ function PreMatchBasePanel:HideMe()
 end
 function PreMatchBasePanel:OnBtnReturnClick()
     -- 返回的时候要取消匹配状态
+    DEPreMatch:StopRolling()
+    DEPreMatch.slots = {}
     self:DestroyPanel()
     MainPanel:ShowMe()
 end
 
 function PreMatchBasePanel:OnBtnStartMatchClick()
+    
     if self.TextBtnStartMatch.text == "开始匹配" then
         self.TextBtnStartMatch.text = "取消匹配"
+        DEPreMatch:StartRolling()
         if self.playMode == UnoCommonConfig.matchType1V1 then
             C2S.RequestDoMatch(UnoCommonConfig.matchType1V1)
         elseif self.playMode == UnoCommonConfig.matchType1V3 then
@@ -84,6 +94,7 @@ function PreMatchBasePanel:OnBtnStartMatchClick()
         end
     elseif  self.TextBtnStartMatch.text == "取消匹配" then
         self.TextBtnStartMatch.text = "开始匹配"
+        DEPreMatch:StopRolling()
     end
 end
 

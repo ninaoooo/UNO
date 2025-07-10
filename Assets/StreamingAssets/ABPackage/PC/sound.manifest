@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+CRC: 1599194885
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 7c12ad0200bbfb4d54ada366bb0d8df4
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9a2ca7bdbd1871f7131daf57de908e0c
+HashAppended: 0
+ClassTypes:
+- Class: 83
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ABRes/Sound/CatchYou.wav
+- Assets/ABRes/Sound/Green.wav
+- Assets/ABRes/Sound/Yellow.wav
+- Assets/ABRes/Sound/Reverse.wav
+- Assets/ABRes/Sound/Draw_2.wav
+- Assets/ABRes/Sound/Red.wav
+- Assets/ABRes/Sound/UNO.wav
+- Assets/ABRes/Sound/Blue.wav
+- Assets/ABRes/Sound/Draw_4.wav
+- Assets/ABRes/Sound/Skip.wav
+Dependencies: []
