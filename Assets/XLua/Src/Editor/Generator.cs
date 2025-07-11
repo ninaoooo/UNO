@@ -1460,7 +1460,13 @@ namespace CSObjectWrapEditor
         {
             LuaCallCSharp = new List<Type>();
 
-            CSharpCallLua = new List<Type>();
+            CSharpCallLua = new List<Type>(){
+                typeof(DG.Tweening.Core.DOGetter<float>),
+                typeof(DG.Tweening.Core.DOSetter<float>),
+                typeof(DG.Tweening.Core.DOGetter<UnityEngine.Vector3>),
+                typeof(DG.Tweening.Core.DOSetter<UnityEngine.Vector3>),
+                // 你还可以根据需要添加更多类型
+            };
 
             GCOptimizeList = new List<Type>();
 

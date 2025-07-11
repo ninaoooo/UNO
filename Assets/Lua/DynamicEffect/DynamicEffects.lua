@@ -188,4 +188,41 @@ function DynamicEffects:ShowText(textTransform)
     end)
 end
 
+
+local breathTweens = {}
+local breathStates = {}
+function DynamicEffects:StartBreath(glowImage)
+    if glowImage == nil then return end
+    if breathStates[glowImage] == true then return end
+    
+
+    local color = glowImage.color
+    color.a = 0.8
+    glowImage.color = color
+
+    if  breathTweens[glowImage] then
+        breathTweens[glowImage]:Kill()
+        breathTweens[glowImage] = nil
+    end
+
+    glowImage.gameObject:SetActive(true)
+
+    local tween = glowImage:DOFade(0,1)
+    :SetLoops(-1, CS.DG.Tweening.LoopType.Yoyo)
+    :SetAutoKill(false)
+    :Play()
+    
+    breathTweens[glowImage] = tween
+    breathStates[glowImage] = true
+end
+
+function DynamicEffects:StopBreath(glowImage)
+    if glowImage == nil then return end
+    if breathTweens[glowImage] == nil then return end
+    breathStates[glowImage] = false
+    breathTweens[glowImage]:Kill()
+    breathTweens[glowImage] = nil
+    glowImage.gameObject:SetActive(false)
+end
+
 return DynamicEffects

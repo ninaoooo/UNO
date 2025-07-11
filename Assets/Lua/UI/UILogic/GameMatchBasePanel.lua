@@ -72,7 +72,7 @@ function GameMatchBasePanel:InitUIComponents()
     self.BtnUno = self.panelObj.transform:Find("BtnUno"):GetComponent(typeof(Button))
     self.GDrawPile = self.panelObj.transform:Find("GDrawPile"):GetComponent(typeof(Transform))
     self.BtnDrawPile = self.panelObj.transform:Find("GDrawPile/BtnDrawPile"):GetComponent(typeof(Button))
-    -- self.CardPrefab = self.panelObj.transform:Find("GDrawPile/BtnCard").gameObject
+
     self.ImgGameTimer = self.panelObj.transform:Find("GGameTimer/ImgTimer"):GetComponent(typeof(Image))
     self.TextGameTimer = self.panelObj.transform:Find("GGameTimer/TextTimer"):GetComponent(typeof(TextMeshPro))
     self.TextPrepareTimer = self.panelObj.transform:Find("TextPrepareTime"):GetComponent(typeof(TextMeshPro))
@@ -80,7 +80,7 @@ function GameMatchBasePanel:InitUIComponents()
     self.GConfirmShow = self.panelObj.transform:Find("GConfirmShow"):GetComponent(typeof(Transform))
     self.BtnChupai = self.GConfirmShow:Find("BtnChupai"):GetComponent(typeof(Button))
     self.BtnCancel = self.GConfirmShow:Find("BtnCancel"):GetComponent(typeof(Button))
-    -- self.showCard = self.GConfirmShow:Find("BtnCardOthers").gameObject
+
 
     self.GWildCardSelectColor = self.panelObj.transform:Find("GWildCardSelectColor"):GetComponent(typeof(Transform))
     self.BtnExit.onClick:AddListener(function() self:OnBtnExitClick() end)
@@ -163,6 +163,9 @@ function GameMatchBasePanel:InitComponent(playerIds)
         self.Player2Info[curPlayerId].BtnAvatar = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/BtnAvatar"):GetComponent(typeof(Button))
         self.Player2Info[curPlayerId].ImgAvatar = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/BtnAvatar"):GetComponent(typeof(Image))
         self.Player2Info[curPlayerId].ImgAvatar.sprite = AvatarSpriteAltas:GetSprite("avatar ("..avatarIdx..")")
+        self.Player2Info[curPlayerId].ImgGlow = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/Image"):GetComponent(typeof(Image))
+        
+
         self.Player2Info[curPlayerId].playerName = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/Text"):GetComponent(typeof(TextMeshPro))
         self.Player2Info[curPlayerId].ImgWin = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgWin"):GetComponent(typeof(Image))
         self.Player2Info[curPlayerId].ImgShoutUno = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgShoutUno"):GetComponent(typeof(Image))
@@ -173,7 +176,6 @@ function GameMatchBasePanel:InitComponent(playerIds)
         self.Player2Info[curPlayerId].TextPlayingCard = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextPlayingCard"):GetComponent(typeof(TextMeshPro))
         
         self.Player2Info[curPlayerId].BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick(curPlayerId) end)
-
         pos = pos + 1
         print("已初始化完成ID"..curPlayerId.."的组件")
     end
@@ -181,6 +183,7 @@ function GameMatchBasePanel:InitComponent(playerIds)
     self.totalTimer = CountdownTimer.New()
     self.actionTimer = CountdownTimer.New()
 end
+
 
 
 
@@ -311,11 +314,12 @@ function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
     for _, id in ipairs(self.gameInstance.m_Players) do
         self.Player2Info[id].TextTurnTimer.gameObject:SetActive(false)
         self.Player2Info[id].TextPlayingCard.gameObject:SetActive(false)
+        DynamicEffects:StopBreath( self.Player2Info[id].ImgGlow)
     end
     -- 再把当前玩家的显示出来
     self.Player2Info[playerId].TextTurnTimer.gameObject:SetActive(true)
     self.Player2Info[playerId].TextPlayingCard.gameObject:SetActive(true)
-
+    DynamicEffects:StartBreath(self.Player2Info[playerId].ImgGlow)
     self.totalTimer:Start(totalRestTime,"mm:ss")
     self.actionTimer:Start(curOpRestTime,"ss")
 
