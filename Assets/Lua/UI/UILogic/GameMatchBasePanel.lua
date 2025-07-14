@@ -3,6 +3,7 @@ local GameMatchBasePanel = {}
 local PlayerInfo = require("Tools/PlayerInfo")
 local PoolMgr = require("UI/Pools/PoolMgr")
 local cardPool = PoolMgr:getPool("card")
+local GameMacthConfig = require("UI/GameMatchConfig")
 GameMatchBasePanel.__index = GameMatchBasePanel
 
 function GameMatchBasePanel:New()
@@ -11,37 +12,7 @@ function GameMatchBasePanel:New()
 end
 
 
-GameMatchBasePanel.WildCardColorButtons = {
-    { name = "BtnRed", color = EnumUnoCardColor.eRed },
-    { name = "BtnBlue", color = EnumUnoCardColor.eBlue },
-    { name = "BtnGreen", color = EnumUnoCardColor.eGreen },
-    { name = "BtnYellow", color = EnumUnoCardColor.eYellow },
-}
 
-GameMatchBasePanel.PlaySoundByType = {
-    [EnumUnoCardType.eSkip] = true,     -- 10
-    [EnumUnoCardType.eReverse] = true,  -- 11
-    [EnumUnoCardType.eDrawTwo] = true,  -- 12
-}
-
-GameMatchBasePanel.PlaySoundByColor = {
-    [EnumUnoCardColor.eRed] = true,        
-    [EnumUnoCardColor.eGreen] = true,
-    [EnumUnoCardColor.eBlue] = true,
-    [EnumUnoCardColor.eYellow] = true,
-}
-
-GameMatchBasePanel.ShowTextByType = {
-    [EnumUnoCardType.eSkip] = "Skip",     -- 10
-    [EnumUnoCardType.eReverse] = "Reverse",  -- 11
-    [EnumUnoCardType.eDrawTwo] = "Draw 2",  -- 12
-}
-GameMatchBasePanel.ShowTextByColor = {
-    [EnumUnoCardColor.eRed] = "Red",        
-    [EnumUnoCardColor.eGreen] = "Green",
-    [EnumUnoCardColor.eBlue] = "Blue",
-    [EnumUnoCardColor.eYellow] = "Yellow",
-}
 
 function GameMatchBasePanel:Init(playerIds)
     if self.panelObj == nil then
@@ -56,8 +27,8 @@ function GameMatchBasePanel:Init(playerIds)
         self.UnoCardSpriteAltas = ABMgr:LoadRes("UI", "UnoCard")
         self.promptPrefab = ABMgr:LoadRes("modes", "GMsgPrompt")
 
-        self:InitUIComponents()
         self:InitData(playerIds)
+        self:InitUIComponents()
         self:InitComponent(playerIds)
         self:RegisterListeners()
         self:InitWildCardButtons()
@@ -92,6 +63,7 @@ function GameMatchBasePanel:InitUIComponents()
     self.GSuspicionDrawFour = self.panelObj.transform:Find("GSuspicionDrawFour"):GetComponent(typeof(Transform))
     self.Text = self.panelObj.transform:Find("Text"):GetComponent(typeof(TextMeshPro))
     MonoBehaviourMgr:Register(self)
+    
 end
 
 function GameMatchBasePanel:InitData(playerIds)
@@ -124,7 +96,7 @@ function GameMatchBasePanel:RegisterListeners()
     MessageSystem.RegisterListener("S2C.SyncUnoPlayEnd",function(winPlayerId, playerCardInfo_U)
         local playerCardList,playerId2Score = table.unpack(msgpack.unpack(playerCardInfo_U))
         self:PlayEndShowCard(playerCardList)
-        PlayEndPanel:Init(winPlayerId, playerId2Score)
+        PlayEndPanel:ShowMe(winPlayerId,playerId2Score)
     end)
     MessageSystem.RegisterListener("S2C.SyncUnoCards",function(playerId, cardNum, cards_U)
         print("SyncUnoCards playerId: ", playerId, "cardNum: ", cardNum)
@@ -172,7 +144,8 @@ function GameMatchBasePanel:InitComponent(playerIds)
         self.Player2Info[curPlayerId].playerName.text = curPlayerId
         self.Player2Info[curPlayerId].Location = positionMap[pos]
         self.Player2Info[curPlayerId].HandContainer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer"):GetComponent(typeof(Transform))
-        self.Player2Info[curPlayerId].TextTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextTurnTimer"):GetComponent(typeof(TextMeshPro))
+        self.Player2Info[curPlayerId].ImgTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/ImgTimer"):GetComponent(typeof(Image))
+        self.Player2Info[curPlayerId].TextTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/ImgTimer/TextTurnTimer"):GetComponent(typeof(TextMeshPro))
         self.Player2Info[curPlayerId].TextPlayingCard = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextPlayingCard"):GetComponent(typeof(TextMeshPro))
         
         self.Player2Info[curPlayerId].BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick(curPlayerId) end)
@@ -190,7 +163,7 @@ end
 -- 万能牌选择按钮初始化
 function GameMatchBasePanel:InitWildCardButtons()
     -- 绑定所有颜色按钮
-    for _, buttonInfo in ipairs(self.WildCardColorButtons) do
+    for _, buttonInfo in ipairs(GameMacthConfig.WildCardColorButtons) do
         local buttonPath = "GWildCardSelectColor/GOption/" .. buttonInfo.name
         local button = self.panelObj.transform:Find(buttonPath):GetComponent(typeof(Button))
         
@@ -217,6 +190,7 @@ function GameMatchBasePanel:OnWildCradColorSelected(color)
 end
 
 function GameMatchBasePanel:SetCardImg(cardImage,cardType, cardColor)
+    print("SetCardImg cardType: ", cardType, "cardColor: ", cardColor)
     local cardString = string.format("card%d_%s", cardType, cardColor)
     cardImage.sprite = self.UnoCardSpriteAltas:GetSprite(cardString)
 end
@@ -243,7 +217,7 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
         local showCard = cardPool:get()
         showCard.transform:SetParent(self.GConfirmShow, false)
         local cardImage = showCard:GetComponent(typeof(Image))
-        self:SetCardImg(cardImage, 1, 1)
+        self:SetCardImg(cardImage, cardType, cardColor)
         local showCardRect = showCard:GetComponent(typeof(RectTransform))
         showCardRect.localPosition  = Vector3(0, 0, 0)
         showCardRect.anchorMin = Vector2(0, 0.5)
@@ -341,6 +315,8 @@ function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
         self.GConfirmShow.gameObject:SetActive(false) -- 关闭确认弹窗
         self.GWildCardSelectColor.gameObject:SetActive(false) -- 关闭颜色选择面板
     end
+
+    print("self.gameInstance.m_Players: ", self.gameInstance.m_Players)
 end
 
 function GameMatchBasePanel:OnBtnChupaiClick()
@@ -527,7 +503,7 @@ end
 -- 播放音效
 function GameMatchBasePanel:PlaySound(cardType, cardColor)
     local soundName = nil
-    if self.PlaySoundByType[cardType] then
+    if GameMacthConfig.PlaySoundByType[cardType] then
         soundName = LuaAudioMgr:GetSoundNameById(cardType)
         LuaAudioMgr:PlaySound(LuaAudioMgr.soundABName, soundName)
     elseif self.gameInstance:IsWildCard(cardType) then
@@ -542,10 +518,10 @@ end
 
 function GameMatchBasePanel:ShowText(cardType, cardColor)
     if self.gameInstance:IsWildCard(cardType) then
-        self.Text.text = self.ShowTextByColor[cardColor]
+        self.Text.text = GameMacthConfig.ShowTextByColor[cardColor]
         DynamicEffects:ShowText(self.Text.transform)
-    elseif self.ShowTextByType[cardType] ~= nil then
-        self.Text.text = self.ShowTextByType[cardType]
+    elseif GameMacthConfig.ShowTextByType[cardType] ~= nil then
+        self.Text.text = GameMacthConfig.ShowTextByType[cardType]
         DynamicEffects:ShowText(self.Text.transform)
     end
     
@@ -615,7 +591,7 @@ function GameMatchBasePanel:BatchReturnCardsToPool()
     end
 end
 function GameMatchBasePanel:DestroyPanel()
-    print("销毁游戏面板")
+    self:BatchReturnCardsToPool()
     GameObject.Destroy(self.panelObj)
     self.panelObj = nil
     MessageSystem.RemoveListener("S2C.SyncUnoCardDraw")

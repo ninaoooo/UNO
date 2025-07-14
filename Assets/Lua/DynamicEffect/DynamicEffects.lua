@@ -226,3 +226,6 @@ function DynamicEffects:StopBreath(glowImage)
 end
 
 return DynamicEffects
+
+
+
