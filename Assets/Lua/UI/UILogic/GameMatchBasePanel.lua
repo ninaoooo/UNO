@@ -44,8 +44,7 @@ function GameMatchBasePanel:InitUIComponents()
     self.BtnUno = self.panelObj.transform:Find("BtnUno"):GetComponent(typeof(Button))
     self.GDrawPile = self.panelObj.transform:Find("GDrawPile"):GetComponent(typeof(Transform))
     self.BtnDrawPile = self.panelObj.transform:Find("GDrawPile/BtnDrawPile"):GetComponent(typeof(Button))
-
-    self.ImgGameTimer = self.panelObj.transform:Find("GGameTimer/ImgTimer"):GetComponent(typeof(Image))
+    
     self.TextGameTimer = self.panelObj.transform:Find("GGameTimer/TextTimer"):GetComponent(typeof(TextMeshPro))
     self.TextPrepareTimer = self.panelObj.transform:Find("TextPrepareTime"):GetComponent(typeof(TextMeshPro))
 
@@ -136,7 +135,8 @@ function GameMatchBasePanel:InitComponent(playerIds)
         self.Player2Info[curPlayerId].ImgAvatar = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/BtnAvatar"):GetComponent(typeof(Image))
         self.Player2Info[curPlayerId].ImgAvatar.sprite = AvatarSpriteAltas:GetSprite("avatar ("..avatarIdx..")")
         self.Player2Info[curPlayerId].ImgGlow = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/Image"):GetComponent(typeof(Image))
-        
+        self.Player2Info[curPlayerId].GTurnTimer = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/GTurnTimer")
+        self.Player2Info[curPlayerId].TextTurnTimer = self.Player2Info[curPlayerId].GTurnTimer.transform:Find("Image/Text"):GetComponent(typeof(TextMeshPro))
 
         self.Player2Info[curPlayerId].playerName = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/Text"):GetComponent(typeof(TextMeshPro))
         self.Player2Info[curPlayerId].ImgWin = self.panelObj.transform:Find("GPlayer"..positionMap[pos].."/ImgWin"):GetComponent(typeof(Image))
@@ -144,8 +144,7 @@ function GameMatchBasePanel:InitComponent(playerIds)
         self.Player2Info[curPlayerId].playerName.text = curPlayerId
         self.Player2Info[curPlayerId].Location = positionMap[pos]
         self.Player2Info[curPlayerId].HandContainer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer"):GetComponent(typeof(Transform))
-        self.Player2Info[curPlayerId].ImgTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/ImgTimer"):GetComponent(typeof(Image))
-        self.Player2Info[curPlayerId].TextTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/ImgTimer/TextTurnTimer"):GetComponent(typeof(TextMeshPro))
+
         
         self.Player2Info[curPlayerId].BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick(curPlayerId) end)
         pos = pos + 1
@@ -286,11 +285,11 @@ end
 function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
     -- 先把所有的玩家轮次计时器全部隐藏
     for _, id in ipairs(self.gameInstance.m_Players) do
-        self.Player2Info[id].TextTurnTimer.gameObject:SetActive(false)
+        self.Player2Info[id].GTurnTimer.gameObject:SetActive(false)
         DynamicEffects:StopBreath( self.Player2Info[id].ImgGlow)
     end
-    -- 再把当前玩家的显示出来
-    self.Player2Info[playerId].TextTurnTimer.gameObject:SetActive(true)
+    -- 再把当前玩家的轮次计时器显示出来
+    self.Player2Info[playerId].GTurnTimer.gameObject:SetActive(true)
     DynamicEffects:StartBreath(self.Player2Info[playerId].ImgGlow)
     self.totalTimer:StartTimer(totalRestTime,"mm:ss")
     self.actionTimer:StartTimer(curOpRestTime,"ss")
