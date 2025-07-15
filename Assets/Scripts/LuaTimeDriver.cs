@@ -15,7 +15,7 @@ public class LuaTimeDriver : MonoBehaviour
 
     void Update()
     {
-        var updateFunc = updateManager?.Get<Action<float>>("Update");
+        var updateFunc = updateManager?.Get<Action<float>>("UpdateTime");
         updateFunc?.Invoke(Time.deltaTime);
     }
 

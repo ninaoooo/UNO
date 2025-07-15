@@ -7,7 +7,7 @@ DEPreMatch = {
     _rolling = false,
 }
 
-UpdateTimeMgr:Register(DEPreMatch)
+UpdateTimeMgr:Register(DEPreMatch,"DEPreMatch")
 
 function DEPreMatch:ScrollOnce()
     for _, slot in ipairs(self.slots) do
@@ -52,7 +52,7 @@ function DEPreMatch:TestScroll()
     self:ScrollOnce()
 end
 
-function DEPreMatch:Update(dt)
+function DEPreMatch:UpdateTime(dt)
     if not self._rolling then return end
 
     self.timer = self.timer + dt
