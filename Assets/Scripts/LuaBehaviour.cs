@@ -33,7 +33,7 @@ public class LuaBehaviour : MonoBehaviour
     {
         if (luaUpdate != null && luaObject != null)
         {
-            luaUpdate.Call(luaObject);
+            luaUpdate.Call(luaObject,Time.deltaTime);
         }
     }
 

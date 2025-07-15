@@ -8,6 +8,7 @@ GameMatchBasePanel.__index = GameMatchBasePanel
 
 function GameMatchBasePanel:New()
     local self = setmetatable({}, GameMatchBasePanel)
+    -- UpdateTimeMgr:Register(self, "GameMatchBasePanel")
     return self
 end
 
@@ -63,7 +64,6 @@ function GameMatchBasePanel:InitUIComponents()
     self.GSuspicionDrawFour = self.panelObj.transform:Find("GSuspicionDrawFour"):GetComponent(typeof(Transform))
     self.Text = self.panelObj.transform:Find("Text"):GetComponent(typeof(TextMeshPro))
     MonoBehaviourMgr:Register(self)
-    
 end
 
 function GameMatchBasePanel:InitData(playerIds)
@@ -146,15 +146,16 @@ function GameMatchBasePanel:InitComponent(playerIds)
         self.Player2Info[curPlayerId].HandContainer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer"):GetComponent(typeof(Transform))
         self.Player2Info[curPlayerId].ImgTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/ImgTimer"):GetComponent(typeof(Image))
         self.Player2Info[curPlayerId].TextTurnTimer = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/ImgTimer/TextTurnTimer"):GetComponent(typeof(TextMeshPro))
-        self.Player2Info[curPlayerId].TextPlayingCard = self.panelObj.transform:Find("G"..positionMap[pos].."HandContainer/TextPlayingCard"):GetComponent(typeof(TextMeshPro))
         
         self.Player2Info[curPlayerId].BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick(curPlayerId) end)
         pos = pos + 1
         print("已初始化完成ID"..curPlayerId.."的组件")
     end
-    -- self.GDiscardPile:Find("BtnCardOthers").gameObject:SetActive(false)
-    self.totalTimer = CountdownTimer.New()
-    self.actionTimer = CountdownTimer.New()
+    self.actionTimer = CountdownTimer.New("actionTimer")
+    self.totalTimer = CountdownTimer.New("totalTimer")
+    -- UpdateTimeMgr:Register(self.actionTimer, "actionTimer")
+    -- UpdateTimeMgr:Register(self.totalTimer, "totalTimer")
+    
 end
 
 
@@ -190,7 +191,6 @@ function GameMatchBasePanel:OnWildCradColorSelected(color)
 end
 
 function GameMatchBasePanel:SetCardImg(cardImage,cardType, cardColor)
-    print("SetCardImg cardType: ", cardType, "cardColor: ", cardColor)
     local cardString = string.format("card%d_%s", cardType, cardColor)
     cardImage.sprite = self.UnoCardSpriteAltas:GetSprite(cardString)
 end
@@ -287,15 +287,13 @@ function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
     -- 先把所有的玩家轮次计时器全部隐藏
     for _, id in ipairs(self.gameInstance.m_Players) do
         self.Player2Info[id].TextTurnTimer.gameObject:SetActive(false)
-        self.Player2Info[id].TextPlayingCard.gameObject:SetActive(false)
         DynamicEffects:StopBreath( self.Player2Info[id].ImgGlow)
     end
     -- 再把当前玩家的显示出来
     self.Player2Info[playerId].TextTurnTimer.gameObject:SetActive(true)
-    self.Player2Info[playerId].TextPlayingCard.gameObject:SetActive(true)
     DynamicEffects:StartBreath(self.Player2Info[playerId].ImgGlow)
-    self.totalTimer:Start(totalRestTime,"mm:ss")
-    self.actionTimer:Start(curOpRestTime,"ss")
+    self.totalTimer:StartTimer(totalRestTime,"mm:ss")
+    self.actionTimer:StartTimer(curOpRestTime,"ss")
 
     self.totalTimer.onUpdate = function (timestr)
         self.TextGameTimer.text = timestr
@@ -315,12 +313,9 @@ function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
         self.GConfirmShow.gameObject:SetActive(false) -- 关闭确认弹窗
         self.GWildCardSelectColor.gameObject:SetActive(false) -- 关闭颜色选择面板
     end
-
-    print("self.gameInstance.m_Players: ", self.gameInstance.m_Players)
 end
 
 function GameMatchBasePanel:OnBtnChupaiClick()
-    print("出牌按钮")
     self.gameInstance.m_TempConfirmCard = {cardType = self.confirmParas[2], cardColor = self.confirmParas[3], cardTransform = self.confirmParas[5]}
     self:OnBtnPlayDrawCardClick(self.confirmParas[2], self.confirmParas[3])
 end
@@ -331,7 +326,6 @@ end
 -- 玩家自行点击牌堆 决定出牌
 function GameMatchBasePanel:OnBtnPlayDrawCardClick(cardType,cardColor)
     if self.gameInstance:IsWildCard(cardType) then
-        print("玩家获取到的是万能牌: ",cardType,cardColor)
         self.isWildCardFromHandContainer = false
         self.pendingWildCardType = cardType
         self.GWildCardSelectColor.gameObject:SetActive(true)
@@ -394,7 +388,7 @@ function GameMatchBasePanel:OnCardClick(playerId, cardId)
     self:ClearAllButCurrentSelection(self.gameInstance.m_PlayerCardList[playerId],cardId)
     -- 2.找到现在被点击的牌
     local cardData = self.gameInstance:FindCardById(playerId, cardId)
-    if not cardData then return print("未找到卡牌:", cardId) end
+    if not cardData then return end
     -- 3.牌已被选中，尝试出牌
     if cardData.cardIsSelected then
         print("已被选中",cardData.cardType,cardData.cardColor)
@@ -540,9 +534,10 @@ function GameMatchBasePanel:OnBtnExitClick()
 end
 
 -- 更新函数
-function GameMatchBasePanel:Update()
-    self.totalTimer:Update()
-    self.actionTimer:Update()
+function GameMatchBasePanel:Update(dt)
+    self.totalTimer:Update(dt)
+    self.actionTimer:Update(dt)
+    
 
     -- if Input.GetKeyDown(KeyCode.A) then
     --     print("按下A键，测试对象池")
