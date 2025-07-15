@@ -1,9 +1,13 @@
 -- CountdownTimer.lua
 CountdownTimer = {}
 
-function CountdownTimer.New()
+function CountdownTimer.New(name)
     local timer = {
-        serverEndTime = 0,    -- 服务器结束时间戳
+        name = name,
+        serverEndTime = nil,-- 服务器结束时间戳
+        duration = nil,    
+        elapsed = nil, -- 已经过去的时间
+        updateElasped = nil, -- 更新间隔
         isRunning = false,
         onUpdate = nil,
         onFinish = nil,
@@ -11,28 +15,31 @@ function CountdownTimer.New()
     }
 
     -- 启动计时器
-    function timer:Start(endTimeStamp, format)
+    function timer:StartTimer(endTimeStamp, format)
+        self.elapsed = 0
+        self.updateElasped = 0
+        self.duration = endTimeStamp - os.time()  -- 得到的是秒
         self.serverEndTime = endTimeStamp
         self.isRunning = true
         self.format = format or "mm:ss"
-        self:_update()  -- 立即触发首次更新
-    end
 
-    -- 每帧更新（无需参数）
-    function timer:Update()
-        if not self.isRunning then return end
-        self:_update()
-    end
-
-    -- 核心逻辑：实时计算剩余时间
-    function timer:_update()
-        local now = os.time()
-        local remaining = self.serverEndTime - now
-        remaining = math.max(remaining, 0)
-
-        -- 触发更新
+        local initialRemaining = math.max(self.duration, 0)
+        local formatted = self:_formatTime(initialRemaining)
         if self.onUpdate then
-            local formatted = self:_formatTime(remaining)
+            self.onUpdate(formatted, math.floor(initialRemaining))
+        end
+    end
+
+    function timer:Update(dt)
+        if not self.isRunning then return end
+        self.elapsed = self.elapsed + dt
+        self.updateElasped = self.updateElasped + dt
+        local remaining = math.max(self.duration - self.elapsed, 0)
+        
+         -- 触发更新
+        if self.onUpdate and self.updateElasped >= 1 then
+            self.updateElasped = 0  -- 重置更新间隔
+            local formatted = self:_formatTime(math.floor(remaining))
             self.onUpdate(formatted, remaining)
         end
 
@@ -43,7 +50,6 @@ function CountdownTimer.New()
         end
     end
 
-    -- 格式化方法（保持不变）
     function timer:_formatTime(seconds)
         if self.format == "ss" then
             return tostring(seconds)
