@@ -1,3 +1,5 @@
+ABMgr = CS.ABMgr.GetInstance()
+
 -- 常用别名都在这里定位
 require("Tools/Object")
 require("Tools/SplitTools")
@@ -58,7 +60,7 @@ Time = CS.UnityEngine.Time
 WaitForSeconds = CS.UnityEngine.WaitForSeconds
 
 -- 自己写的C#相关脚本 直接获得单例对象
-ABMgr = CS.ABMgr.GetInstance()
+
 AudioMgr = CS.AudioMgr.GetInstance()
 LuaBehaviour = CS.LuaBehaviour
 TimerUtility = CS.TimerUtility.GetInstance()

@@ -3,10 +3,217 @@ DynamicEffects = {}
 local DOTween = CS.DG.Tweening.DOTween
 local PathType = CS.DG.Tweening.PathType
 local PathMode = CS.DG.Tweening.PathMode
+local RotateMode = CS.DG.Tweening.RotateMode
 local Ease = CS.DG.Tweening.Ease
+local Random = CS.UnityEngine.Random
 
+local UnoCardSpriteAltas = ABMgr:LoadRes("UI", "UnoCard")
+
+DynamicEffects.randomRotation = math.random(-30, 30)
 -- 默认卡牌宽度和间距
 DynamicEffects.cardWidth = 180
+DynamicEffects.cardSpacing = 30
+DynamicEffects.cardPosY = 20 
+DynamicEffects.targetRotationZ = 0 
+
+function DynamicEffects.SetCardImg(cardImage,cardType, cardColor)
+    local cardString = string.format("card%d_%s", cardType, cardColor)
+    cardImage.sprite = UnoCardSpriteAltas:GetSprite(cardString)
+end
+
+function DynamicEffects.FirstCardToDiscardPile(cardTransform, discardPile, doScale, cardType, cardColor)
+    -- 获取世界坐标
+    local discardPilePos = discardPile.transform.position
+    local sequence = DOTween.Sequence()
+    local cardImage = cardTransform:GetComponent(typeof(Image))
+    DynamicEffects.SetCardImg(cardImage, cardType, cardColor)
+    sequence:Append(
+        -- 抛物线动画 DOJump(discardPilePos,jumpPower, 1, jumpDuration )
+        cardTransform:DOJump(discardPilePos,3, 1, 1)
+        :SetEase(Ease.OutQuad) -- 落地时减速
+        :OnComplete(function()
+            cardTransform:SetParent(discardPile)
+        end)
+    )
+    sequence:Join(
+        cardTransform:DORotate(Vector3(0, 0, DynamicEffects.randomRotation), 0.1)
+            :SetEase(Ease.InOutQuad)
+    )
+    if doScale then
+        sequence:Join(
+            cardTransform:DOScale(Vector3(0.8, 0.8, 1), 0.3)
+                :SetEase(Ease.InOutQuad)
+        )
+    end
+end
+DynamicEffects.microOffsetX = 40
+-- DynamicEffects.microOffsetZ  = -0.01
+DynamicEffects.InitCardCnt = 0
+function DynamicEffects.InitCardFromDrawPileToHand(currentCardCnt,cardTransform,handCntTrans,cardType,cardColor,sortedCardsList)
+    local cardImage = cardTransform:GetComponent(typeof(Image))
+    DynamicEffects.SetCardImg(cardImage, 15, 6) 
+    local handCntPos = handCntTrans.transform.position
+    local handCntPosParent = handCntTrans.transform.parent
+    
+    -- 根据当前是第几张初始牌来计算偏移,如果有 7 张牌，中心点在第 4 张。
+    -- (currentInitialCardCount - 1) 得到的是 0 到 6 的索引
+    -- 减去 (GameState.EXPECTED_INITIAL_CARDS - 1) / 2 是为了让中心牌的偏移接近 0
+    local offsetX = (currentCardCnt - 1 - (7 - 1) / 2) * DynamicEffects.microOffsetX 
+    local worldOffsetX = handCntPosParent:TransformVector(Vector3(offsetX, 0, 0))
+    local targetMidPosition = Vector3(handCntPos.x + worldOffsetX.x,DynamicEffects.cardPosY, handCntPos.z)
+
+    local sequence = DOTween.Sequence()
+    sequence:Append(
+        cardTransform:DOJump(targetMidPosition, 5, 1, 0.5)
+            :SetEase(Ease.OutQuad)
+    )
+    -- 图片揭示：在飞入动画快结束时揭示牌面
+    local revealTime = 0.1
+    sequence:InsertCallback(revealTime, function()
+        DynamicEffects.SetCardImg(cardImage, cardType, cardColor) 
+    end)
+    sequence:OnComplete(function()
+        print(string.format("第 %d 张初始牌飞入动画完成。", currentCardCnt))
+        cardTransform:SetParent(handCntTrans) -- 动画完成后，设置父对象为手牌堆
+        DynamicEffects.InitCardCnt = DynamicEffects.InitCardCnt+1
+        if(DynamicEffects.InitCardCnt == 7) then 
+            DynamicEffects.OrganizeInitCards(sortedCardsList,handCntTrans)
+        end
+    end)
+    sequence:Play()
+    
+end
+
+function DynamicEffects.OrganizeInitCards(sortedCardsList,handCntTrans)
+    local GATHER_DURATION = 0.2    -- 聚拢动画持续时间
+    local SPREAD_DURATION = 0.4    -- 展开动画持续时间
+
+    local cardNums = #sortedCardsList
+    -- 聚拢中心
+    local gatherCenterPos = Vector3(0,DynamicEffects.cardPosY,0)
+    local mainSequence = DOTween.Sequence()
+
+    -- 聚拢动画
+    local gatherSequence = DOTween.Sequence()
+    gatherSequence:SetEase(Ease.InQuad)
+
+    for _, cardData in ipairs(sortedCardsList) do
+        local cardTransform = cardData.cardTransform
+        gatherSequence:Join(cardTransform:DOLocalMove(Vector3(gatherCenterPos.x, gatherCenterPos.y, 0), GATHER_DURATION))
+    end
+    mainSequence:Append(gatherSequence)
+    mainSequence:AppendInterval(0.05) -- 聚拢完成后，停顿0.05秒
+
+    -- 展开动画
+    local spreadSequence = DOTween.Sequence()
+    spreadSequence:SetEase(Ease.OutBack)
+    for i, cardData in ipairs(sortedCardsList) do
+        local cardTransform = cardData.cardTransform
+        local finalPos = DynamicEffects.CalculateFinalCardPosition(i, cardNums)
+        print("check 110",finalPos)
+        
+        spreadSequence:Join(cardTransform:DOLocalMove(finalPos, SPREAD_DURATION))
+        cardTransform:SetSiblingIndex(i-1)
+    end
+
+    mainSequence:Append(spreadSequence)
+    mainSequence:Play()
+end
+
+function DynamicEffects.CalculateFinalCardPosition(index, cardNums)
+    local midIndex = (cardNums + 1) / 2
+    local offsetX = (index - midIndex) * DynamicEffects.microOffsetX
+    local finalPos = Vector3(offsetX, DynamicEffects.cardPosY, 0)
+    return finalPos
+end
+
+
+function DynamicEffects.CardFromDrawPileToHand(handCntRect,cardList,newCardData)
+    local cardNum = #cardList
+    if cardNum == 0 then return end
+    
+    local totalLayoutWidth = (cardNum - 1) * DynamicEffects.cardSpacing + DynamicEffects.cardWidth
+    local startX = -totalLayoutWidth / 2 + DynamicEffects.cardWidth / 2
+
+    -- print(string.format("开始布局 %d 张手牌 (直线排列，新牌直接飞入)...", cardNum))
+
+    for i, cardData in ipairs(cardList) do
+        local cardTransform = cardData.cardTransform 
+        local cardRect = cardTransform:GetComponent(RectTransform)
+        local cardImage = cardTransform:GetComponent(Image)
+        -- 计算该牌在最终布局中的目标位置 (本地坐标)
+        local targetX = startX + (i - 1) * DynamicEffects.cardSpacing
+        -- local currentCardStartPos = cardRect.localPosition -- 默认起始点是当前位置
+        local animationDuration = 0.4 -- 默认动画时长
+        -- *** 区分新旧牌，设置各自的动画起点和图片状态 ***
+        if cardData.cardId == newCardData.cardId then
+            print("新卡牌")
+            -- 如果是新牌：
+            -- 1. 动画起点：牌堆的本地位置
+            -- cardRect:SetParent(commonPanelRect) -- 暂时设置到共同父级
+            -- currentCardStartPos = deckPileRect.localPosition
+            -- cardRect.localPosition = currentCardStartPos -- 将新牌的实际位置瞬移到牌堆
+
+            -- 2. 图片：动画开始时显示牌背
+            
+            cardImage.sprite = DynamicEffects.SetCardImg(cardImage,15,6)
+            print("新牌从牌堆开始动画，显示牌背。")
+
+            
+            animationDuration = 0.6 -- 新牌的飞入动画可以稍长
+            -- initialRotation = CS.UnityEngine.Vector3(0, 0, CS.UnityEngine.Random.Range(-15.0, 15.0)) -- 给新牌一个初始随机旋转
+            -- cardRect.localEulerAngles = initialRotation -- 将新牌的实际旋转瞬移到初始旋转
+        -- else
+        --     -- 如果是旧牌：
+        --     -- 1. 动画起点：它当前的位置 (cardRect.localPosition 已经是正确的值)
+        --     -- 2. 图片：确保它们已经显示牌面 (如果是旧牌，通常已经显示)
+        --     -- 如果有打出后回手的情况，可能需要在这里再次调用 SetCardImg
+        --     if cardImage and cardData then
+        --         DynamicEffects.SetCardImg(cardImage, cardData.cardType, cardData.cardColor)
+        --     end
+        end
+
+        -- *** 构建动画 Sequence ***
+        local cardSequence = DOTween.Sequence()
+
+        -- 移动动画 (所有牌同时开始，从各自起点到各自目标)
+        cardSequence:Append(
+            cardRect:DOLocalMove(targetLocalPosition, animationDuration)
+                :SetEase(Ease.OutQuad)
+        )
+
+        -- 旋转动画 (所有牌同时开始，从各自起点到各自目标)
+        -- cardSequence:Join(
+        --     cardRect:DOLocalRotate(CS.UnityEngine.Vector3(0, 0, targetRotationZ), animationDuration):SetEase(Ease.OutQuad)
+        -- )
+
+        -- *** 新牌的图片揭示逻辑 (只对新牌执行) ***
+        if cardData == newCardData then
+            local revealTimeOffset = 0.1 -- 动画结束前0.1秒切换图片
+            local revealTime = math.max(0, animationDuration - revealTimeOffset) -- 确保时间不为负
+
+            cardSequence:InsertCallback(revealTime, function()
+                if cardImage and cardData then
+                    DynamicEffects.SetCardImg(cardImage, cardData.cardType, cardData.cardColor)
+                    print("新牌动画途中，切换到牌面。")
+                end
+            end)
+        end
+        
+        -- 动画完成后的回调 (所有牌都会执行，确保最终父对象正确)
+        cardSequence:OnComplete(function()
+            cardRect:SetParent(handCntRect) -- 最终父对象设置为手牌堆
+            cardRect.localPosition =Vector3(cardRect.localPosition.x, cardRect.localPosition.y, 0) 
+            -- Z轴可能需要再次精确设置，因为SetParent可能会重置它
+        end)
+        
+        cardSequence:Play()
+    end
+    print("所有手牌布局动画已触发。")
+end
+
+
+
 
 -- 设置卡牌宽度
 function DynamicEffects:SetCardWidth(width)
@@ -122,8 +329,8 @@ function DynamicEffects:AddCardToDiscardPile(cardTransform, discardPile, doScale
         :SetEase(CS.DG.Tweening.Ease.InOutQuad))
     
     -- 2. 旋转动画（随机角度）
-    local randomRotation = math.random(-30, 30)
-    sequence:Join(cardTransform:DORotate(Vector3(0, 0, randomRotation), 0.1)
+    
+    sequence:Join(cardTransform:DORotate(Vector3(0, 0, DynamicEffects.randomRotation), 0.1)
         :SetEase(CS.DG.Tweening.Ease.InOutQuad))
     
     -- 3. 根据参数决定是否添加缩小动画

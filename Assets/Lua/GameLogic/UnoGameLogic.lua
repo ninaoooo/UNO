@@ -8,6 +8,9 @@ function UnoGameLogic:Init(playerIds)
         m_PlayerCardList = {},
         -- 初始化弃牌堆手牌列表
         m_DiscardList = {},
+        -- 初始化是否是初始牌状态
+        initCardCnt = 0,
+        initCardsStage = true;
         -- 初始化我的要确认的临时手牌
         m_TempConfirmCard = nil,
         confirmshow = false,
@@ -54,16 +57,16 @@ end
 
 
 
-function UnoGameLogic:FindCardIndex(playerId,cardType,cardColor)
-    for i, cardData in ipairs(self.m_PlayerCardList[playerId]) do
+function UnoGameLogic:FindCardIndex(cardType,cardColor)
+    for i, cardData in ipairs(self.m_PlayerCardList[self.m_MyPlayerId]) do
         if cardData.cardType == cardType and (cardData.cardColor == cardColor or self:IsWildCard(cardData.cardType)) then
             return i
         end
     end
 end 
 
-function UnoGameLogic:FindCardById(playerId, cardId)
-    for _, cardData in ipairs(self.m_PlayerCardList[playerId]) do
+function UnoGameLogic:FindCardById(cardId)
+    for _, cardData in ipairs(self.m_PlayerCardList[self.m_MyPlayerId]) do
         if cardData.cardId == cardId then
             return cardData
         end
@@ -95,14 +98,29 @@ function UnoGameLogic:IsTimeToShoutUno()
     return false
 end
 
-
-
-function UnoGameLogic:AddCardToPlayer(playerId,cardId,cardType,cardColor)
-    table.insert(self.m_PlayerCardList[playerId],{cardId = cardId, cardType = cardType, cardColor = cardColor, cardTransform = nil})
+function UnoGameLogic:SortHandCards()
+    table.sort(self.m_PlayerCardList[self.m_MyPlayerId], function(a, b)
+        -- 按颜色排序（cardColor 越小优先级越高）
+        if a.cardColor ~= b.cardColor then
+            return a.cardColor < b.cardColor
+        end
+        -- 颜色相同，按类型排序（cardType 越小优先级越高）
+        if a.cardType ~= b.cardType then
+        
+            return a.cardType < b.cardType
+        end
+        -- 颜色和类型都相同，按照cardId排序（cardId 越小优先级越高）
+        return a.cardId < b.cardId
+    end)
 end
 
-function UnoGameLogic:SetCardTransformToPlayer(playerId,cardId,cardTransform)
-    for _, cardData in ipairs(self.m_PlayerCardList[playerId]) do
+function UnoGameLogic:AddCardToSelf(cardId,cardType,cardColor)
+    table.insert(self.m_PlayerCardList[self.m_MyPlayerId],{cardId = cardId, cardType = cardType, cardColor = cardColor, cardTransform = nil})
+    self:SortHandCards()
+end
+
+function UnoGameLogic:SetCardTransformToSelf(cardId,cardTransform)
+    for _, cardData in ipairs(self.m_PlayerCardList[self.m_MyPlayerId]) do
         if cardData.cardId == cardId then
             cardData.cardTransform = cardTransform
             break
@@ -118,12 +136,12 @@ function UnoGameLogic:AddCardToDiscard(cardType, cardColor)
     table.insert(self.m_DiscardList, {cardType = cardType, cardColor = cardColor})
 end
 
-function UnoGameLogic:HandleDrawCard(playerId, cardType, cardColor)
-    -- 抽牌逻辑
-    local cardId = self:GetCardId()
-    self:AddCardToPlayer(playerId, cardId, cardType, cardColor)
-    return cardId
-end
+-- function UnoGameLogic:HandleDrawCard(cardType, cardColor)
+--     -- 抽牌逻辑
+--     local cardId = self:GetCardId()
+--     self:AddCardToSelf(cardId, cardType, cardColor)
+--     -- return cardId
+-- end
 
 function UnoGameLogic:HandlePlayCard(playerId, cardType, cardColor)
     -- 出牌逻辑
