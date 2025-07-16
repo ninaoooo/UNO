@@ -24,7 +24,6 @@ end
 function BasePool:get()
     local obj
     if #self.pool >0 then
-        print("BasePool:get - Get the pool location: " .. tostring(self.pool))
         obj = table.remove(self.pool)
     else
         obj = GameObject.Instantiate(self.prefab, self.parent)
