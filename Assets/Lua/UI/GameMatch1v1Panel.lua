@@ -6,19 +6,21 @@ local PoolMgr = require("UI/Pools/PoolMgr")
 
 -- 子类定义：类级继承基类
 local GameMatch1V1Panel = {}
-setmetatable(GameMatch1V1Panel, { __index = GameMatchBasePanel })  -- 类级元表指向基类
+setmetatable(GameMatch1V1Panel, { __index = GameMatchBasePanel }) 
 GameMatch1V1Panel.__index = GameMatch1V1Panel  -- 实例级元表指向自身
 
 -- 子类构造函数
 function GameMatch1V1Panel:New()
     -- 1. 创建实例并继承基类元表
-    local self = GameMatchBasePanel:New()
-    -- 2. 覆盖元表为子类元表
-    setmetatable(self, GameMatch1V1Panel)
+    local instance = GameMatchBasePanel:New(self)
+    -- 2. 将新创建的实例的 metatable 设置为 GameMatch1V1Panel，这确保了实例在查找方法时，
+    -- 首先会查找GameMatch1V1Panel，如果GameMatch1V1Panel中没有，查找到GameMatchBasePanel
+    setmetatable(instance, self)
     -- 3. 设置子类属性
-    self.panelName = "GameMatch1v1Panel"
-    return self
+    instance.panelName = "GameMatch1v1Panel"
+    return instance
 end
+
 
 -- 子类必须实现的方法
 function GameMatch1V1Panel:GetPositionMap()
