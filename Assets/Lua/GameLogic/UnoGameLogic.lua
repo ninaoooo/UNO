@@ -9,7 +9,7 @@ function UnoGameLogic:Init(playerIds)
         -- 初始化弃牌堆手牌列表
         m_DiscardList = {},
         -- 初始化是否是初始牌状态
-        initCardCnt = 0,
+        m_initCardCnt = {},
         initCardsStage = true;
         -- 初始化我的要确认的临时手牌
         m_TempConfirmCard = nil,
@@ -39,6 +39,11 @@ function UnoGameLogic:Init(playerIds)
     for i = 1, #playerIds do
         instance.m_hasUno[playerIds[i]] = false
     end
+
+    -- 初始化所有玩家手牌数量列表
+    for i = 1, #playerIds do
+        instance.m_initCardCnt[playerIds[i]] = 0
+    end
     setmetatable(instance, { __index = UnoGameLogic })
     return instance
 end
@@ -57,25 +62,24 @@ end
 
 
 
-function UnoGameLogic:FindCardIndex(cardType,cardColor)
-    for i, cardData in ipairs(self.m_PlayerCardList[self.m_MyPlayerId]) do
+function UnoGameLogic:FindCardIndexByCardData(cardType,cardColor)
+    for index, cardData in ipairs(self.m_PlayerCardList[self.m_MyPlayerId]) do
         if cardData.cardType == cardType and (cardData.cardColor == cardColor or self:IsWildCard(cardData.cardType)) then
-            return i
+            return index, cardData
         end
     end
 end 
 
 function UnoGameLogic:FindCardById(cardId)
-    for _, cardData in ipairs(self.m_PlayerCardList[self.m_MyPlayerId]) do
+    for index, cardData in ipairs(self.m_PlayerCardList[self.m_MyPlayerId]) do
         if cardData.cardId == cardId then
-            return cardData
+            return index,cardData
         end
     end
-    return nil
+    return nil,nil
 end
 
 function UnoGameLogic:IsWildCard(cardType)
-    print("cardType",cardType)
     return cardType == EnumUnoCardType.eWild or cardType == EnumUnoCardType.eWildDrawFour
 end
 
@@ -114,8 +118,8 @@ function UnoGameLogic:SortHandCards()
     end)
 end
 
-function UnoGameLogic:AddCardToSelf(cardId,cardType,cardColor)
-    table.insert(self.m_PlayerCardList[self.m_MyPlayerId],{cardId = cardId, cardType = cardType, cardColor = cardColor, cardTransform = nil})
+function UnoGameLogic:AddCardToSelf(cardId,cardType,cardColor,cardTransform)
+    table.insert(self.m_PlayerCardList[self.m_MyPlayerId],{cardId = cardId, cardType = cardType, cardColor = cardColor, cardTransform = cardTransform})
     self:SortHandCards()
 end
 
@@ -128,8 +132,8 @@ function UnoGameLogic:SetCardTransformToSelf(cardId,cardTransform)
     end
 end
 
-function UnoGameLogic:RemoveCardFromPlayer(playerId, cardIndex)
-    table.remove(self.m_PlayerCardList[playerId], cardIndex)
+function UnoGameLogic:RemoveCardFromPlayer(cardIndex)
+    table.remove(self.m_PlayerCardList[self.m_MyPlayerId], cardIndex)
 end
 
 function UnoGameLogic:AddCardToDiscard(cardType, cardColor)
@@ -143,29 +147,25 @@ end
 --     -- return cardId
 -- end
 
-function UnoGameLogic:HandlePlayCard(playerId, cardType, cardColor)
-    -- 出牌逻辑
-    local cardIndex = self:FindCardIndex(playerId, cardType, cardColor)
+-- 处理出牌
+function UnoGameLogic:HandleSelfPlayCard(cardType, cardColor)
+    local cardIndex, cardData = self:FindCardIndexByCardData(cardType, cardColor)
     if cardIndex then
-        local cardTransform = self.m_PlayerCardList[playerId][cardIndex].cardTransform
-        self:RemoveCardFromPlayer(playerId, cardIndex)
-        return true, cardTransform
-    elseif self.confirmshow and self.m_TempConfirmCard ~= nil then
-        if self.m_TempConfirmCard.cardType == cardType and self.m_TempConfirmCard.cardColor == cardColor then
-            return true, self.m_TempConfirmCard.cardTransform
-        end
+        local cardTransform = cardData.cardTransform
+        self:RemoveCardFromPlayer(cardIndex)
+        return cardTransform
+    -- elseif self.confirmshow and self.m_TempConfirmCard ~= nil then
+    --     if self.m_TempConfirmCard.cardType == cardType and self.m_TempConfirmCard.cardColor == cardColor then
+    --         return self.m_TempConfirmCard.cardTransform
+    --     end
     end
-    return false
 end
 function UnoGameLogic:HandleOtherPlayCard(playerId)
-    local cardTransform = self.m_PlayerCardList[playerId][1].cardTransform
-    self:RemoveCardFromPlayer(playerId, 1)
-    return cardTransform
+    self.m_initCardCnt[playerId] = self.m_initCardCnt[playerId] - 1
 end
 
 
 function UnoGameLogic:CheckPlayCardRules(cardType, cardColor)
-    print("检查出牌规则：当前牌：cardType, cardColor")
     -- 检查是否是当前玩家的轮次
     if not self:IsSelf(self.m_currentPlayerId) then
         return false, self.messages.NOT_YOUR_TURN
@@ -212,7 +212,6 @@ end
 
 function UnoGameLogic.NotifyServerToPlayCard(cardType,cardColor)
     C2S.UnoPlayPlayerPlayCard(cardType,cardColor)
-    
 end
 
 function UnoGameLogic.NotifyServerToShoutUno()

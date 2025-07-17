@@ -72,7 +72,7 @@ function GameMatchBasePanel:RegisterListeners()
     MessageSystem.RegisterListener("S2C.SyncUnoCardPlay", function(playerId, cardType, cardColor) 
         print("SyncUnoCardPlay playerId: ", playerId, "cardType: ", cardType, "cardColor: ", cardColor)
         if PlayerInfo:IsSelf(playerId) then
-            self:OnSelfUnoCardPlay(playerId, cardType, cardColor)
+            self:OnSelfUnoCardPlay(cardType, cardColor)
         elseif playerId ~= 0 then
             self:OnOtherUnoCardPlay(playerId, cardType, cardColor)
         else 
@@ -147,9 +147,6 @@ function GameMatchBasePanel:InitComponent(playerIds)
     end
     self.actionTimer = CountdownTimer.New("actionTimer")
     self.totalTimer = CountdownTimer.New("totalTimer")
-    -- UpdateTimeMgr:Register(self.actionTimer, "actionTimer")
-    -- UpdateTimeMgr:Register(self.totalTimer, "totalTimer")
-    
 end
 
 
@@ -190,29 +187,18 @@ function GameMatchBasePanel:SetCardImg(cardImage,cardType, cardColor)
 end
 
 function GameMatchBasePanel:InitFirstCardToDiscardPile(cardType, cardColor)
-    print("CHECK 8")
-    -- DynamicEffects.OrganizeInitCards(self.logic.m_PlayerCardList[self.logic.m_MyPlayerId],self.Player2Info[self.logic.m_MyPlayerId].HandContainer)
-    -- local discardCard = GameObject.Instantiate(self.GDiscardPile:Find("BtnCardOthers").gameObject,self.GDiscardPile)
     local discardCard = cardPool:get()
-    -- local cardImage = discardCard:GetComponent(typeof(Image))
-    -- self:SetCardImg(cardImage,cardType, cardColor)
 
     discardCard.transform:SetParent(self.GDrawPile, false)
     local cardRect = discardCard:GetComponent(typeof(RectTransform))
     cardRect.localPosition  = Vector3(0, 0, 0)
-    -- discardCard.localPosition  = Vector3(0, 0, 0)
-    -- local panelObjRect = self.panelObj:GetComponent(typeof(RectTransform))
+    print("初始化一张牌到弃牌堆")
     DynamicEffects.FirstCardToDiscardPile( discardCard.transform, self.GDiscardPile, true,cardType, cardColor)
-    -- local discardCardRect = discardCard:GetComponent(typeof(RectTransform))
-    -- discardCardRect.localPosition  = Vector3(0, 0, 0)
-    -- discardCardRect.localScale  = Vector3(0.8, 0.8,0.8)    -- 正常大小
-    
 end
 
 -- 系统发牌至玩家
 function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirmshow)
     local HandContainer = self.Player2Info[playerId].HandContainer
-    local handCntRect = HandContainer:GetComponent(typeof(RectTransform))
     --1.如果是 confirmshow = true 的牌 要在屏幕上展示，并让玩家确认是否需要出掉这张牌
     if self.logic:IsSelf(playerId) and confirmshow then
         self.GConfirmShow.gameObject:SetActive(true)
@@ -227,68 +213,47 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
         showCardRect.pivot = Vector2(0, 0.5)
         showCardRect.localScale  = Vector3(0.7, 0.7,0.7) 
     else
-        if self.logic:IsSelf(playerId) then
-            -- 更新自己的手牌数据(已排序)
-            local cardId = self.logic:GetCardId()
-            self.logic:AddCardToSelf(cardId,cardType, cardColor)
-            local card = cardPool:get()
-            card.transform:SetParent(self.GDrawPile, false)
-            card.transform:GetComponent(typeof(RectTransform)).localPosition  = Vector3(0, 0, 0)
-            self.logic:SetCardTransformToSelf(cardId,card.transform)
-            card:GetComponent(typeof(Button)).onClick:AddListener(function() self:OnCardClick(playerId, cardId) end)
-            if(self.logic.initCardsStage) then
-                self.logic.initCardCnt = self.logic.initCardCnt+1
-                if(self.logic.initCardCnt == 7) then 
-                    self.logic.initCardsStage = false 
-                end
-                DynamicEffects.InitCardFromDrawPileToHand(self.logic.initCardCnt,card.transform,self.Player2Info[self.logic.m_MyPlayerId].HandContainer,cardType,cardColor,self.logic.m_PlayerCardList[self.logic.m_MyPlayerId])
-            end
-            -- 
-            -- local newCardData =  self.logic:FindCardById(cardId)
-            -- DynamicEffects.CardFromDrawPileToHand(handCntRect,self.logic.m_PlayerCardList[playerId],newCardData)
-        end
-
+        self.logic.m_initCardCnt[playerId] = self.logic.m_initCardCnt[playerId] + 1
         local card = cardPool:get()
         card.transform:SetParent(self.GDrawPile, false)
-        
+        card.transform:GetComponent(typeof(RectTransform)).localPosition  = Vector3(0, 0, 0)
 
-
-        
-
-        -- self:SetCardImg(card:GetComponent(typeof(Image)),cardType, cardColor)
-
-        -- DynamicEffects:DrawCardToHandContainer(card.transform,HandContainer,self.Player2Info[playerId].Location,function ()
-        --     DynamicEffects:UpdateHandLayout(playerId,self.logic.m_PlayerCardList[playerId],HandContainer)
-        -- end)
+        if self.logic:IsSelf(playerId) then
+            -- 更新自己的手牌数据(AddCardToSelf已排序)
+            local cardId = self.logic:GetCardId()
+            self.logic:AddCardToSelf(cardId, cardType, cardColor, card.transform)
+            card:GetComponent(typeof(Button)).onClick:AddListener(function() self:OnCardClick(cardId) end)
+            if(self.logic.initCardsStage) then
+                if(self.logic.m_initCardCnt[playerId] == 7) then 
+                    self.logic.initCardsStage = false 
+                end
+                DynamicEffects.InitCardFromDrawPileToHand(self.logic.m_initCardCnt[playerId],card.transform,HandContainer,cardType,cardColor,self.logic.m_PlayerCardList[playerId])
+            end
+            local newCardIndex,newCardData = self.logic:FindCardById(cardId)
+            DynamicEffects.CardFromDrawPileToSelfHand(newCardIndex,newCardData,HandContainer)
+        else
+            DynamicEffects.CardFromDrawPileToOtherHand(card.transform,HandContainer)
+        end
     end
 end
 
 -- 玩家自己出牌
-function GameMatchBasePanel:OnSelfUnoCardPlay(playerId, cardType, cardColor)
+function GameMatchBasePanel:OnSelfUnoCardPlay(cardType, cardColor)
     -- 1.出牌
-    local success,cardTransform = self.logic:HandlePlayCard(playerId, cardType, cardColor)
+    local cardTransform = self.logic:HandleSelfPlayCard(cardType, cardColor)
     -- 2.丢牌到弃牌堆
-    if success then
-        DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,true)
-        if self.logic:IsWildCard(cardType) then
-            local cardImage = cardTransform:GetComponent(typeof(Image))
-            self:SetCardImg(cardImage,cardType, cardColor)
-        end
-    -- 3.更新手牌布局
-        local HandContainer = self.Player2Info[playerId].HandContainer
-        DynamicEffects:UpdateHandLayout(playerId,self.logic.m_PlayerCardList[playerId],HandContainer)
-    end
+    print("self play card",cardTransform)
+    local HandContainer = self.Player2Info[self.logic.m_MyPlayerId].HandContainer
+    DynamicEffects.CardFromHandToDiscardPile(cardTransform,HandContainer,self.GDiscardPile,true)
 end
 
 -- 对手出牌
 function GameMatchBasePanel:OnOtherUnoCardPlay(playerId,cardType,cardColor)
     -- 对手出牌的时候我们只需要看到他少了一张牌就行 所以这里我们默认移除他最左边一张牌
-    local cardTransform = self.logic:HandleOtherPlayCard(playerId, cardType, cardColor)
     local HandContainer = self.Player2Info[playerId].HandContainer
-    local cardImg = cardTransform:GetComponent(typeof(Image))
-    DynamicEffects:AddCardToDiscardPile(cardTransform,self.GDiscardPile,true)
-    self:SetCardImg(cardImg,cardType, cardColor)
-    DynamicEffects:UpdateHandLayout(playerId,self.logic.m_PlayerCardList[playerId],HandContainer)
+    local cardTransform =  HandContainer.transform:GetChild(0)
+    print(playerId.." play card",cardTransform)
+    DynamicEffects.CardFromHandToDiscardPile(cardTransform,HandContainer,self.GDiscardPile,true, cardType, cardColor)
 end
 
 function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
@@ -354,14 +319,13 @@ function GameMatchBasePanel:OnBtnCancelClick()
 end
 
 
-function GameMatchBasePanel:ClearAllButCurrentSelection(playerCardList,cardId)
+function GameMatchBasePanel:ClearOtherCardSelected(playerCardList,cardId)
     -- 1.先找场上有没有别的牌被选中
     for _, cardData in ipairs(playerCardList) do
     -- 2.如果有别的牌被选中 恢复别的牌的选中标志位和卡牌位置
         if cardData.cardIsSelected and cardData.cardId ~= cardId then
             cardData.cardIsSelected = false
-            local otherCard = cardData.cardTransform
-            DynamicEffects:ResetCard(otherCard)
+            DynamicEffects.ResetCard(cardData.cardTransform)
         end
     end
 end
@@ -370,12 +334,9 @@ end
 -- 玩家按照规则尝试出牌
 function GameMatchBasePanel:TryPlayCard(cardData)
     MsgPrompt:SetPromptPrefab(self.promptPrefab)
-    -- 调用 UnoGameLogic 的 CheckPlayCardRules 方法
     local canPlay, message = self.logic:CheckPlayCardRules(cardData.cardType, cardData.cardColor)
-
     -- 根据返回值处理逻辑
     if not canPlay then MsgPrompt:ShowPrompt(message, self.panelObj.transform) return end
-
     -- 如果需要选择颜色，显示颜色选择面板
     if message == self.logic.messages.NEED_COLOR then
         self.GWildCardSelectColor.gameObject:SetActive(true)
@@ -384,28 +345,27 @@ function GameMatchBasePanel:TryPlayCard(cardData)
 
         return
     end
-    -- 非万能牌，直接出牌
+    -- 普通牌直接出牌
     self.logic.NotifyServerToPlayCard(cardData.cardType, cardData.cardColor)
-    
 end
 
 -- 手牌点击事件
-function GameMatchBasePanel:OnCardClick(playerId, cardId)
+function GameMatchBasePanel:OnCardClick(cardId)
     -- 1.如果有别的手牌被点击过 复位手牌位置
-    self.GWildCardSelectColor.gameObject:SetActive(false)
-    self:ClearAllButCurrentSelection(self.logic.m_PlayerCardList[playerId],cardId)
+    self:ClearOtherCardSelected(self.logic.m_PlayerCardList[self.logic.m_MyPlayerId],cardId)
     -- 2.找到现在被点击的牌
-    local cardData = self.logic:FindCardById(playerId, cardId)
+    local index, cardData = self.logic:FindCardById(cardId)
     if not cardData then return end
     -- 3.牌已被选中，尝试出牌
     if cardData.cardIsSelected then
         print("已被选中",cardData.cardType,cardData.cardColor)
         self:TryPlayCard(cardData)
-        return
-    end
+    else 
     -- 如果牌未曾选中 设置被选择状态和位置
-    cardData.cardIsSelected = true
-    DynamicEffects:SelectCard(cardData.cardTransform)
+        self.logic.m_PlayerCardList[self.logic.m_MyPlayerId][index].cardIsSelected = true
+        DynamicEffects.SelectCard(cardData.cardTransform)
+    end
+    
 end
 
 -- 玩家主动抽牌
