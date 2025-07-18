@@ -35,22 +35,19 @@ function DynamicEffects.FirstCardToDiscardPile(cardTransform, discardPile, doSca
         -- 抛物线动画 DOJump(discardPilePos,jumpPower, 1, jumpDuration )
         cardTransform:DOJump(discardPilePos,3, 1, 0.8)
         :SetEase(Ease.OutQuad) -- 落地时减速
-        :OnComplete(function()
-            
+        :OnStart(function()
+            cardTransform:SetParent(discardPile)
+            if cardType and  cardColor then
+                DynamicEffects.SetCardImg(cardImage, cardType, cardColor)
+            end
+            cardTransform:DORotate(Vector3(0, 0, math.random(-30, 30)), 0.1)
+                :SetEase(Ease.OutQuad)
+            if doScale then
+                cardTransform:DOScale(Vector3(0.8, 0.8, 1),0.1)
+                :SetEase(Ease.OutQuad)
+            end
         end)
     )
-    sequence:InsertCallback(0.3, function()
-        cardTransform:SetParent(discardPile)
-        if cardType and  cardColor then
-            DynamicEffects.SetCardImg(cardImage, cardType, cardColor)
-        end
-        cardTransform:DORotate(Vector3(0, 0, math.random(-30, 30)), 0.1)
-            :SetEase(Ease.OutQuad)
-        if doScale then
-            cardTransform:DOScale(Vector3(0.8, 0.8, 1),0.1)
-            :SetEase(Ease.OutQuad)
-        end
-    end)
 end
 
 function DynamicEffects.InitCardFromDrawPileToHand(currentCardCnt,cardTransform,handCntTrans,cardType,cardColor,sortedCardsList)
@@ -70,20 +67,18 @@ function DynamicEffects.InitCardFromDrawPileToHand(currentCardCnt,cardTransform,
     sequence:Append(
         cardTransform:DOJump(targetMidPosition, 5, 1, 0.5)
             :SetEase(Ease.OutQuad)
+            :OnStart(function ()
+                DynamicEffects.SetCardImg(cardImage, cardType, cardColor) 
+                cardTransform:SetParent(handCntTrans)
+            end)
     )
-    -- 图片揭示：在飞入动画快结束时揭示牌面
-    sequence:InsertCallback(0.1, function()
-        DynamicEffects.SetCardImg(cardImage, cardType, cardColor) 
-    end)
     sequence:OnComplete(function()
         print(string.format("第 %d 张初始牌飞入动画完成。", currentCardCnt))
-        cardTransform:SetParent(handCntTrans) -- 动画完成后，设置父对象为手牌堆
         DynamicEffects.InitCardCnt = DynamicEffects.InitCardCnt+1
         if(DynamicEffects.InitCardCnt == 7) then 
             DynamicEffects.OrganizeInitCards(sortedCardsList)
         end
     end)
-    sequence:Play()
 end
 
 function DynamicEffects.OrganizeInitCards(sortedCardsList)
@@ -137,28 +132,15 @@ function DynamicEffects.CardFromDrawPileToOtherHand(cardTransform,handCntTrans)
     sequence:Append(
         cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y-40, 0), 5, 1, 0.5)
         :SetEase(Ease.OutQuad)
-        :OnComplete(function()
+        :OnStart(function ()
             cardTransform:SetParent(handCntTrans)
-        end))
-
+        end)
+    )
     sequence:AppendCallback(function ()
-        local nowCardCnt = handCntTrans.transform.childCount
-        for i = 0, nowCardCnt -1 do
-            local oldCardTrans = handCntTrans.transform:GetChild(i);
-            local cardLocalPos = oldCardTrans.localPosition
-            local offsetX = DynamicEffects.CalFinalCardOffsetX(i, nowCardCnt)
-            oldCardTrans:DOLocalMove(Vector3(offsetX, cardLocalPos.y, 0), 0.3)
-                :SetEase(Ease.OutQuad)
-        end
+        DynamicEffects.UpdateHandLayout(handCntTrans)
     end)
-    sequence:Play()
 end
 
--- function DynamicEffects.getOtherPlayerCardOffsetX(index, cardNums)
---     local midIndex = (cardNums + 1) / 2
---     local offsetX = (index - midIndex) * DynamicEffects.microOffsetX
---     return offsetX
--- end
 function DynamicEffects.CalFinalCardOffsetX(index, cardNums)
     local midIndex = (cardNums + 1) / 2
     local offsetX = (index - midIndex) * DynamicEffects.microOffsetX
@@ -182,15 +164,14 @@ function DynamicEffects.CardFromDrawPileToSelfHand(newCardIndex,newCardData,hand
     sequence:Append(
         cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y+40, 0), 5, 1, 0.5)
         :SetEase(Ease.OutQuad)
-        :OnComplete(function()
-            
-        end))
-    sequence:InsertCallback(0.3, 
-        cardTransform:SetParent(handCntTrans)
-    )   
-    sequence:AppendCallback(
-        cardTransform.transform:SetSiblingIndex(newCardIndex),
+        :OnStart(function()
+            cardTransform:SetParent(handCntTrans)
+        end)
+    )  
+    sequence:AppendCallback(function ()
+        cardTransform.transform:SetSiblingIndex(newCardIndex)
         DynamicEffects.UpdateHandLayout(handCntTrans)
+        end
     )
 end
 
@@ -207,12 +188,12 @@ function DynamicEffects.CardFromHandToDiscardPile(cardTransform, handCntTrans, d
         :OnStart(function ()
             cardTransform:SetParent(discardPile)
             DynamicEffects.UpdateHandLayout(handCntTrans)
+            if cardType and  cardColor then
+                DynamicEffects.SetCardImg(cardImage, cardType, cardColor)
+            end
         end)
     )
     sequence:InsertCallback(0.3, function()
-        if cardType and  cardColor then
-            DynamicEffects.SetCardImg(cardImage, cardType, cardColor)
-        end
         cardTransform:DORotate(Vector3(0, 0, math.random(-30, 30)), 0.1)
             :SetEase(Ease.OutQuad)
         if doScale then
