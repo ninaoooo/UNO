@@ -23,6 +23,8 @@ function DynamicEffects.SetCardImg(cardImage,cardType, cardColor)
     cardImage.sprite = UnoCardSpriteAltas:GetSprite(cardString)
 end
 
+
+
 function DynamicEffects.FirstCardToDiscardPile(cardTransform, discardPile, doScale, cardType, cardColor)
     -- 获取世界坐标
     local discardPilePos = discardPile.transform.position
@@ -181,15 +183,15 @@ function DynamicEffects.CardFromDrawPileToSelfHand(newCardIndex,newCardData,hand
         cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y+40, 0), 5, 1, 0.5)
         :SetEase(Ease.OutQuad)
         :OnComplete(function()
-            cardTransform:SetParent(handCntTrans)
+            
         end))
+    sequence:InsertCallback(0.3, 
+        cardTransform:SetParent(handCntTrans)
+    )   
     sequence:AppendCallback(
-        print("check187"),
         cardTransform.transform:SetSiblingIndex(newCardIndex),
-        print("check 189"),
         DynamicEffects.UpdateHandLayout(handCntTrans)
     )
-    sequence:Play()
 end
 
 function DynamicEffects.CardFromHandToDiscardPile(cardTransform, handCntTrans, discardPile, doScale, cardType, cardColor)
@@ -202,12 +204,12 @@ function DynamicEffects.CardFromHandToDiscardPile(cardTransform, handCntTrans, d
         -- 抛物线动画 DOJump(discardPilePos,jumpPower, 1, jumpDuration )
         cardTransform:DOJump(discardPilePos,3, 1, 0.8)
         :SetEase(Ease.OutQuad) -- 落地时减速
-        :OnComplete(function()
-            
+        :OnStart(function ()
+            cardTransform:SetParent(discardPile)
+            DynamicEffects.UpdateHandLayout(handCntTrans)
         end)
     )
     sequence:InsertCallback(0.3, function()
-        cardTransform:SetParent(discardPile)
         if cardType and  cardColor then
             DynamicEffects.SetCardImg(cardImage, cardType, cardColor)
         end
@@ -218,9 +220,6 @@ function DynamicEffects.CardFromHandToDiscardPile(cardTransform, handCntTrans, d
             :SetEase(Ease.OutQuad)
         end
     end)
-    sequence:AppendCallback(
-        DynamicEffects.UpdateHandLayout(handCntTrans)
-    )
 end
 
 function DynamicEffects.UpdateHandLayout(handCntTrans)
