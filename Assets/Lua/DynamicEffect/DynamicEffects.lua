@@ -76,16 +76,16 @@ function DynamicEffects.InitCardFromDrawPileToHand(currentCardCnt,cardTransform,
         print(string.format("第 %d 张初始牌飞入动画完成。", currentCardCnt))
         DynamicEffects.InitCardCnt = DynamicEffects.InitCardCnt+1
         if(DynamicEffects.InitCardCnt == 7) then 
-            DynamicEffects.OrganizeInitCards(sortedCardsList)
+            DynamicEffects.OrganizeInitCards(handCntTrans,sortedCardsList)
         end
     end)
 end
 
-function DynamicEffects.OrganizeInitCards(sortedCardsList)
-    local GATHER_DURATION = 0.2    -- 聚拢动画持续时间
+function DynamicEffects.OrganizeInitCards(handCntTrans,sortedCardsList)
+    local GATHER_DURATION = 0.4    -- 聚拢动画持续时间
     local SPREAD_DURATION = 0.4    -- 展开动画持续时间
 
-    local cardNums = #sortedCardsList
+    
     -- 聚拢中心
     local mainSequence = DOTween.Sequence()
 
@@ -93,26 +93,28 @@ function DynamicEffects.OrganizeInitCards(sortedCardsList)
     local gatherSequence = DOTween.Sequence()
     gatherSequence:SetEase(Ease.InQuad)
 
-    for _, cardData in ipairs(sortedCardsList) do
-        local cardTransform = cardData.cardTransform
+    local cardCnts = handCntTrans.transform.childCount
+    for i = 0, cardCnts-1 do
+        local cardTransform = handCntTrans.transform:GetChild(i);
         local cardLocalPos = cardTransform.localPosition
-        DynamicEffects.cardLocalPosY = cardLocalPos.y
-        gatherSequence:Join(cardTransform:DOLocalMove(Vector3(0, DynamicEffects.cardLocalPosY, 0), GATHER_DURATION))
+        gatherSequence:Join(cardTransform:DOLocalMove(Vector3(0, cardLocalPos.y, 0), GATHER_DURATION))
     end
     mainSequence:Append(gatherSequence)
-    mainSequence:AppendInterval(0.05) -- 聚拢完成后，停顿0.05秒
+    mainSequence:AppendInterval(0.2) -- 聚拢完成后，停顿0.05秒
 
-    -- 展开动画
+    -- -- 展开动画
     local spreadSequence = DOTween.Sequence()
     spreadSequence:SetEase(Ease.OutBack)
+
+    local cardNums = #sortedCardsList
     for i, cardData in ipairs(sortedCardsList) do
         local cardTransform = cardData.cardTransform
+        cardTransform:SetSiblingIndex(i-1)
         local offsetX = DynamicEffects.CalFinalCardOffsetX(i, cardNums)
         local cardLocalPos = cardTransform.localPosition
-        spreadSequence:Join(cardTransform:DOLocalMove(Vector3(offsetX,DynamicEffects.cardLocalPosY,0), SPREAD_DURATION))
-        cardTransform:SetSiblingIndex(i-1)
+        spreadSequence:Join(cardTransform:DOLocalMove(Vector3(offsetX,cardLocalPos.y,0), SPREAD_DURATION))
+        
     end
-
     mainSequence:Append(spreadSequence)
     mainSequence:Play()
 end
@@ -175,6 +177,69 @@ function DynamicEffects.CardFromDrawPileToSelfHand(newCardIndex,newCardData,hand
     )
 end
 
+function DynamicEffects.CardFromDrawPileToShow(showTrans, cardTransform, cardType, cardColor)
+    local cardImage = cardTransform:GetComponent(typeof(Image))
+    DynamicEffects.SetCardImg(cardImage, cardType, cardColor) 
+
+    local showTransPos = showTrans.transform.position
+
+    local sequence = DOTween.Sequence()
+    sequence:Append(
+        cardTransform:DOJump(Vector3(showTransPos.x-50, showTransPos.y, 0), 5, 1, 0.5)
+        :SetEase(Ease.OutQuad)
+        :OnStart(function()
+            cardTransform:SetParent(showTrans)
+            cardTransform:DOScale(Vector3(0.8, 0.8, 1),0.1)
+                :SetEase(Ease.OutQuad)
+        end)
+    )  
+end
+
+function DynamicEffects.CardFromShowToDiscardPile(cardTransform,discardPile,cardType,cardColor)
+    local discardPilePos = discardPile.transform.position
+    local sequence = DOTween.Sequence()
+    local cardImage = cardTransform:GetComponent(typeof(Image))
+    sequence:Append(
+        -- 抛物线动画 DOJump(discardPilePos,jumpPower, 1, jumpDuration )
+        cardTransform:DOJump(discardPilePos,3, 1, 0.8)
+        :SetEase(Ease.OutQuad) -- 落地时减速
+        :OnStart(function ()
+            if cardType and cardColor then
+                DynamicEffects.SetCardImg(cardImage, cardType, cardColor)
+            end
+            cardTransform:SetParent(discardPile)
+            cardTransform:DORotate(Vector3(0, 0, math.random(-30, 30)), 0.1)
+                :SetEase(Ease.OutQuad)
+        end)
+    )
+end
+
+function DynamicEffects.CardFromShowToSelfHand(newCardIndex,newCardData,handCntTrans)
+    local cardTransform = newCardData.cardTransform
+
+    local handCntPos = handCntTrans.transform.position
+    local handCntParent = handCntTrans.transform.parent
+
+    local cardCnts = handCntTrans.transform.childCount
+    local newCardOffsetX = DynamicEffects.CalFinalCardOffsetX(cardCnts, cardCnts+1)
+    local worldOffsetX = handCntParent:TransformVector(Vector3(newCardOffsetX, 0, 0))
+
+    local sequence = DOTween.Sequence()
+    sequence:Append(
+        cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y+40, 0), 5, 1, 0.5)
+        :SetEase(Ease.OutQuad)
+        :OnStart(function()
+            cardTransform:SetParent(handCntTrans)
+            cardTransform:DOScale(Vector3(1, 1, 1),0.1)
+            :SetEase(Ease.OutQuad)
+        end)
+    )  
+    sequence:AppendCallback(function ()
+        cardTransform.transform:SetSiblingIndex(newCardIndex)
+        DynamicEffects.UpdateHandLayout(handCntTrans)
+        end
+    )
+end
 function DynamicEffects.CardFromHandToDiscardPile(cardTransform, handCntTrans, discardPile, doScale, cardType, cardColor)
     -- 获取世界坐标
     local discardPilePos = discardPile.transform.position

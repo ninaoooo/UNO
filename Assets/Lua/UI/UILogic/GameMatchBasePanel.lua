@@ -158,26 +158,22 @@ function GameMatchBasePanel:InitWildCardButtons()
     for _, buttonInfo in ipairs(GameMacthConfig.WildCardColorButtons) do
         local buttonPath = "GWildCardSelectColor/GOption/" .. buttonInfo.name
         local button = self.panelObj.transform:Find(buttonPath):GetComponent(typeof(Button))
-        
-        if button then
-            local color = buttonInfo.color
-            self:BindButtonClick(button, function()
-                self:OnWildCradColorSelected(color)
-            end)
-        end
+        local color = buttonInfo.color
+        self:BindButtonClick(button, function()
+            self:OnWildCradColorSelected(color)
+        end)
     end
 end
 
 -- 万能牌颜色选择回调
 function GameMatchBasePanel:OnWildCradColorSelected(color)
-    -- 根据万能牌出牌状态 isWildCardFromHandContainer：玩家从手牌中出万能牌、玩家从牌堆中摸到的万能牌
-    if self.isWildCardFromHandContainer then
-        self.logic.NotifyServerToPlayCard(self.pendingWildCardType,color)
+    -- 检查万能牌的来源（手牌/牌堆）
+    if self.logic.m_tempCardList[1].cardFromHand then
+        self.logic.NotifyServerToPlayCard(self.logic.m_tempCardList[1].cardType,color)
+        self.logic.m_tempCardList = {}
     else 
         self.logic.NotifyServerToPlayDrawnCard(color)
     end
-    
-    self.pendingWildCardType = nil
     self.GWildCardSelectColor.gameObject:SetActive(false)
 end
 
@@ -199,25 +195,16 @@ end
 -- 系统发牌至玩家
 function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirmshow)
     local HandContainer = self.Player2Info[playerId].HandContainer
+    local card = cardPool:get()
+    card.transform:SetParent(self.GDrawPile, false)
+    card.transform:GetComponent(typeof(RectTransform)).localPosition  = Vector3(0, 0, 0)
     --1.如果是 confirmshow = true 的牌 要在屏幕上展示，并让玩家确认是否需要出掉这张牌
     if self.logic:IsSelf(playerId) and confirmshow then
+        table.insert(self.logic.m_tempCardList,{cardTransform = card.transform, cardType = cardType, cardColor = cardColor, cardFromHand = false})
         self.GConfirmShow.gameObject:SetActive(true)
-        local showCard = cardPool:get()
-        showCard.transform:SetParent(self.GConfirmShow, false)
-        local cardImage = showCard:GetComponent(typeof(Image))
-        self:SetCardImg(cardImage, cardType, cardColor)
-        local showCardRect = showCard:GetComponent(typeof(RectTransform))
-        showCardRect.localPosition  = Vector3(0, 0, 0)
-        showCardRect.anchorMin = Vector2(0, 0.5)
-        showCardRect.anchorMax = Vector2(0, 0.5)
-        showCardRect.pivot = Vector2(0, 0.5)
-        showCardRect.localScale  = Vector3(0.7, 0.7,0.7) 
+        DynamicEffects.CardFromDrawPileToShow(self.GConfirmShow, card.transform, cardType, cardColor)
     else
         self.logic.m_initCardCnt[playerId] = self.logic.m_initCardCnt[playerId] + 1
-        local card = cardPool:get()
-        card.transform:SetParent(self.GDrawPile, false)
-        card.transform:GetComponent(typeof(RectTransform)).localPosition  = Vector3(0, 0, 0)
-
         if self.logic:IsSelf(playerId) then
             -- 更新自己的手牌数据(AddCardToSelf已排序)
             local cardId = self.logic:GetCardId()
@@ -244,7 +231,11 @@ function GameMatchBasePanel:OnSelfUnoCardPlay(cardType, cardColor)
     -- 2.丢牌到弃牌堆
     print("self play card",cardTransform)
     local HandContainer = self.Player2Info[self.logic.m_MyPlayerId].HandContainer
-    DynamicEffects.CardFromHandToDiscardPile(cardTransform,HandContainer,self.GDiscardPile,true)
+    if self.logic:IsWildCard(cardType) then
+        DynamicEffects.CardFromHandToDiscardPile(cardTransform,HandContainer,self.GDiscardPile,true, cardType, cardColor)
+    else
+        DynamicEffects.CardFromHandToDiscardPile(cardTransform,HandContainer,self.GDiscardPile,true)
+    end
 end
 
 -- 对手出牌
@@ -288,34 +279,39 @@ function GameMatchBasePanel:TimerMgr(playerId,totalRestTime,curOpRestTime)
     end
 end
 
+-- 出从牌堆里来的牌
 function GameMatchBasePanel:OnBtnChupaiClick()
-    self.logic.m_TempConfirmCard = {cardType = self.confirmParas[2], cardColor = self.confirmParas[3], cardTransform = self.confirmParas[5]}
-    self:OnBtnPlayDrawCardClick(self.confirmParas[2], self.confirmParas[3])
-end
-
-
-
-
--- 玩家自行点击牌堆 决定出牌
-function GameMatchBasePanel:OnBtnPlayDrawCardClick(cardType,cardColor)
+        -- 1.如果是万能牌 弹出颜色选择框 等待玩家选择
+    local cardType = self.logic.m_tempCardList[1].cardType
+    local cardColor = self.logic.m_tempCardList[1].cardColor
+    local cardTransform = self.logic.m_tempCardList[1].cardTransform
     if self.logic:IsWildCard(cardType) then
-        self.isWildCardFromHandContainer = false
-        self.pendingWildCardType = cardType
+        print("牌堆发来了一张万能牌 请选择颜色")
         self.GWildCardSelectColor.gameObject:SetActive(true)
     else
-        -- 非万能牌，直接发送确认出牌消息
+        -- 2.非万能牌，直接发送确认出牌消息
         self.logic.NotifyServerToPlayDrawnCard(cardColor)
+        DynamicEffects.CardFromShowToDiscardPile(cardTransform,self.GDiscardPile,cardType,cardColor)
+        self.logic.m_tempCardList = {}
+
     end  
     self.GConfirmShow.gameObject:SetActive(false) -- 关闭确认弹窗
     self.GWildCardSelectColor.gameObject:SetActive(false) -- 关闭颜色选择面板
 end
 
+
 -- 玩家自行点击牌堆 决定保留
 function GameMatchBasePanel:OnBtnCancelClick()
-    print("玩家取消保留")
-    self.logic.NotifyServerToKeepDrawnCard(self.confirmParas[3])
-    self:OnUnoCardDraw(self.confirmParas[1], self.confirmParas[2],self.confirmParas[3],self.confirmParas[4])
+    
+    local tempCardData = self.logic.m_tempCardList[1]
+    self.logic.m_tempCardList = {}
+    local cardId = self.logic:GetCardId()
+    self.logic.NotifyServerToKeepDrawnCard(tempCardData.cardColor)
+    self.logic:AddCardToSelf(cardId, tempCardData.cardType, tempCardData.cardColor, tempCardData.cardTransform)
+    local newCardIndex, newCardData = self.logic:FindCardById(cardId)
+
     self.GConfirmShow.gameObject:SetActive(false)
+    DynamicEffects.CardFromShowToSelfHand(newCardIndex,newCardData,self.Player2Info[self.logic.m_MyPlayerId].HandContainer)
 end
 
 
@@ -338,11 +334,8 @@ function GameMatchBasePanel:TryPlayCard(cardData)
     -- 根据返回值处理逻辑
     if not canPlay then MsgPrompt:ShowPrompt(message, self.panelObj.transform) return end
     -- 如果需要选择颜色，显示颜色选择面板
-    if message == self.logic.messages.NEED_COLOR then
+    if message == self.logic.messages.NEED_COLOR then    
         self.GWildCardSelectColor.gameObject:SetActive(true)
-        self.pendingWildCardType = cardData.cardType
-        self.isWildCardFromHandContainer = true
-
         return
     end
     -- 普通牌直接出牌
@@ -358,7 +351,6 @@ function GameMatchBasePanel:OnCardClick(cardId)
     if not cardData then return end
     -- 3.牌已被选中，尝试出牌
     if cardData.cardIsSelected then
-        print("已被选中",cardData.cardType,cardData.cardColor)
         self:TryPlayCard(cardData)
     else 
     -- 如果牌未曾选中 设置被选择状态和位置
@@ -448,16 +440,14 @@ function GameMatchBasePanel:PlayEndShowCard(playerCardList)
             cardPool:clean(card) 
             cardPool:put(card)
         end
-        playerHandCard[playerId] = {}
 
         for _, cardData in ipairs(cardList) do 
             local card = cardPool:get()
-            card.transform:SetParent(HandContainer.transform, false)
-            table.insert(playerHandCard[playerId],{cardTransform=card.transform})
+            card.transform:SetParent(HandContainer, false)
             local cardImage = card:GetComponent(typeof(Image))
             self:SetCardImg(cardImage, cardData[1], cardData[2])
         end
-        DynamicEffects:UpdateHandLayout(playerId, playerHandCard[playerId],HandContainer)
+        DynamicEffects.UpdateHandLayout(HandContainer)
     end
 end
 

@@ -11,9 +11,8 @@ function UnoGameLogic:Init(playerIds)
         -- 初始化是否是初始牌状态
         m_initCardCnt = {},
         initCardsStage = true;
-        -- 初始化我的要确认的临时手牌
-        m_TempConfirmCard = nil,
-        confirmshow = false,
+        -- 初始化需要临时上下文的牌
+        m_tempCardList = {},
         -- 初始化当前玩家id
         m_currentPlayerId = playerIds[1],
         -- 初始化喊了Uno的玩家
@@ -178,7 +177,7 @@ function UnoGameLogic:CheckPlayCardRules(cardType, cardColor)
 
     -- 如果是万能牌，返回需要选择颜色的标志
     if self:IsWildCard(cardType) then
-        print("万能牌")
+        table.insert(self.m_tempCardList,{cardType = cardType, cardColor = 1, cardFromHand = true})
         return true, self.messages.NEED_COLOR
     end
 
