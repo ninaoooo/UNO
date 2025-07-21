@@ -100,7 +100,7 @@ function DynamicEffects.OrganizeInitCards(handCntTrans,sortedCardsList)
         gatherSequence:Join(cardTransform:DOLocalMove(Vector3(0, cardLocalPos.y, 0), GATHER_DURATION))
     end
     mainSequence:Append(gatherSequence)
-    mainSequence:AppendInterval(0.2) -- 聚拢完成后，停顿0.05秒
+    mainSequence:AppendInterval(0.2) -- 聚拢完成后，停顿
 
     -- -- 展开动画
     local spreadSequence = DOTween.Sequence()
