@@ -70,7 +70,8 @@ function S2C.SyncUnoPlayRoundInfo(totalRestTime, curOpRestTime, curPlayerId, sta
 end
 
 function S2C.SyncPlayerComeInPlay(matchType, playerIds_U)
-    MessageSystem.Dispatch("S2C.SyncPlayerComeInPlay", matchType, playerIds_U)
+    GameEntry:Awake(matchType, playerIds_U)
+    PreMatchBasePanel.gameObject:SetActive(false)
 end
 
 -- 检查定义的RPC是否都实现了

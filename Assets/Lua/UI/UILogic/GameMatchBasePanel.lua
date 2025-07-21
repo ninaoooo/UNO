@@ -293,7 +293,6 @@ function GameMatchBasePanel:OnBtnChupaiClick()
         self.logic.NotifyServerToPlayDrawnCard(cardColor)
         DynamicEffects.CardFromShowToDiscardPile(cardTransform,self.GDiscardPile,cardType,cardColor)
         self.logic.m_tempCardList = {}
-
     end  
     self.GConfirmShow.gameObject:SetActive(false) -- 关闭确认弹窗
     self.GWildCardSelectColor.gameObject:SetActive(false) -- 关闭颜色选择面板
@@ -302,7 +301,6 @@ end
 
 -- 玩家自行点击牌堆 决定保留
 function GameMatchBasePanel:OnBtnCancelClick()
-    
     local tempCardData = self.logic.m_tempCardList[1]
     self.logic.m_tempCardList = {}
     local cardId = self.logic:GetCardId()
@@ -420,19 +418,8 @@ function GameMatchBasePanel:ClearHandContainer(HandContainer)
 end
 
 
-function GameMatchBasePanel:SetCard(parent)
-    local card = cardPool:get()
-    card.transform:SetParent(parent, false)
-    local cardRect = card:GetComponent(typeof(RectTransform))
-    cardRect.localPosition = Vector3(0, 0, 0)
-    cardRect.anchorMin = Vector2(0, 0.5)
-    cardRect.anchorMax = Vector2(0, 0.5)
-    cardRect.pivot = Vector2(0, 0.5)
-    cardRect.localScale = Vector3(0.7, 0.7, 0.7) 
-end
 
 function GameMatchBasePanel:PlayEndShowCard(playerCardList)
-    local playerHandCard = {}
     for playerId,cardList in pairs(playerCardList) do
         local HandContainer = self.Player2Info[playerId].HandContainer
         for i = HandContainer.transform.childCount - 1, 0, -1 do
@@ -495,24 +482,6 @@ end
 function GameMatchBasePanel:Update(dt)
     self.totalTimer:Update(dt)
     self.actionTimer:Update(dt)
-    
-
-    -- if Input.GetKeyDown(KeyCode.A) then
-    --     print("按下A键，测试对象池")
-    --     local showCard = cardPool:get()
-    --     cardPool:clean(showCard) -- 清理卡牌状态
-    --     self.GConfirmShow.gameObject:SetActive(true)
-    --     local showCard = cardPool:get()
-    --     showCard.transform:SetParent(self.GConfirmShow, false)
-    --     local cardImage = showCard:GetComponent(typeof(Image))
-    --     self:SetCardImg(cardImage, 1, 1)
-    --     local showCardRect = showCard:GetComponent(typeof(RectTransform))
-    --     showCardRect.localPosition  = Vector3(0, 0, 0)
-    --     showCardRect.anchorMin = Vector2(0, 0.5)
-    --     showCardRect.anchorMax = Vector2(0, 0.5)
-    --     showCardRect.pivot = Vector2(0, 0.5)
-    --     showCardRect.localScale  = Vector3(0.7, 0.7,0.7) 
-    -- end
 end
 -- 绑定按钮点击事件
 function GameMatchBasePanel:BindButtonClick(button, onClickCallback)

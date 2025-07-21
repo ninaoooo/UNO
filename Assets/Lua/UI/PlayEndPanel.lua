@@ -57,13 +57,14 @@ end
 
 function PlayEndPanel:OnBtnContinueMatchClick()
     PlayEndPanel:DestroyPanel()
-    GameEntry.currentGamePanel:DestroyPanel()
-    PreMatchBasePanel:ShowMe()
+    -- GameEntry.currentGamePanel:DestroyPanel()
+    -- PreMatchBasePanel:ShowMe()
+    PreMatchBasePanel.gameObject:SetActive(true)
 end
 
 function PlayEndPanel:OnBtnHomeClick()
     PlayEndPanel:DestroyPanel()
-    GameEntry.currentGamePanel:DestroyPanel()
+    -- GameEntry.currentGamePanel:DestroyPanel()
     MainPanel:ShowMe()
 end
 

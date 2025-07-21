@@ -2,9 +2,9 @@ GameEntry = {
     currentGamePanel = nil
 }
 
-MessageSystem.RegisterListener("S2C.SyncPlayerComeInPlay",function (matchType, playerIds_U)
-    GameEntry:Awake(matchType, playerIds_U)
-end)
+
+    
+
 
 function GameEntry:Awake(matchType, playerIds_U)
     if self.currentGamePanel then
