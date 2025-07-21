@@ -16,7 +16,7 @@ require("Base/UpdateTimeMgr")
 require("Tools/CountdownTimer")
 MsgPrompt = require("/UI/Tools/MsgPrompt")
 Json = require("Tools/JsonUtility")
-
+require("Tools/SplitTools")
 
 
 if type(CountdownTimer) ~= "table" then
