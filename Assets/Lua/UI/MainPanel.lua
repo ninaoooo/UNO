@@ -20,6 +20,7 @@ function MainPanel:Init()
         self.BtnAvatar = self.panelObj.transform:Find("GAvatar/BtnAvatar"):GetComponent(typeof(Button))
         self.ImgAvatar = self.BtnAvatar.transform:GetComponent(typeof(Image))
         self.BtnSetting = self.panelObj.transform:Find("GSettings/Button"):GetComponent(typeof(Button))
+        self.BtnFriend = self.panelObj.transform:Find("GFriend/Button"):GetComponent(typeof(Button))
         self.BtnStore = self.panelObj.transform:Find("GStore/Button"):GetComponent(typeof(Button))
         self.BtnModeMatch1V1 = self.panelObj.transform:Find("GPlayerModeContainer/GPlayMode1V1/Button"):GetComponent(typeof(Button))
         self.BtnModeMatch1V3 = self.panelObj.transform:Find("GPlayerModeContainer/GPlayMode1V3/Button"):GetComponent(typeof(Button))
@@ -28,6 +29,7 @@ function MainPanel:Init()
         self.BtnModeMatch1V3.onClick:AddListener(function() self:OnBtnModeMatch1V3Click() end)
         self.BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick() end)
         self.BtnSetting.onClick:AddListener(function() self:OnBtnSettingClick() end)
+         self.BtnFriend.onClick:AddListener(function() self:OnBtnFriendClick() end)
         MonoBehaviourMgr:Register(self)
 
         
@@ -57,6 +59,9 @@ function MainPanel:OnBtnSettingClick()
     SettingPanel:ShowMe()
 end
 
+function MainPanel:OnBtnFriendClick()
+    ChatPanel:ShowMe()
+end
 function MainPanel:OnBtnStoreClick()
 end
 
