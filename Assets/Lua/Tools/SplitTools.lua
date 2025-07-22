@@ -34,39 +34,59 @@ function utf8_sub(s, i, j)
     end
 end
 
-local EMOJI_PATTERN = "#([1-9]|[1-3][0-9]|40)" 
-function renderChatMessage(message)
-    if not message or message == "" then
-        return ""
-    end
+function renderedMsg(msg)
+    local MIN_EMOJI_ID = 0
+    local MAX_EMOJI_ID = 40
+    local EMOJI_PATTERN = "^#(%d+)"
+    local COLOR_PATTERN = "^#(%a)"
+    local ColorCode = {R = "red",G = "green",B = "blue",Y = "yellow",C = "cyan",M = "magenta",W = "white",K = "black",O = "orange",P = "purple",
+    S = "silver",L = "lime",N = "navy",T = "teal",A = "aqua",D = "darkblue",V = "violet"}
 
-    local rendered_string = ""
-    local last_byte_pos = 1 -- 记录上一个匹配结束后的字节位置
+    local result = {}
+    local stack = {}
+    local idx = 1;
 
-    -- `gmatch` 会遍历所有匹配项
-    for start_match_byte, end_match_byte, emoji_id_str in message:gmatch("()" .. EMOJI_PATTERN .. "()") do
-        -- 1. 添加当前匹配之前的普通文本
-        local text_before = message:sub(last_byte_pos, start_match_byte - 1)
-        rendered_string = rendered_string .. text_before
-
-        -- 2. 处理表情标记（将#ID转换为<sprite>标签）
-        local full_emoji_tag = "#" .. emoji_id_str
-
-        if emoji_id_str>=1 and emoji_id_str < 40 then
-            rendered_string = rendered_string .. "<sprite=\"Emoji\" name=\"" .. emoji_id_str .. "\">"
-        else
-            rendered_string = rendered_string .. full_emoji_tag
+    while(idx < #msg) do
+        local c = string.sub(msg,idx,idx)
+        if c == '#' then
+            local emoji_id_str = string.match(msg,EMOJI_PATTERN,idx)
+            if emoji_id_str then
+                local emoji_id = tonumber(emoji_id_str)
+                if emoji_id > MIN_EMOJI_ID and emoji_id < MAX_EMOJI_ID then
+                    table.insert(result,'<sprite name="' .. emoji_id .. '">')
+                else 
+                    table.insert(result,emoji_id)
+                end
+                idx = idx + 1 + #emoji_id_str
+            else
+                local color_str = string.match(msg,COLOR_PATTERN,idx)
+                if color_str then
+                    if color_str == 'n' then
+                        if #stack > 0 then
+                            table.insert(result, "</color>")
+                            table.remove(stack)
+                        end
+                        idx = idx+2
+                    else 
+                        local color = ColorCode[color_str]
+                        if color then
+                            if #stack > 0 then
+                                table.insert(result, "</color>")
+                                table.remove(stack)
+                            end
+                            table.insert(stack,color)
+                            table.insert(result,"<color=" .. color .. ">")
+                            idx = idx + 2
+                        end
+                    end
+                end
+            end
+        else 
+            table.insert(result,c)
+            idx = idx + 1
         end
-
-        -- 更新下一个查找的起始位置
-        last_byte_pos = end_match_byte 
     end
-
-    -- 3. 添加字符串末尾可能存在的任何剩余文本
-    local remaining_text = message:sub(last_byte_pos)
-    rendered_string = rendered_string .. remaining_text
-
-    return rendered_string
+    return  table.concat(result)
 end
 
 
