@@ -55,7 +55,7 @@ function renderedMsg(msg)
             local emoji_id_str = string.match(msg,EMOJI_PATTERN,idx)
             if emoji_id_str then
                 local emoji_id = tonumber(emoji_id_str)
-                if emoji_id > MIN_EMOJI_ID and emoji_id < MAX_EMOJI_ID then
+                if emoji_id >= MIN_EMOJI_ID and emoji_id <= MAX_EMOJI_ID then
                     table.insert(result,'<sprite name="' .. emoji_id .. '">')
                 else 
                     table.insert(result,emoji_id)
@@ -67,7 +67,7 @@ function renderedMsg(msg)
                     local voice_id = tonumber(voice_id_str)
                     if voice_id >= MIN_VOICE_ID and voice_id <= MAX_VOICE_ID then
                         table.insert(result,tostring(voice_id))
-                        idx = idx + 1 + #voice_id_str
+                        return table.concat(result)
                     end
                 end
             else
@@ -91,7 +91,8 @@ function renderedMsg(msg)
                             idx = idx + 2
                         end
                     end
-                end
+                else idx = idx + 1
+                end    
             end
         else 
             table.insert(result,c)
