@@ -35,12 +35,15 @@ function utf8_sub(s, i, j)
 end
 
 function renderedMsg(msg)
-    local MIN_EMOJI_ID = 0
+    local MIN_EMOJI_ID = 1
     local MAX_EMOJI_ID = 40
+    local MIN_VOICE_ID = 1
+    local MAX_VOICE_ID = 2
     local EMOJI_PATTERN = "^#(%d+)"
     local COLOR_PATTERN = "^#(%a)"
+    local VOICE_PATTERN = "^#V(%d+)"
     local ColorCode = {R = "red",G = "green",B = "blue",Y = "yellow",C = "cyan",M = "magenta",W = "white",K = "black",O = "orange",P = "purple",
-    S = "silver",L = "lime",N = "navy",T = "teal",A = "aqua",D = "darkblue",V = "violet"}
+    S = "silver",L = "lime",N = "navy",T = "teal",A = "aqua",D = "darkblue"}
 
     local result = {}
     local stack = {}
@@ -58,6 +61,15 @@ function renderedMsg(msg)
                     table.insert(result,emoji_id)
                 end
                 idx = idx + 1 + #emoji_id_str
+            elseif string.match(msg,VOICE_PATTERN,idx) then
+                local voice_id_str = string.match(msg,VOICE_PATTERN,idx)
+                if voice_id_str then
+                    local voice_id = tonumber(voice_id_str)
+                    if voice_id >= MIN_VOICE_ID and voice_id <= MAX_VOICE_ID then
+                        table.insert(result,tostring(voice_id))
+                        idx = idx + 1 + #voice_id_str
+                    end
+                end
             else
                 local color_str = string.match(msg,COLOR_PATTERN,idx)
                 if color_str then

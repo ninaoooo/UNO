@@ -2,6 +2,7 @@ LuaAudioMgr = {}
 
 local MusicData = require("Tools/MusicData")
 local SoundData = require("Tools/SoundData")
+local VoiceData = require("Tools/VoiceData")
 
 
 
@@ -24,6 +25,7 @@ function LuaAudioMgr:Init()
     self.soundABName = "sound"
     self.musicList = MusicData.LoadMusicList()
     self.soundList = SoundData.LoadSoundList()
+    self.voiceList = VoiceData.LoadVoiceList()
     LuaAudioMgr:LoadAudio(self.musicList, self.musicABName)
     LuaAudioMgr:LoadAudio(self.soundList, self.soundABName)
     LuaAudioMgr:PlayMusic(self.musicABName,"Village Tarantella")
@@ -70,10 +72,19 @@ end
 function LuaAudioMgr:GetMusicNameById(Id)
     for _, musicData in ipairs(self.musicList) do
         if musicData.ID == Id then
-            print(musicData.Name)
             return musicData.Name
         end
     end
     return ""
 end
+
+function LuaAudioMgr:GetVoiceNameById(Id)
+    for _, voiceData in ipairs(self.voiceList) do
+        if voiceData.ID == Id then
+            return voiceData.Name
+        end
+    end
+    return ""
+end
+
 LuaAudioMgr:Init()
