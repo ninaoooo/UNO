@@ -50,6 +50,7 @@ TextMeshPro = CS.TMPro.TextMeshProUGUI
 TextMeshProInputField = CS.TMPro.TMP_InputField
 Button = UI.Button 
 Toggle = UI.Toggle
+ToggleGroup = UI.ToggleGroup
 ScrollRect = UI.ScrollRect
 Slider = CS.UnityEngine.UI.Slider
 -- 操作相关

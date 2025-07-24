@@ -13,17 +13,23 @@ function ChatPanel:Init()
         -- LoadRes(abName,resName)
         self.panelObj = ABMgr:LoadRes("UI","ChatPanel")
         self.panelObj.transform:SetParent(Canvas,false)
-        self.GInfo = ABMgr:LoadRes("modes","GInfo")
+        self.TogInfo = ABMgr:LoadRes("modes","TogInfo")
         self.SpriteEmoji = ABMgr:LoadRes("UI","Emoji")
         self.EmojiPrefab = ABMgr:LoadRes("modes","ImgEmoji")
         self.VoicePrefab = ABMgr:LoadRes("modes","ImgVoice")
         self.BtnClose = self.panelObj.transform:Find("Right/BtnClose"):GetComponent(typeof(Button))
         
+        self.LeftTogRct = self.panelObj.transform:Find("Left/Up/TogRecent"):GetComponent(typeof(Toggle))
+        self.LeftTogCon = self.panelObj.transform:Find("Left/Up/TogContact"):GetComponent(typeof(Toggle))
+        self.LeftTogAddFri = self.panelObj.transform:Find("Left/Up/TogAddFriend"):GetComponent(typeof(Toggle))
         self.LeftRctPanel = self.panelObj.transform:Find("Left/Main/RecentPanel")
         self.LeftRctContent = self.LeftRctPanel.transform:Find("Scroll View/Viewport/Content")
-
+        self.LeftRctCntTogGroup = self.LeftRctContent:GetComponent(typeof(ToggleGroup))
+        self.LeftRctTogSys = self.LeftRctContent.transform:Find("TogInfoSys"):GetComponent(typeof(Toggle))
+        self.LeftRctTogSys.onValueChanged:AddListener(function(isOn) if isOn then self:clearChatMsg() end end)
+        
+            
         self.MiddenDefaultPanel = self.panelObj.transform:Find("Midden/DefaultPanel")
-
         self.MiddenChatPanel = self.panelObj.transform:Find("Midden/ChatPanel")
         self.BtnVoice = self.MiddenChatPanel.transform:Find("Input/BtnVoice"):GetComponent(typeof(Button))
         self.BtnEmoji = self.MiddenChatPanel.transform:Find("Input/BtnEmoji"):GetComponent(typeof(Button))
@@ -37,7 +43,6 @@ function ChatPanel:Init()
         self.InputField.onSelect:AddListener(function () self:InputFieldOnClick() end)
         self.BtnClose.onClick:AddListener(function () self:BtnCloseOnClick() end)
         self.BtnSend.onClick:AddListener(function () self:BtnSendOnClick() end)
-
         self.BtnVoice.onClick:AddListener(function () self:BtnVoiceOnClick() end)
 
 
@@ -46,11 +51,15 @@ function ChatPanel:Init()
 
         self.RightBtnClose = self.panelObj.transform:Find("Right/BtnClose"):GetComponent(typeof(Button))
         self.RightBtnClose.onClick:AddListener(function () self:DestroyPanel() end)
+        
+        self.RightTogFri = self.panelObj.transform:Find("Right/List/TogFriend"):GetComponent(typeof(Toggle))
+        self.RightTogEmail = self.panelObj.transform:Find("Right/List/TogEmail"):GetComponent(typeof(Toggle))
 
         self:InitData()
         self:InitLeftRctPanel()
         self:InitEmojiPanel()
         self:InitVoicePanel()
+
         MonoBehaviourMgr:Register(self)
     end
 end
@@ -60,18 +69,20 @@ function ChatPanel:InitData()
     MsgDataMgr:LoadToMsgData()
 end
 function ChatPanel:InitLeftRctPanel()
-    
     for playerId, _ in pairs(MsgData) do
-        local rctInfoObj = GameObject.Instantiate(self.GInfo, self.LeftRctContent)
+        local rctInfoObj = GameObject.Instantiate(self.TogInfo, self.LeftRctContent):GetComponent(typeof(Toggle))
+        rctInfoObj.group = self.LeftRctCntTogGroup
         rctInfoObj.transform:Find("ImgAvatar"):GetComponent(typeof(Image)).sprite = AvatarSpriteAltas:GetSprite(PlayerInfo.Friends[playerId].playerAvatar)
         rctInfoObj.transform:Find("TextPlayerName"):GetComponent(typeof(TextMeshPro)).text = PlayerInfo.Friends[playerId].playerName
-        rctInfoObj:GetComponent(typeof(Button)).onClick:AddListener(function() 
-            self.curChatPlayerId = playerId
-            self:clearChatMsg()
-            self.MiddenDefaultPanel.gameObject:SetActive(false)
-            self.MiddenChatPanel.gameObject:SetActive(true)
-            self:LoadMsgToMiddenChatPanel(self.curChatPlayerId)
-            self.MsgScrollRect.verticalNormalizedPosition = 0
+        rctInfoObj.onValueChanged:AddListener(function(isOn) 
+            if isOn then
+                self.curChatPlayerId = playerId
+                self:clearChatMsg()
+                self.MiddenDefaultPanel.gameObject:SetActive(false)
+                self.MiddenChatPanel.gameObject:SetActive(true)
+                self:LoadMsgToMiddenChatPanel(self.curChatPlayerId)
+                self.MsgScrollRect.verticalNormalizedPosition = 0
+            end
         end)
     end
 end
@@ -229,6 +240,7 @@ function ChatPanel:SetTimeStamp(timestamp)
     text.alignment = CS.TMPro.TextAlignmentOptions.Center
     text.color = CS.UnityEngine.Color.black
 end
+
 
 function ChatPanel:Start()
 end
