@@ -6,7 +6,7 @@ local MsgRightPool = PoolMgr:getPool("msgRightPool")
 local MsgLeftPool = PoolMgr:getPool("msgLeftPool")
 
 local PlayerInfo = require("Tools/PlayerInfo")
-
+local EmailData = require("Tools/EmailData")
 function ChatPanel:Init()
     if  self.panelObj == nil then
         -- 1.实例化面板对象，设置父对象
@@ -14,9 +14,11 @@ function ChatPanel:Init()
         self.panelObj = ABMgr:LoadRes("UI","ChatPanel")
         self.panelObj.transform:SetParent(Canvas,false)
         self.TogInfo = ABMgr:LoadRes("modes","TogInfo")
+        self.TogEmailInfo = ABMgr:LoadRes("modes","TogEmailInfo")
         self.SpriteEmoji = ABMgr:LoadRes("UI","Emoji")
         self.EmojiPrefab = ABMgr:LoadRes("modes","ImgEmoji")
         self.VoicePrefab = ABMgr:LoadRes("modes","ImgVoice")
+        self.PropPrefab = ABMgr:LoadRes("modes","ImgPorp")
         self.BtnClose = self.panelObj.transform:Find("Right/BtnClose"):GetComponent(typeof(Button))
         
         self.LeftTogRct = self.panelObj.transform:Find("Left/Up/TogRecent"):GetComponent(typeof(Toggle))
@@ -35,6 +37,7 @@ function ChatPanel:Init()
         self.LeftTogAddFri.onValueChanged:AddListener(function (isOn) self:ShowAddFriends(isOn) end)
         self.LeftFriReqPanel = self.panelObj.transform:Find("Left/Main/FriendRequestPanel")
         
+        self.Midden = self.panelObj.transform:Find("Midden")
         self.MiddenDefaultPanel = self.panelObj.transform:Find("Midden/DefaultPanel")
         self.MiddenChatPanel = self.panelObj.transform:Find("Midden/ChatPanel")
         self.BtnVoice = self.MiddenChatPanel.transform:Find("Input/BtnVoice"):GetComponent(typeof(Button))
@@ -52,12 +55,20 @@ function ChatPanel:Init()
         self.BtnVoice.onClick:AddListener(function () self:BtnVoiceOnClick() end)
         self.MiddenAddFrendPanel = self.panelObj.transform:Find("Midden/AddFrendPanel")
 
-
         self.RightBtnClose = self.panelObj.transform:Find("Right/BtnClose"):GetComponent(typeof(Button))
         self.RightBtnClose.onClick:AddListener(function () self:DestroyPanel() end)
         
         self.RightTogFri = self.panelObj.transform:Find("Right/List/TogFriend"):GetComponent(typeof(Toggle))
         self.RightTogEmail = self.panelObj.transform:Find("Right/List/TogEmail"):GetComponent(typeof(Toggle))
+        self.RightTogEmail.onValueChanged:AddListener(function (isOn) self:ShowEmail(isOn) end)
+        self.LeftEmailContent = self.panelObj.transform:Find("Left/Whole/Scroll View/Viewport/Content")
+        self.LeftEmailCntTogGroup = self.LeftEmailContent:GetComponent(typeof(ToggleGroup))
+        self.MiddenEmailDescPanel = self.panelObj.transform:Find("Midden/EmailDescPanel")
+        
+        self.TextSubject = self.MiddenEmailDescPanel.transform:Find("TextSubject"):GetComponent(typeof(TextMeshPro))
+        self.TextSendTime = self.MiddenEmailDescPanel.transform:Find("TextSendTime"):GetComponent(typeof(TextMeshPro))
+        self.TextBody = self.MiddenEmailDescPanel.transform:Find("TextBody"):GetComponent(typeof(TextMeshPro))
+        self.GAttach = self.MiddenEmailDescPanel.transform:Find("GAttach")
 
         self:InitData()
         self:InitLeftRctPanel()
@@ -293,6 +304,70 @@ function ChatPanel:ShowAddFriends(isOn)
     else
         self.LeftFriReqPanel.gameObject:SetActive(false)
         self.MiddenAddFrendPanel.gameObject:SetActive(false)
+    end
+end
+
+function ChatPanel:ShowEmail(isOn)
+    if isOn then
+        for i = 0,self.panelObj.transform:Find("Left").transform.childCount-1 do
+            local child = self.panelObj.transform:Find("Left").transform:GetChild(i).gameObject
+            if child.tag ~= "Email" then
+                child:SetActive(false)
+            else
+                child:SetActive(true)
+            end
+        end
+        for i = 0,self.Midden.transform.childCount-1 do
+            local child = self.Midden.transform:GetChild(i).gameObject
+            if child.tag ~= "Email" then
+                child:SetActive(false)
+            else
+                child:SetActive(true)
+            end
+        end
+        self:InitEmailList()
+    else
+        self.MiddenEmailDescPanel.gameObject:SetActive(false)
+        self.MiddenDefaultPanel.gameObject:SetActive(true)
+        for i = 0,self.panelObj.transform:Find("Left").transform.childCount-1 do
+            local child = self.panelObj.transform:Find("Left").transform:GetChild(i).gameObject
+            if child.tag ~= "Email" then
+                child:SetActive(true)
+            else
+                child:SetActive(false)
+            end
+        end
+    end
+    
+end
+function ChatPanel:ShowEmailDesc(mail)
+    self.TextSubject.text = mail.subject
+    self.TextSendTime.text = os.date("%Y-%m-%d %H:%M:%S", mail.time)
+    self.TextBody.text = mail.body
+    self.GAttach.gameObject:SetActive(#mail.attachments > 0)
+    self.AttachCells = self.GAttach:Find("AttachCells")
+    if self.GAttach.gameObject.activeSelf then
+        for i = 0, self.AttachCells.childCount -1 do
+                local child = self.AttachCells:GetChild(i).gameObject
+                GameObject.Destroy(child)
+        end
+        for i = 0, #mail.attachments -1 do 
+            local PropPrefab = GameObject.Instantiate(self.PropPrefab, self.AttachCells)
+            -- PropPrefab.transform:GetComponent(typeof(Image)).sprite = 
+            if mail.isClaimed then
+                PropPrefab.transform:Find("Image").gameObject:SetActive(true)
+            end
+            PropPrefab.transform:Find("TextNum"):GetComponent(typeof(TextMeshPro)).text = tostring(mail.attachments[i+1].quantity)
+        end
+    end
+end
+function ChatPanel:InitEmailList()
+    print(type(EmailData))
+    for _, mail in ipairs(EmailData) do
+        local emailObj = GameObject.Instantiate(self.TogEmailInfo, self.LeftEmailContent):GetComponent(typeof(Toggle))
+        emailObj.group = self.LeftEmailCntTogGroup
+        emailObj.onValueChanged:AddListener(function(isOn) if isOn then self:ShowEmailDesc(mail) end end)
+        emailObj.transform:Find("TextSubject"):GetComponent(typeof(TextMeshPro)).text = mail.subject
     end
 end
 function ChatPanel:Start()
