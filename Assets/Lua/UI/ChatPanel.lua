@@ -4,6 +4,9 @@ local VoiceList = VoiceData.LoadVoiceList()
 local PoolMgr = require("UI/Pools/PoolMgr")
 local MsgRightPool = PoolMgr:getPool("msgRightPool")
 local MsgLeftPool = PoolMgr:getPool("msgLeftPool")
+
+local PlayerInfo = require("Tools/PlayerInfo")
+
 function ChatPanel:Init()
     if  self.panelObj == nil then
         -- 1.实例化面板对象，设置父对象
@@ -15,30 +18,84 @@ function ChatPanel:Init()
         self.EmojiPrefab = ABMgr:LoadRes("modes","ImgEmoji")
         self.VoicePrefab = ABMgr:LoadRes("modes","ImgVoice")
         self.BtnClose = self.panelObj.transform:Find("Right/BtnClose"):GetComponent(typeof(Button))
+        
+        self.LeftRctPanel = self.panelObj.transform:Find("Left/Main/RecentPanel")
+        self.LeftRctContent = self.LeftRctPanel.transform:Find("Scroll View/Viewport/Content")
 
-        self.BtnVoice = self.panelObj.transform:Find("Midden/Input/BtnVoice"):GetComponent(typeof(Button))
-        self.BtnEmoji = self.panelObj.transform:Find("Midden/Input/BtnEmoji"):GetComponent(typeof(Button))
-        self.BtnSend = self.panelObj.transform:Find("Midden/Input/BtnSend"):GetComponent(typeof(Button))
-        self.InputField = self.panelObj.transform:Find("Midden/Input/InputField"):GetComponent(typeof(TextMeshProInputField))
-        self.MsgContent = self.panelObj.transform:Find("Midden/Scroll View/Viewport/Content")
-        self.GEmojiPanel = self.panelObj.transform:Find("Midden/EmojiPanel")
-        self.GVoicePanel = self.panelObj.transform:Find("Midden/VoicePanel")
+        self.MiddenDefaultPanel = self.panelObj.transform:Find("Midden/DefaultPanel")
+
+        self.MiddenChatPanel = self.panelObj.transform:Find("Midden/ChatPanel")
+        self.BtnVoice = self.MiddenChatPanel.transform:Find("Input/BtnVoice"):GetComponent(typeof(Button))
+        self.BtnEmoji = self.MiddenChatPanel.transform:Find("Input/BtnEmoji"):GetComponent(typeof(Button))
+        self.BtnSend = self.MiddenChatPanel.transform:Find("Input/BtnSend"):GetComponent(typeof(Button))
+        self.InputField = self.MiddenChatPanel.transform:Find("Input/InputField"):GetComponent(typeof(TextMeshProInputField))
+        self.MsgScrollRect = self.MiddenChatPanel.transform:Find("Scroll View"):GetComponent(typeof(ScrollRect))
+        self.MsgContent = self.MiddenChatPanel.transform:Find("Scroll View/Viewport/Content")
+        self.GEmojiPanel = self.MiddenChatPanel.transform:Find("EmojiPanel")
+        self.GVoicePanel = self.MiddenChatPanel.transform:Find("VoicePanel")
         self.BtnEmoji.onClick:AddListener(function () self:BtnEmojiOnClick() end)
         self.InputField.onSelect:AddListener(function () self:InputFieldOnClick() end)
         self.BtnClose.onClick:AddListener(function () self:BtnCloseOnClick() end)
         self.BtnSend.onClick:AddListener(function () self:BtnSendOnClick() end)
 
         self.BtnVoice.onClick:AddListener(function () self:BtnVoiceOnClick() end)
+
+
+        self.AddFrendPanel = self.panelObj.transform:Find("Midden/AddFrendPanel")
+
+
+        self.RightBtnClose = self.panelObj.transform:Find("Right/BtnClose"):GetComponent(typeof(Button))
+        self.RightBtnClose.onClick:AddListener(function () self:DestroyPanel() end)
+
+        self:InitData()
+        self:InitLeftRctPanel()
         self:InitEmojiPanel()
         self:InitVoicePanel()
         MonoBehaviourMgr:Register(self)
     end
 end
 
+function ChatPanel:InitData()
+    self.playerId = PlayerInfo:GetPlayerId()
+    MsgDataMgr:LoadToMsgData()
+end
+function ChatPanel:InitLeftRctPanel()
+    
+    for playerId, _ in pairs(MsgData) do
+        local rctInfoObj = GameObject.Instantiate(self.GInfo, self.LeftRctContent)
+        rctInfoObj.transform:Find("ImgAvatar"):GetComponent(typeof(Image)).sprite = AvatarSpriteAltas:GetSprite(PlayerInfo.Friends[playerId].playerAvatar)
+        rctInfoObj.transform:Find("TextPlayerName"):GetComponent(typeof(TextMeshPro)).text = PlayerInfo.Friends[playerId].playerName
+        rctInfoObj:GetComponent(typeof(Button)).onClick:AddListener(function() 
+            self.curChatPlayerId = playerId
+            self:clearChatMsg()
+            self.MiddenDefaultPanel.gameObject:SetActive(false)
+            self.MiddenChatPanel.gameObject:SetActive(true)
+            self:LoadMsgToMiddenChatPanel(self.curChatPlayerId)
+            self.MsgScrollRect.verticalNormalizedPosition = 0
+        end)
+    end
+end
+
+function ChatPanel:clearChatMsg()
+    for i = self.MsgContent.transform.childCount -1,0,-1 do
+        local child = self.MsgContent.transform:GetChild(i).gameObject
+        if child.name == "MsgRight(Clone)" then
+            MsgRightPool:clean(child)
+            MsgRightPool:put(child)
+        elseif child.name == "MsgLeft(Clone)" then
+            MsgLeftPool:clean(child)
+            MsgLeftPool:put(child)
+        else
+            GameObject.Destroy(child)
+        end
+    end
+end
+    
 function ChatPanel:SetMsgPrefabs(msgType,msgHolder,renderedMsg)
     if(msgHolder == "self") then
         local msgObj = MsgRightPool:get()
         msgObj.transform:SetParent(self.MsgContent,false)
+        msgObj.transform:Find("HorizonCnt/ImgAvatar"):GetComponent(typeof(Image)).sprite = AvatarSpriteAltas:GetSprite(PlayerInfo.playerAvatar)
         local msgText = msgObj.transform:Find("HorizonCnt/Image/Text"):GetComponent(typeof(TextMeshPro))
         if msgType == "voice" then
             msgText.text = "语音消息，点击播放"
@@ -50,6 +107,7 @@ function ChatPanel:SetMsgPrefabs(msgType,msgHolder,renderedMsg)
     else 
         local msgObj = MsgLeftPool:get()
         msgObj.transform:SetParent(self.MsgContent,false)
+        msgObj.transform:Find("HorizonCnt/ImgAvatar"):GetComponent(typeof(Image)).sprite = AvatarSpriteAltas:GetSprite(PlayerInfo.Friends[self.curChatPlayerId].playerAvatar)
         local msgText = msgObj.transform:Find("HorizonCnt/Image/Text"):GetComponent(typeof(TextMeshPro))
         if msgType == "voice" then
             msgText.text = "语音消息，点击播放"
@@ -66,6 +124,10 @@ function ChatPanel:BtnCloseOnClick()
     self.GEmojiPanel.gameObject:SetActive(true)
 end
 
+function ChatPanel:InputFieldOnClick()
+    self.GEmojiPanel.gameObject:SetActive(false)
+end
+
 function ChatPanel:InitVoicePanel()
     self.voiceCnt = #VoiceList
     for i=1, self.voiceCnt do
@@ -78,7 +140,10 @@ end
 function ChatPanel:OnVoiceSelectedHandler(Id)
     self.GVoicePanel.gameObject:SetActive(false)
     local msg = "#V"..Id.."#n"
-    self:SetMsgPrefabs("voice","self",renderedMsg(msg))
+    local renderedMsg = renderedMsg(msg)
+    self:SetMsgPrefabs("voice","self",renderedMsg)
+    table.insert(MsgData[self.curChatPlayerId],{msgId = nil, timestamp = os.time(), msgType = "voice", content = renderedMsg, senderId = self.playerId})
+    MsgDataMgr:SaveToJson()
 end
 function ChatPanel:BtnVoiceOnClick()
     self.GVoicePanel.gameObject:SetActive(not self.GVoicePanel.gameObject.activeSelf)
@@ -87,10 +152,17 @@ function ChatPanel:BtnSendOnClick()
     self.GEmojiPanel.gameObject:SetActive(false)
     local inputText = self.InputField.text
     local msg = inputText.."#n"
-    self:SetMsgPrefabs("text","self",renderedMsg(msg))
+    local renderedMsg = renderedMsg(msg)
+    self:SetMsgPrefabs("text","self",renderedMsg)
+    self.MsgScrollRect.verticalNormalizedPosition = 0
     self.InputField.text = ""
-
+    if not MsgData[self.curChatPlayerId] then
+        MsgData[self.curChatPlayerId] = {}
+    end
+    table.insert(MsgData[self.curChatPlayerId],{msgId = nil, timestamp = os.time(), msgType = "text", content = renderedMsg, senderId = self.playerId})
+    MsgDataMgr:SaveToJson()
 end
+
 function ChatPanel:BtnEmojiOnClick()
     self.GEmojiPanel.gameObject:SetActive(not self.GEmojiPanel.gameObject.activeSelf)
 end
@@ -102,10 +174,6 @@ function ChatPanel:InitEmojiPanel()
         emojiObj:GetComponent(typeof(Image)).sprite = self.SpriteEmoji:GetSprite(tostring(i))
         emojiObj:GetComponent(typeof(Button)).onClick:AddListener(function() self:OnEmojiSelectedHandler(tostring(i)) end)
     end
-end
-
-function ChatPanel:InputFieldOnClick()
-    self.GEmojiPanel.gameObject:SetActive(false)
 end
 
 function ChatPanel:OnEmojiSelectedHandler(EmojiName)
@@ -125,6 +193,43 @@ function ChatPanel:OnEmojiSelectedHandler(EmojiName)
         self.InputField.caretPosition = currentPos + utf8.len(emojiText)
     end
 end
+
+
+
+function ChatPanel:LoadMsgToMiddenChatPanel(playerId)
+    MsgDataMgr:LoadToMsgData()
+    if MsgData[playerId] then
+        local preTimestamp = nil
+        for i, msg in ipairs(MsgData[playerId]) do
+            if preTimestamp then
+                if msg.timestamp - preTimestamp >= 10*60 then
+                    self:SetTimeStamp(msg.timestamp)
+                end
+            else 
+                self:SetTimeStamp(msg.timestamp)
+            end
+                
+            if msg.senderId == self.playerId then
+                self:SetMsgPrefabs(msg.msgType, "self", msg.content)
+            else
+                self:SetMsgPrefabs(msg.msgType, "other", msg.content)
+            end
+            preTimestamp = msg.timestamp
+        end
+    end
+end
+
+function ChatPanel:SetTimeStamp(timestamp)
+    local timeString = os.date("%Y-%m-%d %H:%M", timestamp)
+    local textObj = GameObject("TimeStampText")  
+    textObj.transform:SetParent(self.MsgContent.transform, false)
+    local text = textObj:AddComponent(typeof(TextMeshPro))
+    text.text = timeString
+    text.fontSize = 18
+    text.alignment = CS.TMPro.TextAlignmentOptions.Center
+    text.color = CS.UnityEngine.Color.black
+end
+
 function ChatPanel:Start()
 end
 
@@ -138,12 +243,9 @@ function ChatPanel:HideMe()
     self.panelObj:SetActive(false)
 end
 
-
-
-function OnEmojiSelectedHandler(i)
-    print("这是表情i")
-end
 function ChatPanel:DestroyPanel()
+    self.panelObj:SetActive(false)
+    self:clearChatMsg()
     GameObject.Destroy(self.panelObj)
-    LoginPanel.panelObj = nil
+    ChatPanel.panelObj = nil
 end
