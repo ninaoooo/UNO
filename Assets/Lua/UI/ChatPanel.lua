@@ -27,8 +27,14 @@ function ChatPanel:Init()
         self.LeftRctCntTogGroup = self.LeftRctContent:GetComponent(typeof(ToggleGroup))
         self.LeftRctTogSys = self.LeftRctContent.transform:Find("TogInfoSys"):GetComponent(typeof(Toggle))
         self.LeftRctTogSys.onValueChanged:AddListener(function(isOn) if isOn then self:clearChatMsg() end end)
+        self.LeftConPanel = self.panelObj.transform:Find("Left/Main/FriendPanel")
+        self.LeftConContent = self.LeftConPanel.transform:Find("Scroll View/Viewport/Content")
+        self.LeftConCntTogGroup = self.LeftConContent:GetComponent(typeof(ToggleGroup))
+        self.LeftTogRct.onValueChanged:AddListener(function (isOn) self:ShowRecent(isOn) end)
+        self.LeftTogCon.onValueChanged:AddListener(function (isOn) self:ShowContacts(isOn) end)
+        self.LeftTogAddFri.onValueChanged:AddListener(function (isOn) self:ShowAddFriends(isOn) end)
+        self.LeftFriReqPanel = self.panelObj.transform:Find("Left/Main/FriendRequestPanel")
         
-            
         self.MiddenDefaultPanel = self.panelObj.transform:Find("Midden/DefaultPanel")
         self.MiddenChatPanel = self.panelObj.transform:Find("Midden/ChatPanel")
         self.BtnVoice = self.MiddenChatPanel.transform:Find("Input/BtnVoice"):GetComponent(typeof(Button))
@@ -44,9 +50,7 @@ function ChatPanel:Init()
         self.BtnClose.onClick:AddListener(function () self:BtnCloseOnClick() end)
         self.BtnSend.onClick:AddListener(function () self:BtnSendOnClick() end)
         self.BtnVoice.onClick:AddListener(function () self:BtnVoiceOnClick() end)
-
-
-        self.AddFrendPanel = self.panelObj.transform:Find("Midden/AddFrendPanel")
+        self.MiddenAddFrendPanel = self.panelObj.transform:Find("Midden/AddFrendPanel")
 
 
         self.RightBtnClose = self.panelObj.transform:Find("Right/BtnClose"):GetComponent(typeof(Button))
@@ -85,6 +89,7 @@ function ChatPanel:InitLeftRctPanel()
             end
         end)
     end
+    self.LeftRctTogSys.isOn = false
 end
 
 function ChatPanel:clearChatMsg()
@@ -241,7 +246,55 @@ function ChatPanel:SetTimeStamp(timestamp)
     text.color = CS.UnityEngine.Color.black
 end
 
+function ChatPanel:ShowRecent(isOn)
+    if isOn then
+        self.LeftRctPanel.gameObject:SetActive(true)
+        self.MiddenDefaultPanel.gameObject:SetActive(true)
+        self.MiddenChatPanel.gameObject:SetActive(false)
+    else
+        self.LeftRctPanel.gameObject:SetActive(false)
+        self.MiddenDefaultPanel.gameObject:SetActive(false)
+    end
+end
+function ChatPanel:ShowContacts(isOn)
+    if isOn then 
+        self.LeftConPanel.gameObject:SetActive(true)
+        for i = self.LeftConContent.transform.childCount -1,0,-1 do
+            local child = self.LeftConContent.transform:GetChild(i).gameObject
+            GameObject.Destroy(child)
+        end
 
+        for playerId, _ in pairs(PlayerInfo.Friends) do
+            local rctInfoObj = GameObject.Instantiate(self.TogInfo, self.LeftConContent):GetComponent(typeof(Toggle))
+            rctInfoObj.group = self.LeftConCntTogGroup
+            rctInfoObj.transform:Find("ImgAvatar"):GetComponent(typeof(Image)).sprite = AvatarSpriteAltas:GetSprite(PlayerInfo.Friends[playerId].playerAvatar)
+            rctInfoObj.transform:Find("TextPlayerName"):GetComponent(typeof(TextMeshPro)).text = PlayerInfo.Friends[playerId].playerName
+            rctInfoObj.onValueChanged:AddListener(function(isOn) 
+                if isOn then
+                    self.curChatPlayerId = playerId
+                    self:clearChatMsg()
+                    self.MiddenDefaultPanel.gameObject:SetActive(false)
+                    self.MiddenChatPanel.gameObject:SetActive(true)
+                    self:LoadMsgToMiddenChatPanel(self.curChatPlayerId)
+                    self.MsgScrollRect.verticalNormalizedPosition = 0
+                end
+            end)
+        end
+    else
+        self.LeftConPanel.gameObject:SetActive(false)
+        self.MiddenChatPanel.gameObject:SetActive(false)
+    end
+end
+
+function ChatPanel:ShowAddFriends(isOn)
+    if isOn then
+        self.LeftFriReqPanel.gameObject:SetActive(true)
+        self.MiddenAddFrendPanel.gameObject:SetActive(true)
+    else
+        self.LeftFriReqPanel.gameObject:SetActive(false)
+        self.MiddenAddFrendPanel.gameObject:SetActive(false)
+    end
+end
 function ChatPanel:Start()
 end
 
