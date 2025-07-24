@@ -1,7 +1,11 @@
 local PlayerInfo = {
     playerId = "",
     playerName = "",
-    playerAvatar = ""
+    playerAvatar = "",
+    Friends = {
+        ["1000001"] = { playerName = "一颗花椰菜", playerAvatar = "avatar (1)" },
+        ["1000002"] = { playerName = "一瓶椰子水", playerAvatar = "avatar (2)" }
+    },
 }
 
 function PlayerInfo:InitPlayerInfo(result,playerId,playerName)
