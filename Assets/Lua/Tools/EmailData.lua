@@ -5,9 +5,8 @@ local EmailData = {
         body = "恭喜你！你获得了特别奖励！",
         time = os.time(),  -- 邮件发送时间（当前时间）
         attachments = {    -- 附件：道具
-            {itemId = 1, itemName = "生命药水", quantity = 5},
-            {itemId = 2, itemName = "法力药水", quantity = 3},
-            {itemId = 3, itemName = "金币", quantity = 100}
+            [1] = {ID = 1, count = 10},
+            [2] = {ID = 2, count = 5}
         },
         isRead = false,  -- 邮件是否已读
         isClaimed = false  -- 邮件是否已领取道具
@@ -18,8 +17,7 @@ local EmailData = {
         body = "祝你节日快乐！享受节日特别奖励吧！",
         time = os.time() - 7200,  -- 邮件发送时间（2小时前）
         attachments = {    -- 附件：道具
-            {itemId = 2, itemName = "法力药水", quantity = 3},
-            {itemId = 4, itemName = "经验卷轴", quantity = 1}
+            [1] = {ID = 3, count = 10}
         },
         isRead = false,  -- 邮件是否已读
         isClaimed = false  -- 邮件是否已领取道具
@@ -30,7 +28,7 @@ local EmailData = {
         body = "感谢你今天的登录！这是你的每日奖励！",
         time = os.time() - 14400,  -- 邮件发送时间（4小时前）
         attachments = {    -- 附件：道具
-            {itemId = 1, itemName = "生命药水", quantity = 5}
+            [1] = {ID = 1, count = 1}
         },
         isRead = true,  -- 邮件是否已读
         isClaimed = true  -- 邮件是否已领取道具
