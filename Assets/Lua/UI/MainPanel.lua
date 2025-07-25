@@ -11,7 +11,7 @@ MainPanel.BtnModeMatch1V1 = nil
 MainPanel.BtnModeRoom = nil
 
 local PlayerInfo = require("Tools/PlayerInfo")
-AvatarSpriteAltas = ABMgr:LoadRes("UI", "Avatar")
+
 function MainPanel:Init()
     if  self.panelObj == nil then
         self.panelObj = ABMgr:LoadRes("UI","MainPanel")
@@ -19,6 +19,7 @@ function MainPanel:Init()
         
         self.BtnAvatar = self.panelObj.transform:Find("GAvatar/BtnAvatar"):GetComponent(typeof(Button))
         self.ImgAvatar = self.BtnAvatar.transform:GetComponent(typeof(Image))
+        self.BtnBag  = self.panelObj.transform:Find("GBag/Button"):GetComponent(typeof(Button))
         self.BtnSetting = self.panelObj.transform:Find("GSettings/Button"):GetComponent(typeof(Button))
         self.BtnFriend = self.panelObj.transform:Find("GFriend/Button"):GetComponent(typeof(Button))
         self.BtnStore = self.panelObj.transform:Find("GStore/Button"):GetComponent(typeof(Button))
@@ -29,7 +30,8 @@ function MainPanel:Init()
         self.BtnModeMatch1V3.onClick:AddListener(function() self:OnBtnModeMatch1V3Click() end)
         self.BtnAvatar.onClick:AddListener(function() self:OnBtnAvatarClick() end)
         self.BtnSetting.onClick:AddListener(function() self:OnBtnSettingClick() end)
-         self.BtnFriend.onClick:AddListener(function() self:OnBtnFriendClick() end)
+        self.BtnFriend.onClick:AddListener(function() self:OnBtnFriendClick() end)
+        self.BtnBag.onClick:AddListener(function() self:OnBtnBagClick() end)
         MonoBehaviourMgr:Register(self)
 
         
@@ -45,6 +47,7 @@ end
 function MainPanel:ShowMe()
     self:Init()
     self.panelObj:SetActive(true)
+    BagPanel:Init()
 end
 
 function MainPanel:HideMe()
@@ -65,6 +68,9 @@ end
 function MainPanel:OnBtnStoreClick()
 end
 
+function MainPanel:OnBtnBagClick()
+    BagPanel:ShowMe()
+end
 function MainPanel:OnBtnModeMatch1V1Click()
     MainPanel:DestroyPanel()
     PreMatchBasePanel:ShowMe(2,UnoCommonConfig.matchType1V1,UnoCommonConfig.Match1v1NeedGold)

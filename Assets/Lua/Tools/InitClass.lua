@@ -19,8 +19,9 @@ Json = require("Tools/JsonUtility")
 require("Tools/SplitTools")
 require("Tools/MsgData")
 require("Tools/MsgDataMgr")
-
-
+require("GameLogic/BagMgr")
+Config = require("Data/Config")
+PlayerInfo = require("Tools/PlayerInfo")
 if type(CountdownTimer) ~= "table" then
     error("Failed to load CountdownTimer module: " .. tostring(CountdownTimer))
 end
@@ -70,4 +71,6 @@ TimerUtility = CS.TimerUtility.GetInstance()
 
 require("Tools/LuaAudioMgr")
 
-
+-- 自己打的图集
+AvatarSpriteAltas = ABMgr:LoadRes("UI", "Avatar")
+PorpSpriteAltas = ABMgr:LoadRes("UI", "Porp")
