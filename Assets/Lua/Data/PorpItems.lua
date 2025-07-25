@@ -1,0 +1,28 @@
+local PorpItems = {
+    [1] = { ID = 1, Name = "铜条", Desc = "铜条", FileName = "1", MaxStack = 99 },
+    [2] = { ID = 2, Name = "金条", Desc = "金条", FileName = "2", MaxStack = 99 },
+    [3] = { ID = 3, Name = "银条", Desc = "银条", FileName = "3", MaxStack = 99 },
+    [4] = { ID = 4, Name = "铜币", Desc = "铜币", FileName = "4", MaxStack = 99999999 },
+    [5] = { ID = 5, Name = "金币", Desc = "金币", FileName = "5", MaxStack = 99999999 },
+    [6] = { ID = 6, Name = "银币", Desc = "银币", FileName = "6", MaxStack = 99999999 },
+    [7] = { ID = 7, Name = "蓝钻", Desc = "蓝钻", FileName = "7", MaxStack = 99999999 },
+    [8] = { ID = 8, Name = "绿钻", Desc = "绿钻", FileName = "8", MaxStack = 99999999 },
+    [9] = { ID = 9, Name = "黄钻", Desc = "黄钻", FileName = "9", MaxStack = 99999999 },
+    [10] = { ID = 10, Name = "紫钻", Desc = "紫钻", FileName = "10", MaxStack = 99999999 },
+    [11] = { ID = 11, Name = "粉钻", Desc = "粉钻", FileName = "11", MaxStack = 99999999 },
+    [12] = { ID = 12, Name = "碧钻", Desc = "碧钻", FileName = "12", MaxStack = 99999999 },
+    [13] = { ID = 13, Name = "蓝宝石", Desc = "蓝宝石", FileName = "13", MaxStack = 99 },
+    [14] = { ID = 14, Name = "绿宝石", Desc = "绿宝石", FileName = "14", MaxStack = 99 },
+    [15] = { ID = 15, Name = "黄宝石", Desc = "黄宝石", FileName = "15", MaxStack = 99 },
+    [16] = { ID = 16, Name = "紫宝石", Desc = "紫宝石", FileName = "16", MaxStack = 99 },
+    [17] = { ID = 17, Name = "红宝石", Desc = "红宝石", FileName = "17", MaxStack = 99 },
+    [18] = { ID = 18, Name = "碧宝石", Desc = "碧宝石", FileName = "18", MaxStack = 99 },
+    [19] = { ID = 19, Name = "蓝棱", Desc = "蓝棱", FileName = "19", MaxStack = 99 },
+    [20] = { ID = 20, Name = "绿棱", Desc = "绿棱", FileName = "20", MaxStack = 99 },
+    [21] = { ID = 21, Name = "黄棱", Desc = "黄棱", FileName = "21", MaxStack = 99 },
+    [22] = { ID = 22, Name = "紫棱", Desc = "紫棱", FileName = "22", MaxStack = 99 },
+    [23] = { ID = 23, Name = "粉棱", Desc = "粉棱", FileName = "23", MaxStack = 99 },
+    [24] = { ID = 24, Name = "碧棱", Desc = "碧棱", FileName = "24", MaxStack = 99 },
+}
+
+return PorpItems
