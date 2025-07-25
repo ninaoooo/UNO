@@ -69,6 +69,7 @@ function ChatPanel:Init()
         self.TextSendTime = self.MiddenEmailDescPanel.transform:Find("TextSendTime"):GetComponent(typeof(TextMeshPro))
         self.TextBody = self.MiddenEmailDescPanel.transform:Find("TextBody"):GetComponent(typeof(TextMeshPro))
         self.GAttach = self.MiddenEmailDescPanel.transform:Find("GAttach")
+        self.BtnClaim = self.GAttach:Find("BtnClaim"):GetComponent(typeof(Button))
 
         self:InitData()
         self:InitLeftRctPanel()
@@ -351,14 +352,25 @@ function ChatPanel:ShowEmailDesc(mail)
                 local child = self.AttachCells:GetChild(i).gameObject
                 GameObject.Destroy(child)
         end
-        for i = 0, #mail.attachments -1 do 
+        for _, attach in ipairs(mail.attachments) do 
             local PropPrefab = GameObject.Instantiate(self.PropPrefab, self.AttachCells)
-            -- PropPrefab.transform:GetComponent(typeof(Image)).sprite = 
+            PropPrefab.transform:GetComponent(typeof(Image)).sprite = PorpSpriteAltas:GetSprite(Config.PorpItemsByID[attach.ID].FileName)
             if mail.isClaimed then
+                self.BtnClaim.gameObject:SetActive(false)
                 PropPrefab.transform:Find("Image").gameObject:SetActive(true)
+            else
+                self.BtnClaim.gameObject:SetActive(true)
+                PropPrefab.transform:Find("Image").gameObject:SetActive(false)
             end
-            PropPrefab.transform:Find("TextNum"):GetComponent(typeof(TextMeshPro)).text = tostring(mail.attachments[i+1].quantity)
+            PropPrefab.transform:Find("TextNum"):GetComponent(typeof(TextMeshPro)).text = tostring(attach.count)
         end
+        self.BtnClaim.onClick:AddListener(function() self:BtnClaimOnClick(mail.attachments) end)
+    end
+end
+
+function ChatPanel:BtnClaimOnClick(attachments)
+    for _, attach in ipairs(attachments) do
+        BagMgr.AddItem(PlayerInfo.Bag,  attach.ID, attach.count)
     end
 end
 function ChatPanel:InitEmailList()
