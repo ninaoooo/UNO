@@ -66,3 +66,8 @@ function DEPreMatch:UpdateTime(dt)
         end
     end
 end
+
+function DEPreMatch:Destory()
+    UpdateTimeMgr:Unregister(DEPreMatch)
+    self.rollingCoroutine = nil
+end

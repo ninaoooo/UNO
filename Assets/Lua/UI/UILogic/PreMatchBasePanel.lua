@@ -100,6 +100,7 @@ end
 
 
 function PreMatchBasePanel:DestroyPanel()
+    DEPreMatch:Destory()
     GameObject.Destroy(self.panelObj)
     self.panelObj = nil
 end
