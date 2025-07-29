@@ -516,6 +516,7 @@ function GameMatchBasePanel:DestroyPanel()
     self:BatchReturnCardsToPool()
     GameObject.Destroy(self.panelObj)
     self.panelObj = nil
+    GameEntry.currentGamePanel = nil
     MessageSystem.RemoveListener("S2C.SyncUnoCardDraw")
     MessageSystem.RemoveListener("S2C.SyncUnoCardPlay")
     MessageSystem.RemoveListener("S2C.ShowUnoWaitConfirmCard")
