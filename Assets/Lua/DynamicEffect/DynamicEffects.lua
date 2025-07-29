@@ -11,7 +11,7 @@ local UnoCardSpriteAltas = ABMgr:LoadRes("UI", "UnoCard")
 
 
 -- 默认卡牌宽度和间距
-DynamicEffects.cardWidth = 180
+DynamicEffects.cardWidth = 160
 DynamicEffects.cardSpacing = 30
 
 DynamicEffects.cardLocalPosY = nil
@@ -61,7 +61,7 @@ function DynamicEffects.InitCardFromDrawPileToHand(currentCardCnt,cardTransform,
     -- 减去 (GameState.EXPECTED_INITIAL_CARDS - 1) / 2 是为了让中心牌的偏移接近 0
     local offsetX = (currentCardCnt - 1 - (7 - 1) / 2) * DynamicEffects.microOffsetX 
     local worldOffsetX = handCntParent:TransformVector(Vector3(offsetX, 0, 0))
-    local targetMidPosition = Vector3(handCntPos.x + worldOffsetX.x,handCntPos.y+40, handCntPos.z)
+    local targetMidPosition = Vector3(handCntPos.x + worldOffsetX.x,handCntPos.y, handCntPos.z)
 
     local sequence = DOTween.Sequence()
     sequence:Append(
@@ -85,7 +85,7 @@ function DynamicEffects.OrganizeInitCards(handCntTrans,sortedCardsList)
     local GATHER_DURATION = 0.4    -- 聚拢动画持续时间
     local SPREAD_DURATION = 0.4    -- 展开动画持续时间
 
-    
+    local handCntPos = handCntTrans.transform.position
     -- 聚拢中心
     local mainSequence = DOTween.Sequence()
 
@@ -97,7 +97,7 @@ function DynamicEffects.OrganizeInitCards(handCntTrans,sortedCardsList)
     for i = 0, cardCnts-1 do
         local cardTransform = handCntTrans.transform:GetChild(i);
         local cardLocalPos = cardTransform.localPosition
-        gatherSequence:Join(cardTransform:DOLocalMove(Vector3(0, cardLocalPos.y, 0), GATHER_DURATION))
+        gatherSequence:Join(cardTransform:DOLocalMove(Vector3(0, 0, 0), GATHER_DURATION))
     end
     mainSequence:Append(gatherSequence)
     mainSequence:AppendInterval(0.2) -- 聚拢完成后，停顿
@@ -108,12 +108,12 @@ function DynamicEffects.OrganizeInitCards(handCntTrans,sortedCardsList)
 
     local cardNums = #sortedCardsList
     for i, cardData in ipairs(sortedCardsList) do
+        print("111",i,cardData.cardType,cardData.cardColor)
         local cardTransform = cardData.cardTransform
         cardTransform:SetSiblingIndex(i-1)
         local offsetX = DynamicEffects.CalFinalCardOffsetX(i, cardNums)
         local cardLocalPos = cardTransform.localPosition
-        spreadSequence:Join(cardTransform:DOLocalMove(Vector3(offsetX,cardLocalPos.y,0), SPREAD_DURATION))
-        
+        spreadSequence:Join(cardTransform:DOLocalMove(Vector3(offsetX,0,0), SPREAD_DURATION))   
     end
     mainSequence:Append(spreadSequence)
     mainSequence:Play()
@@ -132,7 +132,7 @@ function DynamicEffects.CardFromDrawPileToOtherHand(cardTransform,handCntTrans)
 
     local sequence = DOTween.Sequence()
     sequence:Append(
-        cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y-40, 0), 5, 1, 0.5)
+        cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y, 0), 5, 1, 0.5)
         :SetEase(Ease.OutQuad)
         :OnStart(function ()
             cardTransform:SetParent(handCntTrans)
@@ -164,14 +164,14 @@ function DynamicEffects.CardFromDrawPileToSelfHand(newCardIndex,newCardData,hand
 
     local sequence = DOTween.Sequence()
     sequence:Append(
-        cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y+40, 0), 5, 1, 0.5)
+        cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y, 0), 5, 1, 0.5)
         :SetEase(Ease.OutQuad)
         :OnStart(function()
             cardTransform:SetParent(handCntTrans)
         end)
     )  
     sequence:AppendCallback(function ()
-        cardTransform.transform:SetSiblingIndex(newCardIndex)
+        cardTransform.transform:SetSiblingIndex(newCardIndex-1)
         DynamicEffects.UpdateHandLayout(handCntTrans)
         end
     )
@@ -226,7 +226,7 @@ function DynamicEffects.CardFromShowToSelfHand(newCardIndex,newCardData,handCntT
 
     local sequence = DOTween.Sequence()
     sequence:Append(
-        cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y+40, 0), 5, 1, 0.5)
+        cardTransform:DOJump(Vector3(handCntPos.x + worldOffsetX.x, handCntPos.y, 0), 5, 1, 0.5)
         :SetEase(Ease.OutQuad)
         :OnStart(function()
             cardTransform:SetParent(handCntTrans)
@@ -235,7 +235,7 @@ function DynamicEffects.CardFromShowToSelfHand(newCardIndex,newCardData,handCntT
         end)
     )  
     sequence:AppendCallback(function ()
-        cardTransform.transform:SetSiblingIndex(newCardIndex)
+        cardTransform.transform:SetSiblingIndex(newCardIndex-1)
         DynamicEffects.UpdateHandLayout(handCntTrans)
         end
     )
@@ -273,8 +273,8 @@ function DynamicEffects.UpdateHandLayout(handCntTrans)
     for i = 0, cardCnts-1 do
         local oldCardTrans = handCntTrans.transform:GetChild(i);
         local cardLocalPos = oldCardTrans.localPosition
-        local offsetX = DynamicEffects.CalFinalCardOffsetX(i, cardCnts)
-        oldCardTrans:DOLocalMove(Vector3(offsetX, cardLocalPos.y, 0), 0.3)
+        local offsetX = DynamicEffects.CalFinalCardOffsetX(i+1, cardCnts)
+        oldCardTrans:DOLocalMove(Vector3(offsetX, 0, 0), 0.3)
             :SetEase(Ease.OutQuad)
     end
 end
@@ -287,7 +287,6 @@ end
 
 -- 取消选中状态 手牌恢复原始位置
 function DynamicEffects.ResetCard(cardTransform)
-    print("check211")
     local currentPosition = cardTransform.localPosition
     cardTransform.localPosition = Vector3(currentPosition.x, currentPosition.y - 20, currentPosition.z)
 end
@@ -431,7 +430,6 @@ function DynamicEffects:DrawCardToHandContainer(cardTransform, handContainer,loc
      cardTransform.pivot = Vector2(0.5, 0)     -- 轴心点在卡牌底部中心
      cardTransform.anchoredPosition = Vector2(0, 0)  -- 紧贴锚点
     if location == "Left" or location == "Right" then
-        print("154")
         cardTransform.localRotation = Quaternion.Euler(0, 0, 0)
         -- cardTransform.rotation = Vector3(0,0,0)
     end
