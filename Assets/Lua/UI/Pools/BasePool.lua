@@ -35,7 +35,7 @@ end
 
 -- 3. 清理对象状态
 function BasePool:clean(obj)
-    -- error("BasePool:clean should be overridden by subclass")
+    error("BasePool:clean should be overridden by subclass")
 end
 
 -- 4. 将对象放回池中

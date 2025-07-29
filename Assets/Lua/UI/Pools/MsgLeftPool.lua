@@ -5,8 +5,8 @@ setmetatable(MsgLeftPool, BasePool)
 
 
 function MsgLeftPool:new(prefab, parent, count)
-    local self = BasePool.new(self, prefab, parent, count)
-    return self
+    local instance = BasePool.new(self, prefab, parent, count)
+    return instance
 end
 
 function MsgLeftPool:clean(obj)
