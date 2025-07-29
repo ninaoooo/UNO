@@ -31,8 +31,8 @@ public class ABMgr : SingletonAutoMono<ABMgr>
     {
         get
         {
-            
-            return Application.streamingAssetsPath + "/ABPackage/PC/";
+            return Application.streamingAssetsPath + "/";
+            // return Application.streamingAssetsPath + "/ABPackage/PC/";
         }
     }
 
