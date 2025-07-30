@@ -33,6 +33,7 @@ end
 
 function GameMatchBasePanel:InitUIComponents()
     -- 通用的 UI 组件初始化
+    self.ReverseArrow = MainCamara.transform:Find("Rotate")
     self.BtnExit = self.panelObj.transform:Find("GExit/Button"):GetComponent(typeof(Button))
     self.ImgBG = self.panelObj.transform:Find("ImgBG"):GetComponent(typeof(Image))
     self.GDiscardPile = self.panelObj.transform:Find("GDiscardPile"):GetComponent(typeof(Transform))
@@ -62,6 +63,7 @@ end
 
 function GameMatchBasePanel:InitData(playerIds)
     self.logic = UnoGameLogic:Init(playerIds)
+    self.direction = -1 
 end
 
 function GameMatchBasePanel:RegisterListeners()
@@ -76,8 +78,11 @@ function GameMatchBasePanel:RegisterListeners()
         elseif playerId ~= 0 then
             self:OnOtherUnoCardPlay(playerId, cardType, cardColor)
         else 
-            
             self:InitFirstCardToDiscardPile(cardType, cardColor)
+        end
+        if playerId ~= 0 and cardType == EnumUnoCardType.eReverse then
+            self.direction = self.direction*-1
+            self.ReverseArrow.transform.localScale = Vector3(self.direction*1,1,1)
         end
         self.logic:AddCardToDiscard(cardType, cardColor)
         self:PlaySound(cardType, cardColor)
@@ -219,7 +224,7 @@ function GameMatchBasePanel:OnUnoCardDraw(playerId, cardType, cardColor, confirm
             local newCardIndex,newCardData = self.logic:FindCardById(cardId)
             DynamicEffects.CardFromDrawPileToSelfHand(newCardIndex,newCardData,HandContainer)
         else
-            DynamicEffects.CardFromDrawPileToOtherHand(card.transform,HandContainer)
+            DynamicEffects.CardFromDrawPileToOtherHand(card.transform,HandContainer,self.Player2Info[playerId].Location)
         end
     end
 end
@@ -424,7 +429,6 @@ function GameMatchBasePanel:PlayEndShowCard(playerCardList)
         local HandContainer = self.Player2Info[playerId].HandContainer
         for i = HandContainer.transform.childCount - 1, 0, -1 do
             local card = HandContainer.transform:GetChild(i).gameObject
-            cardPool:clean(card) 
             cardPool:put(card)
         end
 
@@ -482,6 +486,7 @@ end
 function GameMatchBasePanel:Update(dt)
     self.totalTimer:Update(dt)
     self.actionTimer:Update(dt)
+    self.ReverseArrow.transform:Rotate(Vector3.up, self.direction* 90 * Time.deltaTime);
 end
 -- 绑定按钮点击事件
 function GameMatchBasePanel:BindButtonClick(button, onClickCallback)
@@ -500,7 +505,6 @@ function GameMatchBasePanel:BatchReturnCardsToPool()
         if HandContainer then
             for i = HandContainer.transform.childCount - 1, 0, -1 do
                 local card = HandContainer.transform:GetChild(i).gameObject
-                cardPool:clean(card)
                 cardPool:put(card)
             end
         end
@@ -508,7 +512,6 @@ function GameMatchBasePanel:BatchReturnCardsToPool()
     -- 清理弃牌堆
     for i = self.GDiscardPile.childCount - 1,0,-1 do
         local  card = self.GDiscardPile:GetChild(i).gameObject
-        cardPool:clean(card) 
         cardPool:put(card)
     end
 end
