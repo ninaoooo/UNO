@@ -108,7 +108,6 @@ function DynamicEffects.OrganizeInitCards(handCntTrans,sortedCardsList)
 
     local cardNums = #sortedCardsList
     for i, cardData in ipairs(sortedCardsList) do
-        print("111",i,cardData.cardType,cardData.cardColor)
         local cardTransform = cardData.cardTransform
         cardTransform:SetSiblingIndex(i-1)
         local offsetX = DynamicEffects.CalFinalCardOffsetX(i, cardNums)
@@ -119,7 +118,7 @@ function DynamicEffects.OrganizeInitCards(handCntTrans,sortedCardsList)
     mainSequence:Play()
 end
 
-function DynamicEffects.CardFromDrawPileToOtherHand(cardTransform,handCntTrans)
+function DynamicEffects.CardFromDrawPileToOtherHand(cardTransform,handCntTrans,toward)
     local cardImage = cardTransform:GetComponent(typeof(Image))
     DynamicEffects.SetCardImg(cardImage, 15, 6) 
 
@@ -136,6 +135,10 @@ function DynamicEffects.CardFromDrawPileToOtherHand(cardTransform,handCntTrans)
         :SetEase(Ease.OutQuad)
         :OnStart(function ()
             cardTransform:SetParent(handCntTrans)
+            print("toward",toward)
+            if (toward == "Left" or toward == "Right") then
+                cardTransform:GetComponent("RectTransform").localRotation = CS.UnityEngine.Quaternion.identity
+            end
         end)
     )
     sequence:AppendCallback(function ()
@@ -256,16 +259,18 @@ function DynamicEffects.CardFromHandToDiscardPile(cardTransform, handCntTrans, d
             if cardType and  cardColor then
                 DynamicEffects.SetCardImg(cardImage, cardType, cardColor)
             end
+            if doScale then
+                cardTransform:DOScale(Vector3(0.8, 0.8, 1),0.1)
+                :SetEase(Ease.OutQuad)
+            end
+            cardTransform:DORotate(Vector3(0, 0, math.random(-30, 30)), 0.1)
+            :SetEase(Ease.OutQuad)
         end)
     )
-    sequence:InsertCallback(0.3, function()
-        cardTransform:DORotate(Vector3(0, 0, math.random(-30, 30)), 0.1)
-            :SetEase(Ease.OutQuad)
-        if doScale then
-            cardTransform:DOScale(Vector3(0.8, 0.8, 1),0.1)
-            :SetEase(Ease.OutQuad)
-        end
-    end)
+    -- sequence:InsertCallback(0.3, function()
+        
+        
+    -- end)
 end
 
 function DynamicEffects.UpdateHandLayout(handCntTrans)
