@@ -16,7 +16,16 @@
 出牌时手牌将会飞到中间的弃牌堆。轮到自己轮次时，抓牌按钮的外侧会闪烁呼吸效果，指示可以从此处抓牌。
 <img width="839" height="471" alt="image" src="https://github.com/user-attachments/assets/52ecc876-45db-4cc3-88c0-4bd5484515fb" />
 
+在无牌可出，抓到的牌刚好可出时会询问是否出牌，点击出牌则出牌，点击取消或超时不点击则保留这张卡牌
+<img width="838" height="467" alt="image" src="https://github.com/user-attachments/assets/9a25e4df-bf97-491e-9018-b568a3dc6fcc" />
+
+出倒数第二张牌时可以喊uno
+<img width="841" height="474" alt="image" src="https://github.com/user-attachments/assets/603b2dde-9479-4637-8f6f-7491f35941c8" />
+
 游戏结束会显示玩家的所有手牌，并显示得分排行。
+<img width="841" height="469" alt="image" src="https://github.com/user-attachments/assets/01cc7237-8cb9-4713-b998-ce0b8431a080" />
+
+
 
 #### 四人模式
 ### 好友与邮件
@@ -44,10 +53,12 @@
 <img width="840" height="471" alt="image" src="https://github.com/user-attachments/assets/f8ca179a-fe1a-4ad8-a4f2-6fcb1d632faf" />
 
 ### 背包
-这里是背包，背包页面左侧是显示点击道具的详情，右侧是背包里的道具
+背包页面左侧是显示点击道具的详情，右侧是背包里的道具
 <img width="843" height="474" alt="image" src="https://github.com/user-attachments/assets/fb22bf20-3429-479d-9e05-aea4d7f072ae" />
+
 点击道具后会显示道具详情，道具详情的下方是丢弃和使用道具。点击整理背包可以对背包进行整理。
 <img width="839" height="466" alt="image" src="https://github.com/user-attachments/assets/00e7e388-e2c0-46e9-a9a9-d44a8c07b559" />
+
 从邮件领取的道具放入背包。
 <img width="843" height="467" alt="image" src="https://github.com/user-attachments/assets/d487b739-8b25-44cb-a301-4f2b5423ae24" />
 
