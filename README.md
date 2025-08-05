@@ -8,7 +8,7 @@
 <img width="837" height="471" alt="image" src="https://github.com/user-attachments/assets/46397a0f-7aa4-4bdc-a33b-4543c0e114c2" />
 
 ### 游戏对局
-#### 二人模式
+#### 二人模式与
 在上方与下方分别对应一名玩家，“自己”是放在最下方。
 
 游戏头像闪烁的呼吸灯效果是指示当前出牌玩家，头像上方的倒计时指示当前剩余出牌时间，中间的环形箭头指示出牌方向，即可以指示下一位出牌玩家是谁。
@@ -28,6 +28,8 @@
 
 
 #### 四人模式
+<img width="1594" height="793" alt="image" src="https://github.com/user-attachments/assets/fe434392-b592-441a-8a88-a6f87d564e31" />
+
 ### 好友与邮件
 
 最左侧是好友相关内容，点击分别是最近联系、联系人与添加好友。
