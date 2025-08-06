@@ -1,6 +1,6 @@
 # UNO
 ### 主界面
-主界面最中间是游戏模式，主要有二人模式与四人模式。
+主界面最中间是游戏模式，主要有二人模式与四人模式。顶部靠右的四个按钮分别是背包、设置、好友、商店。
 <img width="840" height="471" alt="image" src="https://github.com/user-attachments/assets/21c27964-14ea-4432-9177-8d0b3e5e3a63" />
 
 点击一个模式进入匹配，点击匹配后剩余的头像会有一个跳动效果表示正在匹配。
@@ -8,7 +8,7 @@
 <img width="837" height="471" alt="image" src="https://github.com/user-attachments/assets/46397a0f-7aa4-4bdc-a33b-4543c0e114c2" />
 
 ### 游戏对局
-#### 二人模式与
+#### 二人模式
 在上方与下方分别对应一名玩家，“自己”是放在最下方。
 
 游戏头像闪烁的呼吸灯效果是指示当前出牌玩家，头像上方的倒计时指示当前剩余出牌时间，中间的环形箭头指示出牌方向，即可以指示下一位出牌玩家是谁。
@@ -28,6 +28,7 @@
 
 
 #### 四人模式
+与二人模式逻辑保持一致，只是游戏人数变化。
 <img width="1594" height="793" alt="image" src="https://github.com/user-attachments/assets/fe434392-b592-441a-8a88-a6f87d564e31" />
 
 ### 好友与邮件
@@ -36,17 +37,21 @@
 默认先显示系统消息，如果没有系统消息则显示提示文字。
 <img width="839" height="470" alt="image" src="https://github.com/user-attachments/assets/a4041ab7-354b-4b94-8421-396982e40f05" />
 
-<img width="837" height="472" alt="image" src="https://github.com/user-attachments/assets/2d471b02-e1bf-4cec-a36e-adeed20bed1b" />
-
-下方则是最近联系列表，可在此处发送聊天，可以发送表情，也可以输入#颜色标记 例如#R来添加字体颜色，也可以发送预定义语音消息
+下方则是最近联系列表，可在此处发送聊天，可以发送表情，也可以输入#颜色标记 例如#R来添加字体颜色。
 <img width="840" height="472" alt="image" src="https://github.com/user-attachments/assets/155996bf-e26e-493c-ba77-d9eb65886ff7" />
+
+也可以发送预定义语音消息。
+
+<img width="780" height="439" alt="image" src="https://github.com/user-attachments/assets/987726cb-64a5-4fbe-9a7c-bb5ff2231a76" />
 
 也可以点击联系人列表，显示所有已添加的好友，选择好友进行聊天。
 <img width="841" height="473" alt="image" src="https://github.com/user-attachments/assets/24cf6614-8d98-42b7-8363-5fc7ee809524" />
 
-顶部最右侧是添加好友，可以输入ID搜索好友。
+顶部最右侧是添加好友，可以输入ID搜索好友。如有好友申请，面板左侧会出现好友申请列表。
 <img width="842" height="469" alt="image" src="https://github.com/user-attachments/assets/4bad1e30-af9e-4b09-9e61-27504d751e5a" />
 
+搜索结果会显示在列表中，点击加号即可添加好友。
+<img width="783" height="441" alt="image" src="https://github.com/user-attachments/assets/9f39669e-b830-4d68-ba08-5f199ffbc4df" />
 
 邮件栏会显示邮件，如果邮件附有道具，会在右下方显示，点击领取会放到背包中。
 <img width="840" height="473" alt="image" src="https://github.com/user-attachments/assets/e28f17d2-bc1a-48a7-ac4d-deeb2af23abe" />
@@ -55,14 +60,24 @@
 <img width="840" height="471" alt="image" src="https://github.com/user-attachments/assets/f8ca179a-fe1a-4ad8-a4f2-6fcb1d632faf" />
 
 ### 背包
-背包页面左侧是显示点击道具的详情，右侧是背包里的道具
+背包页面左侧是显示点击道具的详情，右侧是背包里的道具。
 <img width="843" height="474" alt="image" src="https://github.com/user-attachments/assets/fb22bf20-3429-479d-9e05-aea4d7f072ae" />
 
 点击道具后会显示道具详情，道具详情的下方是丢弃和使用道具。点击整理背包可以对背包进行整理。
 <img width="839" height="466" alt="image" src="https://github.com/user-attachments/assets/00e7e388-e2c0-46e9-a9a9-d44a8c07b559" />
 
-从邮件领取的道具放入背包。
-<img width="843" height="467" alt="image" src="https://github.com/user-attachments/assets/d487b739-8b25-44cb-a301-4f2b5423ae24" />
+从邮件领取的道具放入背包。从邮件中领取了10个银条。
+<img width="782" height="439" alt="image" src="https://github.com/user-attachments/assets/ce96f824-0010-45ee-9460-23ff7771a0bd" />
+
+点击使用1个铜条。使用数量默认为1，如果输入的使用数量小于1则强制为1，大于最大道具数量则为最大道具数量。
+<img width="783" height="438" alt="image" src="https://github.com/user-attachments/assets/bcba42e2-7858-437e-9863-fe62e1f9a598" />
+<img width="780" height="436" alt="image" src="https://github.com/user-attachments/assets/5efc9f1d-b850-4793-9928-51c9afe6c9d2" />
+
+点击丢弃，背包对应位置会空出。
+<img width="782" height="437" alt="image" src="https://github.com/user-attachments/assets/ecd16d5b-7e64-4139-870a-b219babcc1ff" />
+
+点击整理背包，会对背包进行整理。
+<img width="782" height="440" alt="image" src="https://github.com/user-attachments/assets/655d5fa4-6d97-4996-88b8-1eba91844e11" />
 
 ### 设置
 在设置处可以设置音乐与音效的开关与音量
